@@ -5,49 +5,38 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
-import { existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 const require = createRequire(import.meta.url);
-const { DatabaseSync } = require('node:sqlite') as {
-  DatabaseSync: new (path: string) => {
-    exec: (sql: string) => void;
-    prepare: (sql: string) => {
-      get: (...params: unknown[]) => unknown;
-      all: (...params: unknown[]) => unknown;
-      run: (...params: unknown[]) => void;
-    };
-  };
-};
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
-const dbFolder = join(import.meta.dirname, '../db');
-const dbPath = join(dbFolder, 'admin.sqlite');
+const sqlConnectionString =
+  process.env['CUSTOMER_DB_CONNECTION'] ??
+  'Server=164.52.220.35,1433;Initial Catalog=SuperAdminBlockDB;User Id=SA;Password=G54Er59#12345aBcDe;Encrypt=false;TrustServerCertificate=True;';
 
-if (!existsSync(dbFolder)) {
-  mkdirSync(dbFolder, { recursive: true });
-}
+type SqlRequest = {
+  input: (name: string, value: unknown) => SqlRequest;
+  query: (sql: string) => Promise<{ recordset: unknown[] }>;
+};
 
-const database = new DatabaseSync(dbPath);
-database.exec(`
-  CREATE TABLE IF NOT EXISTS orders (
-    id TEXT PRIMARY KEY,
-    customer TEXT NOT NULL,
-    status TEXT NOT NULL,
-    amount REAL NOT NULL
-  )
-`);
+type SqlPool = {
+  request: () => SqlRequest;
+};
 
-const seedCount = database
-  .prepare('SELECT COUNT(*) as total FROM orders')
-  .get() as { total: number };
-if (seedCount.total === 0) {
-  const insertSeed = database.prepare(
-    'INSERT INTO orders (id, customer, status, amount) VALUES (?, ?, ?, ?)',
-  );
-  insertSeed.run('#1001', 'Acme Corp', 'Processing', 2300);
-  insertSeed.run('#1002', 'Globex', 'Completed', 1150);
+type MssqlModule = {
+  connect: (connectionString: string) => Promise<SqlPool>;
+};
+
+let poolPromise: Promise<SqlPool> | undefined;
+
+async function getSqlPool(): Promise<SqlPool> {
+  if (!poolPromise) {
+    const mssql = require('mssql') as MssqlModule;
+    poolPromise = mssql.connect(sqlConnectionString);
+  }
+
+  return poolPromise;
 }
 
 const app = express();
@@ -55,14 +44,23 @@ const angularApp = new AngularNodeAppEngine();
 
 app.use(express.json());
 
-app.get('/api/orders', (_req, res) => {
-  const rows = database
-    .prepare('SELECT id, customer, status, amount FROM orders ORDER BY id DESC')
-    .all() as Array<{ id: string; customer: string; status: string; amount: number }>;
-  res.json(rows);
+app.get('/api/orders', async (_req, res) => {
+  try {
+    const pool = await getSqlPool();
+    const result = await pool.request().query(`
+      SELECT Id AS id, Customer AS customer, Status AS status, CAST(Amount AS float) AS amount
+      FROM dbo.Orders
+      ORDER BY UpdatedAt DESC
+    `);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error('Failed to load orders from SQL Server:', error);
+    res.status(500).json({ message: 'Failed to load orders from SQL Server.' });
+  }
 });
 
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders', async (req, res) => {
   const { id, customer, status, amount } = req.body as {
     id?: string;
     customer?: string;
@@ -75,23 +73,37 @@ app.post('/api/orders', (req, res) => {
     return;
   }
 
-  const exists = database
-    .prepare('SELECT id FROM orders WHERE id = ?')
-    .get(id) as { id: string } | undefined;
+  try {
+    const pool = await getSqlPool();
+    const existing = await pool
+      .request()
+      .input('id', id)
+      .query('SELECT Id FROM dbo.Orders WHERE Id = @id');
 
-  if (exists) {
-    res.status(409).json({ message: 'Order ID already exists.' });
-    return;
+    if (existing.recordset.length > 0) {
+      res.status(409).json({ message: 'Order ID already exists.' });
+      return;
+    }
+
+    await pool
+      .request()
+      .input('id', id)
+      .input('customer', customer)
+      .input('status', status)
+      .input('amount', amount)
+      .query(`
+        INSERT INTO dbo.Orders (Id, Customer, Status, Amount, UpdatedAt)
+        VALUES (@id, @customer, @status, @amount, SYSUTCDATETIME())
+      `);
+
+    res.status(201).json({ id, customer, status, amount });
+  } catch (error) {
+    console.error('Failed to create order in SQL Server:', error);
+    res.status(500).json({ message: 'Failed to create order in SQL Server.' });
   }
-
-  database
-    .prepare('INSERT INTO orders (id, customer, status, amount) VALUES (?, ?, ?, ?)')
-    .run(id, customer, status, amount);
-
-  res.status(201).json({ id, customer, status, amount });
 });
 
-app.put('/api/orders/:id', (req, res) => {
+app.put('/api/orders/:id', async (req, res) => {
   const currentId = req.params['id'];
   const { id, customer, status, amount } = req.body as {
     id?: string;
@@ -105,30 +117,52 @@ app.put('/api/orders/:id', (req, res) => {
     return;
   }
 
-  const target = database
-    .prepare('SELECT id FROM orders WHERE id = ?')
-    .get(currentId) as { id: string } | undefined;
+  try {
+    const pool = await getSqlPool();
+    const target = await pool
+      .request()
+      .input('currentId', currentId)
+      .query('SELECT Id FROM dbo.Orders WHERE Id = @currentId');
 
-  if (!target) {
-    res.status(404).json({ message: 'Order not found.' });
-    return;
-  }
-
-  if (currentId !== id) {
-    const duplicate = database
-      .prepare('SELECT id FROM orders WHERE id = ?')
-      .get(id) as { id: string } | undefined;
-    if (duplicate) {
-      res.status(409).json({ message: 'Updated order ID already exists.' });
+    if (target.recordset.length === 0) {
+      res.status(404).json({ message: 'Order not found.' });
       return;
     }
+
+    if (currentId !== id) {
+      const duplicate = await pool
+        .request()
+        .input('id', id)
+        .query('SELECT Id FROM dbo.Orders WHERE Id = @id');
+
+      if (duplicate.recordset.length > 0) {
+        res.status(409).json({ message: 'Updated order ID already exists.' });
+        return;
+      }
+    }
+
+    await pool
+      .request()
+      .input('currentId', currentId)
+      .input('id', id)
+      .input('customer', customer)
+      .input('status', status)
+      .input('amount', amount)
+      .query(`
+        UPDATE dbo.Orders
+        SET Id = @id,
+            Customer = @customer,
+            Status = @status,
+            Amount = @amount,
+            UpdatedAt = SYSUTCDATETIME()
+        WHERE Id = @currentId
+      `);
+
+    res.json({ id, customer, status, amount });
+  } catch (error) {
+    console.error('Failed to update order in SQL Server:', error);
+    res.status(500).json({ message: 'Failed to update order in SQL Server.' });
   }
-
-  database
-    .prepare('UPDATE orders SET id = ?, customer = ?, status = ?, amount = ? WHERE id = ?')
-    .run(id, customer, status, amount, currentId);
-
-  res.json({ id, customer, status, amount });
 });
 
 /**
