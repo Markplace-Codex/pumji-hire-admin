@@ -57,3 +57,19 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## SQL Server setup for SuperAdminBlockDB
+
+Use the SQL script at `db/super-admin-block-db.sql` to create the required tables for Orders, Credits, Customers, Interview Schedules, and Contract Requests in SQL Server.
+
+Example command:
+
+```bash
+sqlcmd -S 164.52.220.35,1433 -U SA -P "G54Er59#12345aBcDe" -i db/super-admin-block-db.sql
+```
+
+Connection string:
+
+```text
+CustomerDB=Server=164.52.220.35,1433;Initial Catalog=SuperAdminBlockDB;User Id=SA;Password=G54Er59#12345aBcDe;Encrypt=false;TrustServerCertificate=True;
+```
