@@ -45,6 +45,13 @@ interface AdminDataStore {
 
 const STORAGE_KEY = 'admin-data-v1';
 
+
+export class OrderApiError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+  }
+}
+
 const defaultData: AdminDataStore = {
   orders: [
     { id: '#1001', customer: 'Acme Corp', status: 'Processing', amount: 2300 },
@@ -72,6 +79,42 @@ export class AdminDataService {
   getOrders() { return this.data.orders; }
   saveOrder(order: OrderItem, editId?: string) {
     this.upsert('orders', order, editId, (item) => item.id);
+  }
+
+  async getOrdersFromDb(): Promise<OrderItem[]> {
+    if (typeof window === 'undefined') {
+      return this.data.orders;
+    }
+
+    const response = await fetch('/api/orders');
+    if (!response.ok) {
+      throw new OrderApiError(response.status, 'Failed to load orders from database.');
+    }
+
+    const orders = (await response.json()) as OrderItem[];
+    this.data = { ...this.data, orders };
+    this.persist();
+    return orders;
+  }
+
+  async saveOrderToDb(order: OrderItem, editId?: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      this.saveOrder(order, editId);
+      return;
+    }
+
+    const response = await fetch(editId ? `/api/orders/${encodeURIComponent(editId)}` : '/api/orders', {
+      method: editId ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order),
+    });
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as { message?: string };
+      throw new OrderApiError(response.status, payload.message ?? 'Failed to save order.');
+    }
+
+    await this.getOrdersFromDb();
   }
 
   getCredits() { return this.data.credits; }
