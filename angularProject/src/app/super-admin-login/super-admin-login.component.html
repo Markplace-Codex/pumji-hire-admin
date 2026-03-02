@@ -1,0 +1,30 @@
+<section class="login-wrapper">
+  <form class="login-card" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+    <h1>Super Admin Login</h1>
+    <p>Only users with Super Admin access can login.</p>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" placeholder="Enter email" />
+    @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+      <small class="error">Please enter a valid email.</small>
+    }
+
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" placeholder="Enter password" />
+    @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+      <small class="error">Password must be at least 6 characters.</small>
+    }
+
+    <button type="submit" [disabled]="isLoading()">
+      {{ isLoading() ? 'Logging in...' : 'Login' }}
+    </button>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    @if (successMessage()) {
+      <p class="success">{{ successMessage() }}</p>
+    }
+  </form>
+</section>
