@@ -155,12 +155,12 @@ export class OrdersPageComponent {
   }
 
   private getAuthorizationHeaderValue(): string | null {
-    const storedToken = globalThis.localStorage?.getItem('authToken')?.trim();
-    if (!storedToken) {
+    const token = this.extractTokenFromStorage();
+    if (!token) {
       return null;
     }
 
-    const tokenWithoutQuotes = storedToken.replace(/^['"]|['"]$/g, '').trim();
+    const tokenWithoutQuotes = token.replace(/^['"]|['"]$/g, '').trim();
     if (!tokenWithoutQuotes) {
       return null;
     }
@@ -172,6 +172,30 @@ export class OrdersPageComponent {
     }
 
     return `Bearer ${tokenWithoutQuotes}`;
+  }
+
+  private extractTokenFromStorage(): string | null {
+    const storage = globalThis.localStorage;
+    const authToken = storage?.getItem('authToken')?.trim();
+    if (authToken) {
+      return authToken;
+    }
+
+    const loginResponse = storage?.getItem('loginResponse')?.trim();
+    if (!loginResponse) {
+      return null;
+    }
+
+    try {
+      const parsedResponse = JSON.parse(loginResponse) as {
+        authenticateResponse?: { token?: unknown };
+      };
+      const nestedToken = parsedResponse.authenticateResponse?.token;
+
+      return typeof nestedToken === 'string' ? nestedToken.trim() : null;
+    } catch {
+      return null;
+    }
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {

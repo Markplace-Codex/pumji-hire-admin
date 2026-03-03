@@ -65,6 +65,7 @@ export class LoginPageComponent {
           if (authData.token) {
             localStorage.setItem('authToken', authData.token.trim());
           }
+          localStorage.setItem('loginResponse', JSON.stringify(response));
 
           this.successMessage.set(response.message ?? 'Signed in successfully. Redirecting to home page...');
           this.router.navigateByUrl('/home');
