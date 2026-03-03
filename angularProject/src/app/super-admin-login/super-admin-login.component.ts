@@ -4,6 +4,7 @@ import { finalize } from 'rxjs';
 
 import { CustomerService } from '../api/api/customer.service';
 import { AuthenticateResponse } from '../api/model/authenticateResponse';
+import { CustomerRoles } from '../api/model/customerRoles';
 import { LoginCustomerRequest } from '../api/model/loginCustomerRequest';
 
 @Component({
@@ -50,8 +51,8 @@ export class SuperAdminLoginComponent {
             return;
           }
 
-          if (!this.isSuperAdmin(response.authenticateResponse)) {
-            this.errorMessage.set('Only Super Admin users are allowed to login here.');
+          if (!this.isAllowedAdminRole(response.authenticateResponse)) {
+            this.errorMessage.set('Only Administrator users are allowed to login here.');
             return;
           }
 
@@ -63,39 +64,7 @@ export class SuperAdminLoginComponent {
       });
   }
 
-  private isSuperAdmin(authResponse: AuthenticateResponse): boolean {
-    const tokenRole = this.getRoleFromToken(authResponse.token);
-
-    return (
-      tokenRole === 'super admin' ||
-      tokenRole === 'superadmin' ||
-      tokenRole === 'super_admin' ||
-      tokenRole === 'super-admin' ||
-      (authResponse.isAdmin === true && authResponse.customerRole === 1)
-    );
-  }
-
-  private getRoleFromToken(token?: string | null): string {
-    if (!token) {
-      return '';
-    }
-
-    try {
-      const payload = token.split('.')[1];
-      if (!payload) {
-        return '';
-      }
-
-      const decodedPayload = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-      const roleValue = decodedPayload.role ?? decodedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-
-      if (Array.isArray(roleValue)) {
-        return String(roleValue[0] ?? '').toLowerCase();
-      }
-
-      return String(roleValue ?? '').toLowerCase();
-    } catch {
-      return '';
-    }
+  private isAllowedAdminRole(authResponse: AuthenticateResponse): boolean {
+    return authResponse.customerRole === CustomerRoles.NUMBER_5;
   }
 }
