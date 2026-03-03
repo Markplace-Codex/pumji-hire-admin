@@ -94,6 +94,11 @@ export class SuperAdminLoginComponent {
       return error.error.message;
     }
 
+
+    if (error.status === 404 && (error.url?.includes('localhost:4200/api/Customer/Login') || error.url?.includes('127.0.0.1:4200/api/Customer/Login'))) {
+      return 'Login is hitting frontend host instead of backend. Do a hard refresh (Ctrl+F5) and ensure window.__API_BASE_PATH__ is set to https://dev.pumji.com.';
+    }
+
     if (error.status === 0) {
       return 'Login API is unreachable. Set window.__API_BASE_PATH__ to your backend URL (for example: https://dev.pumji.com).';
     }
