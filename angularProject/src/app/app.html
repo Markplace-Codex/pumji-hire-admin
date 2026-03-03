@@ -43,9 +43,6 @@
       <p class="message error">{{ errorMessage() }}</p>
     }
 
-    <p class="api-hint">
-      API base path: <code>{{ apiBasePath || '(same origin)' }}</code><br />
-      Override via <code>window.__API_BASE_PATH__</code> or <code>{{ apiBasePathStorageKey }}</code> in localStorage.
-    </p>
+    <p class="api-meta">API base path: <code>{{ apiBasePath }}</code></p>
   </section>
 </main>

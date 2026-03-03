@@ -140,12 +140,21 @@ input:focus {
   color: #166534;
 }
 
-.api-hint {
+@media (max-width: 900px) {
+  .signin-page {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .brand-panel {
+    padding: 1.5rem;
+  }
+}
+
+.api-meta {
   margin: 1rem 0 0;
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  background: #f1f5f9;
-  color: #334155;
+  color: #475569;
   font-size: 0.8rem;
   line-height: 1.4;
 }
@@ -164,4 +173,8 @@ input:focus {
   .brand-panel {
     padding: 1.5rem;
   }
+}
+
+.api-meta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
