@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
@@ -20,8 +20,10 @@ export class App {
   protected readonly apiBasePathStorageKey = getApiBasePathStorageKey();
 
   protected readonly isSubmitting = signal(false);
+  protected readonly showPassword = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
+  protected readonly submitButtonText = computed(() => (this.isSubmitting() ? 'Signing in...' : 'Sign in'));
 
   protected readonly signInForm = this.formBuilder.nonNullable.group({
     identifier: ['', [Validators.required]],
@@ -83,6 +85,10 @@ export class App {
           this.errorMessage.set(message || 'Unable to sign in right now. Please try again.');
         }
       });
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.showPassword.update((value) => !value);
   }
 
   protected hasError(controlName: 'identifier' | 'password'): boolean {
