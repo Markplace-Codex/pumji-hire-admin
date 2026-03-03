@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
+import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
+
 import { OrderService } from '../../api/api/order.service';
 import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
 import { OrderDto } from '../../api/model/orderDto';
@@ -103,14 +105,14 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    const authHeaders = this.getAuthorizationHeaderValues();
+    const authorizationHeaders = this.getAuthorizationHeaderValues();
 
-    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || authHeaders.length === 0) {
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || authorizationHeaders.length === 0) {
       return;
     }
 
     const requests = idsToFetch.map((customerId) =>
-      this.getCustomerInfoWithFallback(customerId, authHeaders).pipe(
+      this.getCustomerInfoWithFallback(customerId, authorizationHeaders).pipe(
         map((response) => {
           const customerInfo = response.customerInfoModelDto;
           const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
@@ -147,6 +149,7 @@ export class OrdersPageComponent {
     });
   }
 
+
   private getCustomerInfoWithFallback(customerId: number, authorizationHeaders: string[]) {
     const [primaryAuthorization, secondaryAuthorization] = authorizationHeaders;
 
@@ -174,51 +177,7 @@ export class OrdersPageComponent {
   }
 
   private getAuthorizationHeaderValues(): string[] {
-    const token = this.extractTokenFromStorage();
-    if (!token) {
-      return [];
-    }
-
-    const tokenWithoutQuotes = token.replace(/^['"]|['"]$/g, '').trim();
-    if (!tokenWithoutQuotes) {
-      return [];
-    }
-
-    const bearerPrefixRegex = /^bearer\s+/i;
-    const tokenValue = bearerPrefixRegex.test(tokenWithoutQuotes)
-      ? tokenWithoutQuotes.replace(bearerPrefixRegex, '').trim()
-      : tokenWithoutQuotes;
-
-    if (!tokenValue) {
-      return [];
-    }
-
-    return [`Bearer ${tokenValue}`, tokenValue];
-  }
-
- 
-  private extractTokenFromStorage(): string | null {
-    const storage = globalThis.localStorage;
-    const authToken = storage?.getItem('authToken')?.trim();
-    if (authToken) {
-      return authToken;
-    }
-
-    const loginResponse = storage?.getItem('loginResponse')?.trim();
-    if (!loginResponse) {
-      return null;
-    }
-
-    try {
-      const parsedResponse = JSON.parse(loginResponse) as {
-        authenticateResponse?: { token?: unknown };
-      };
-      const nestedToken = parsedResponse.authenticateResponse?.token;
-
-      return typeof nestedToken === 'string' ? nestedToken.trim() : null;
-    } catch {
-      return null;
-    }
+    return getAuthorizationHeaderCandidates(readStoredAuthToken());
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {

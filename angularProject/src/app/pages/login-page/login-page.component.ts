@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 
 import { CustomerService } from '../../api/api/customer.service';
 import { resolveApiBasePath } from '../../api-base-path';
+import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
 
 @Component({
   selector: 'app-login-page',
@@ -61,11 +62,18 @@ export class LoginPageComponent {
             return;
           }
 
-          const authData = response.authenticateResponse;
-          if (authData.token) {
-            localStorage.setItem('authToken', authData.token.trim());
-          }
           localStorage.setItem('loginResponse', JSON.stringify(response));
+
+          const token = readStoredAuthToken();
+          const authorizationHeaders = getAuthorizationHeaderCandidates(token);
+
+          if (token) {
+            localStorage.setItem('authToken', token);
+          }
+
+          if (authorizationHeaders.length > 0) {
+            localStorage.setItem('authorizationHeader', authorizationHeaders[0]);
+          }
 
           this.successMessage.set(response.message ?? 'Signed in successfully. Redirecting to home page...');
           this.router.navigateByUrl('/home');
