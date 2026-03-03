@@ -1,0 +1,69 @@
+<main class="orders-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Orders</h1>
+  <p>Orders from <code>/api/Order/GetAll</code> with pagination.</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && orders().length === 0) {
+    <section class="state">
+      <p>Loading orders...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Order #</th>
+            <th>Customer ID</th>
+            <th>Payment Type</th>
+            <th>Amount Paid</th>
+            <th>Order Total</th>
+            <th>Status</th>
+            <th>Created On (UTC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (orders().length === 0) {
+            <tr>
+              <td colspan="8" class="empty-cell">No orders found.</td>
+            </tr>
+          } @else {
+            @for (order of orders(); track order.id ?? $index) {
+              <tr>
+                <td>{{ order.id ?? '-' }}</td>
+                <td>{{ order.customOrderNumber ?? '-' }}</td>
+                <td>{{ order.customerId ?? '-' }}</td>
+                <td>{{ order.paymentType ?? '-' }}</td>
+                <td>{{ order.amountPaid ?? 0 }}</td>
+                <td>{{ order.orderTotal ?? 0 }}</td>
+                <td>{{ order.orderStatusId ?? '-' }}</td>
+                <td>{{ order.createdOnUtc ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Orders: {{ totalCount() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">
+          Previous
+        </button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">
+          Next
+        </button>
+      </div>
+    </section>
+  }
+</main>
