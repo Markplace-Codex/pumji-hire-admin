@@ -1,12 +1,13 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { CustomerService } from '../../api/api/customer.service';
 import { OrderService } from '../../api/api/order.service';
+import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
 import { OrderDto } from '../../api/model/orderDto';
+import { resolveApiBasePath } from '../../api-base-path';
 
 @Component({
   selector: 'app-orders-page',
@@ -16,9 +17,11 @@ import { OrderDto } from '../../api/model/orderDto';
 })
 export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
-  private readonly customerService = inject(CustomerService);
+  private readonly httpClient = inject(HttpClient);
 
   private readonly defaultPageSize = 5;
+  private readonly apiBasePath = resolveApiBasePath();
+  private customerInfoAccessDenied = false;
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -100,39 +103,33 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    if (idsToFetch.length === 0) {
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied) {
       return;
     }
 
-    const requests = idsToFetch.map((userId) =>
-      this.customerService.apiCustomerGetCustomerInfoGet(userId).pipe(
+    const requests = idsToFetch.map((customerId) =>
+      this.getCustomerInfo(customerId).pipe(
         map((response) => {
-<<<<<<< codex/integrate-orders-page-with-api-data-2jbnn7
-          const responsePayload = response as {
-            customerInfoModelDto?: { firstName?: string | null; lastName?: string | null };
-            customerBasicInfo?: { customerName?: string | null };
-          };
-
-          const customerInfoModelName = [
-            responsePayload.customerInfoModelDto?.firstName?.trim(),
-            responsePayload.customerInfoModelDto?.lastName?.trim()
-          ]
-            .filter((name): name is string => !!name)
+          const customerInfo = response.customerInfoModelDto;
+          const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
+            .filter((name): name is string => Boolean(name))
             .join(' ')
             .trim();
+          const username = customerInfo?.username?.trim();
+          const customerName = fullName || username;
 
-          const customerBasicInfoName = responsePayload.customerBasicInfo?.customerName?.trim();
-          const customerName = customerInfoModelName || customerBasicInfoName;
-
-=======
-          const customerName = response.customerBasicInfo?.customerName?.trim();
->>>>>>> Sravani/Admin
           return {
-            userId,
-            customerName: customerName && customerName.length > 0 ? customerName : `Customer #${userId}`
+            customerId,
+            customerName: customerName && customerName.length > 0 ? customerName : `Customer #${customerId}`
           };
         }),
-        catchError(() => of({ userId, customerName: `Customer #${userId}` }))
+        catchError((error: unknown) => {
+          if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+            this.customerInfoAccessDenied = true;
+          }
+
+          return of({ customerId, customerName: `Customer #${customerId}` });
+        })
       )
     );
 
@@ -141,11 +138,24 @@ export class OrdersPageComponent {
       const updated: Record<number, string> = { ...existing };
 
       for (const result of results) {
-        updated[result.userId] = result.customerName;
+        updated[result.customerId] = result.customerName;
       }
 
       this.customerNameById.set(updated);
     });
+  }
+
+  private getCustomerInfo(customerId: number) {
+    const token = globalThis.localStorage?.getItem('authToken');
+    let headers = new HttpHeaders();
+
+    if (token) {
+      const authorizationValue = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      headers = headers.set('Authorization', authorizationValue);
+    }
+
+    const params = new HttpParams().set('customerId', customerId);
+    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
