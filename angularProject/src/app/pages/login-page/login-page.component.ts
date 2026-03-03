@@ -63,7 +63,7 @@ export class LoginPageComponent {
 
           const authData = response.authenticateResponse;
           if (authData.token) {
-            localStorage.setItem('authToken', authData.token);
+            localStorage.setItem('authToken', authData.token.trim());
           }
 
           this.successMessage.set(response.message ?? 'Signed in successfully. Redirecting to home page...');
