@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { ManagementPageComponent } from './pages/management-page/management-page.component';
+import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -16,14 +17,7 @@ export const routes: Routes = [
       description: 'This page is ready for customer list management features.'
     }
   },
-  {
-    path: 'orders',
-    component: ManagementPageComponent,
-    data: {
-      title: 'Orders',
-      description: 'This page is ready for order management features.'
-    }
-  },
+  { path: 'orders', component: OrdersPageComponent },
   {
     path: 'credits',
     component: ManagementPageComponent,
