@@ -1,4 +1,4 @@
-const FALLBACK_API_BASE_PATH = '';
+const FALLBACK_API_BASE_PATH = 'https://dev.pumji.com';
 const API_BASE_PATH_STORAGE_KEY = 'apiBasePath';
 
 export function resolveApiBasePath(): string {

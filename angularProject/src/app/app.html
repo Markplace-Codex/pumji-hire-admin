@@ -1,36 +1,38 @@
 <main class="signin-page">
+  <section class="brand-panel">
+    <p class="eyebrow">Pumji Hire</p>
+    <h1>Admin portal</h1>
+    <p class="tagline">Sign in to access candidate workflows, job management, and recruiter insights.</p>
+  </section>
+
   <section class="signin-card">
-    <h1>Pumji Hire Admin</h1>
-    <p class="subtitle">Sign in with your email or phone number and password.</p>
-    <p class="api-hint">
-      API base path:
-      <code>{{ apiBasePath || '(same origin)' }}</code>
-      <br />
-      To override, set <code>window.__API_BASE_PATH__</code> or localStorage key
-      <code>{{ apiBasePathStorageKey }}</code>.
-    </p>
+    <h2>Welcome back</h2>
+    <p class="subtitle">Use your email/phone and password to continue.</p>
 
     <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" novalidate>
       <label for="identifier">Email or phone number</label>
-      <input
-        id="identifier"
-        type="text"
-        formControlName="identifier"
-        placeholder="admin@example.com / 9876543210"
-      />
+      <input id="identifier" type="text" formControlName="identifier" placeholder="admin@example.com / 9876543210" />
       @if (hasError('identifier')) {
         <small class="error">Email or phone number is required.</small>
       }
 
       <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" placeholder="••••••••" />
+      <div class="password-field">
+        <input
+          id="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="••••••••"
+        />
+        <button class="icon-button" type="button" (click)="togglePasswordVisibility()">
+          {{ showPassword() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
       @if (hasError('password')) {
         <small class="error">Password is required (minimum 6 characters).</small>
       }
 
-      <button type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
-      </button>
+      <button class="submit-button" type="submit" [disabled]="isSubmitting()">{{ submitButtonText() }}</button>
     </form>
 
     @if (successMessage()) {
@@ -40,5 +42,7 @@
     @if (errorMessage()) {
       <p class="message error">{{ errorMessage() }}</p>
     }
+
+    <p class="api-meta">API base path: <code>{{ apiBasePath }}</code></p>
   </section>
 </main>

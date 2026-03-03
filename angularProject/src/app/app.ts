@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { CustomerService } from './api/api/customer.service';
-import { getApiBasePathStorageKey, resolveApiBasePath } from './api-base-path';
+import { resolveApiBasePath } from './api-base-path';
 
 @Component({
   selector: 'app-root',
@@ -17,11 +17,12 @@ export class App {
   private readonly customerService = inject(CustomerService);
 
   protected readonly apiBasePath = resolveApiBasePath();
-  protected readonly apiBasePathStorageKey = getApiBasePathStorageKey();
 
   protected readonly isSubmitting = signal(false);
+  protected readonly showPassword = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
+  protected readonly submitButtonText = computed(() => (this.isSubmitting() ? 'Signing in...' : 'Sign in'));
 
   protected readonly signInForm = this.formBuilder.nonNullable.group({
     identifier: ['', [Validators.required]],
@@ -69,9 +70,7 @@ export class App {
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.errorMessage.set(
-              'Login API endpoint was not found. Configure API base path and point it to your backend service.'
-            );
+            this.errorMessage.set('Login API endpoint was not found on the configured server. Please contact support.');
             return;
           }
 
@@ -83,6 +82,10 @@ export class App {
           this.errorMessage.set(message || 'Unable to sign in right now. Please try again.');
         }
       });
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.showPassword.update((value) => !value);
   }
 
   protected hasError(controlName: 'identifier' | 'password'): boolean {
