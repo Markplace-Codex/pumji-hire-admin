@@ -156,6 +156,23 @@ input:focus {
   margin: 1rem 0 0;
   color: #475569;
   font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.api-hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+@media (max-width: 900px) {
+  .signin-page {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .brand-panel {
+    padding: 1.5rem;
+  }
 }
 
 .api-meta code {
