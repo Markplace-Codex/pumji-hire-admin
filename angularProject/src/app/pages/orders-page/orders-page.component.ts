@@ -6,6 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { CustomerService } from '../../api/api/customer.service';
 import { OrderService } from '../../api/api/order.service';
+import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
 import { OrderDto } from '../../api/model/orderDto';
 
 @Component({
@@ -107,26 +108,15 @@ export class OrdersPageComponent {
     const requests = idsToFetch.map((userId) =>
       this.customerService.apiCustomerGetCustomerInfoGet(userId).pipe(
         map((response) => {
-<<<<<<< codex/integrate-orders-page-with-api-data-2jbnn7
-          const responsePayload = response as {
-            customerInfoModelDto?: { firstName?: string | null; lastName?: string | null };
-            customerBasicInfo?: { customerName?: string | null };
-          };
-
-          const customerInfoModelName = [
-            responsePayload.customerInfoModelDto?.firstName?.trim(),
-            responsePayload.customerInfoModelDto?.lastName?.trim()
-          ]
-            .filter((name): name is string => !!name)
+          const responsePayload = response as CustomerInfoModelDtoSchema;
+          const customerInfo = responsePayload.customerInfoModelDto;
+          const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
+            .filter((name): name is string => Boolean(name))
             .join(' ')
             .trim();
+          const username = customerInfo?.username?.trim();
+          const customerName = fullName || username;
 
-          const customerBasicInfoName = responsePayload.customerBasicInfo?.customerName?.trim();
-          const customerName = customerInfoModelName || customerBasicInfoName;
-
-=======
-          const customerName = response.customerBasicInfo?.customerName?.trim();
->>>>>>> Sravani/Admin
           return {
             userId,
             customerName: customerName && customerName.length > 0 ? customerName : `Customer #${userId}`
