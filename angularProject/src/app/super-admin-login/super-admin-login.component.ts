@@ -83,6 +83,10 @@ export class SuperAdminLoginComponent {
 
   private getLoginErrorMessage(error: HttpErrorResponse): string {
     if (typeof error.error === 'string' && error.error.trim()) {
+      if (error.error.includes('Cannot POST /api/Customer/Login')) {
+        return 'Login API endpoint is not available on the current host. Configure window.__API_BASE_PATH__ to your backend URL (example: https://dev.pumji.com).';
+      }
+
       return error.error;
     }
 
