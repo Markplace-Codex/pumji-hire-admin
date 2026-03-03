@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { OrderService } from '../../api/api/order.service';
@@ -103,14 +103,14 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    const authorizationHeader = this.getAuthorizationHeaderValue();
+    const authHeaders = this.getAuthorizationHeaderValues();
 
-    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || !authorizationHeader) {
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || authHeaders.length === 0) {
       return;
     }
 
     const requests = idsToFetch.map((customerId) =>
-      this.getCustomerInfo(customerId, authorizationHeader).pipe(
+      this.getCustomerInfoWithFallback(customerId, authHeaders).pipe(
         map((response) => {
           const customerInfo = response.customerInfoModelDto;
           const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
@@ -147,31 +147,77 @@ export class OrdersPageComponent {
     });
   }
 
+  private getCustomerInfoWithFallback(customerId: number, authorizationHeaders: string[]) {
+    const [primaryAuthorization, secondaryAuthorization] = authorizationHeaders;
+
+    return this.getCustomerInfo(customerId, primaryAuthorization).pipe(
+      catchError((error: unknown) => {
+        const shouldRetry =
+          secondaryAuthorization &&
+          error instanceof HttpErrorResponse &&
+          (error.status === 401 || error.status === 403);
+
+        if (!shouldRetry) {
+          return throwError(() => error);
+        }
+
+        return this.getCustomerInfo(customerId, secondaryAuthorization);
+      })
+    );
+  }
+
   private getCustomerInfo(customerId: number, authorizationHeader: string) {
     const headers = new HttpHeaders().set('Authorization', authorizationHeader);
-    const params = new HttpParams().set('customerId', customerId);
+    const params = new HttpParams().set('UserId', customerId);
 
     return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
   }
 
-  private getAuthorizationHeaderValue(): string | null {
-    const storedToken = globalThis.localStorage?.getItem('authToken')?.trim();
-    if (!storedToken) {
-      return null;
+  private getAuthorizationHeaderValues(): string[] {
+    const token = this.extractTokenFromStorage();
+    if (!token) {
+      return [];
     }
 
-    const tokenWithoutQuotes = storedToken.replace(/^['"]|['"]$/g, '').trim();
+    const tokenWithoutQuotes = token.replace(/^['"]|['"]$/g, '').trim();
     if (!tokenWithoutQuotes) {
-      return null;
+      return [];
     }
 
     const bearerPrefixRegex = /^bearer\s+/i;
-    if (bearerPrefixRegex.test(tokenWithoutQuotes)) {
-      const tokenValue = tokenWithoutQuotes.replace(bearerPrefixRegex, '').trim();
-      return tokenValue ? `Bearer ${tokenValue}` : null;
+    const tokenValue = bearerPrefixRegex.test(tokenWithoutQuotes)
+      ? tokenWithoutQuotes.replace(bearerPrefixRegex, '').trim()
+      : tokenWithoutQuotes;
+
+    if (!tokenValue) {
+      return [];
     }
 
-    return `Bearer ${tokenWithoutQuotes}`;
+    return [`Bearer ${tokenValue}`, tokenValue];
+  }
+
+  private extractTokenFromStorage(): string | null {
+    const storage = globalThis.localStorage;
+    const authToken = storage?.getItem('authToken')?.trim();
+    if (authToken) {
+      return authToken;
+    }
+
+    const loginResponse = storage?.getItem('loginResponse')?.trim();
+    if (!loginResponse) {
+      return null;
+    }
+
+    try {
+      const parsedResponse = JSON.parse(loginResponse) as {
+        authenticateResponse?: { token?: unknown };
+      };
+      const nestedToken = parsedResponse.authenticateResponse?.token;
+
+      return typeof nestedToken === 'string' ? nestedToken.trim() : null;
+    } catch {
+      return null;
+    }
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
