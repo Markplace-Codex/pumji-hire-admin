@@ -103,12 +103,14 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    if (idsToFetch.length === 0 || this.customerInfoAccessDenied) {
+    const authorizationHeader = this.getAuthorizationHeaderValue();
+
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || !authorizationHeader) {
       return;
     }
 
     const requests = idsToFetch.map((customerId) =>
-      this.getCustomerInfo(customerId).pipe(
+      this.getCustomerInfo(customerId, authorizationHeader).pipe(
         map((response) => {
           const customerInfo = response.customerInfoModelDto;
           const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
@@ -145,17 +147,31 @@ export class OrdersPageComponent {
     });
   }
 
-  private getCustomerInfo(customerId: number) {
-    const token = globalThis.localStorage?.getItem('authToken');
-    let headers = new HttpHeaders();
+  private getCustomerInfo(customerId: number, authorizationHeader: string) {
+    const headers = new HttpHeaders().set('Authorization', authorizationHeader);
+    const params = new HttpParams().set('customerId', customerId);
 
-    if (token) {
-      const authorizationValue = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      headers = headers.set('Authorization', authorizationValue);
+    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
+  }
+
+  private getAuthorizationHeaderValue(): string | null {
+    const storedToken = globalThis.localStorage?.getItem('authToken')?.trim();
+    if (!storedToken) {
+      return null;
     }
 
-    const params = new HttpParams().set('customerId', customerId);
-    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
+    const tokenWithoutQuotes = storedToken.replace(/^['"]|['"]$/g, '').trim();
+    if (!tokenWithoutQuotes) {
+      return null;
+    }
+
+    const bearerPrefixRegex = /^bearer\s+/i;
+    if (bearerPrefixRegex.test(tokenWithoutQuotes)) {
+      const tokenValue = tokenWithoutQuotes.replace(bearerPrefixRegex, '').trim();
+      return tokenValue ? `Bearer ${tokenValue}` : null;
+    }
+
+    return `Bearer ${tokenWithoutQuotes}`;
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
