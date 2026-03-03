@@ -220,6 +220,30 @@ export class OrdersPageComponent {
     }
   }
 
+  private extractTokenFromStorage(): string | null {
+    const storage = globalThis.localStorage;
+    const authToken = storage?.getItem('authToken')?.trim();
+    if (authToken) {
+      return authToken;
+    }
+
+    const loginResponse = storage?.getItem('loginResponse')?.trim();
+    if (!loginResponse) {
+      return null;
+    }
+
+    try {
+      const parsedResponse = JSON.parse(loginResponse) as {
+        authenticateResponse?: { token?: unknown };
+      };
+      const nestedToken = parsedResponse.authenticateResponse?.token;
+
+      return typeof nestedToken === 'string' ? nestedToken.trim() : null;
+    } catch {
+      return null;
+    }
+  }
+
   private resolveErrorMessage(error: HttpErrorResponse): string {
     if (error.status === 401 || error.status === 403) {
       return 'You are not authorized to view orders. Please sign in again.';
