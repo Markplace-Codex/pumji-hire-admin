@@ -1,3 +1,10 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { SuperAdminLoginComponent } from './super-admin-login/super-admin-login.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: SuperAdminLoginComponent
+  }
+];
