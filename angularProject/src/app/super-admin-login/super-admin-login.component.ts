@@ -23,22 +23,34 @@ export class SuperAdminLoginComponent {
   protected readonly successMessage = signal<string | null>(null);
 
   protected readonly loginForm = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
+    phoneNumber: ['', [Validators.pattern('^[0-9]{10,15}$')]],
+    email: ['', [Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   protected onLogin(): void {
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
+    const phoneNumber = this.loginForm.controls.phoneNumber.value.trim();
+    const email = this.loginForm.controls.email.value.trim();
+
+    if (!phoneNumber && !email) {
+      this.loginForm.markAllAsTouched();
+      this.errorMessage.set('Please provide either phone number or email.');
+      return;
+    }
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
     this.isLoading.set(true);
 
     const payload: LoginCustomerRequest = {
-      email: this.loginForm.controls.email.value,
+      phoneNumber: phoneNumber || null,
+      email: email || null,
       password: this.loginForm.controls.password.value
     };
 
@@ -79,7 +91,7 @@ export class SuperAdminLoginComponent {
     }
 
     if (error.status === 0) {
-      return 'Login API is unreachable. Set window.__API_BASE_PATH__ to your backend URL (for example: https://api.your-domain.com).';
+      return 'Login API is unreachable. Set window.__API_BASE_PATH__ to your backend URL (for example: https://dev.pumji.com).';
     }
 
     return `Login request failed (${error.status}).`;

@@ -1,7 +1,15 @@
 <section class="login-wrapper">
   <form class="login-card" [formGroup]="loginForm" (ngSubmit)="onLogin()">
     <h1>Administrator Login</h1>
-    <p>Only users with Administrator role can login.</p>
+    <p>Use phone number or email with password to login.</p>
+
+    <label for="phoneNumber">Phone Number</label>
+    <input id="phoneNumber" type="tel" formControlName="phoneNumber" placeholder="Enter phone number" />
+    @if (loginForm.controls.phoneNumber.touched && loginForm.controls.phoneNumber.invalid) {
+      <small class="error">Phone number must be 10 to 15 digits.</small>
+    }
+
+    <p class="field-divider">OR</p>
 
     <label for="email">Email</label>
     <input id="email" type="email" formControlName="email" placeholder="Enter email" />
