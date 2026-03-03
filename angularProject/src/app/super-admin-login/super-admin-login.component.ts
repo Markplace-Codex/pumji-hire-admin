@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -56,15 +57,31 @@ export class SuperAdminLoginComponent {
             return;
           }
 
-          this.successMessage.set('Super Admin login successful.');
+          this.successMessage.set('Administrator login successful.');
         },
-        error: (err) => {
-          this.errorMessage.set(err?.error?.message ?? 'Unable to login with provided credentials.');
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(this.getLoginErrorMessage(error));
         }
       });
   }
 
   private isAllowedAdminRole(authResponse: AuthenticateResponse): boolean {
     return authResponse.customerRole === CustomerRoles.NUMBER_5;
+  }
+
+  private getLoginErrorMessage(error: HttpErrorResponse): string {
+    if (typeof error.error === 'string' && error.error.trim()) {
+      return error.error;
+    }
+
+    if (error.error?.message) {
+      return error.error.message;
+    }
+
+    if (error.status === 0) {
+      return 'Login API is unreachable. Set window.__API_BASE_PATH__ to your backend URL (for example: https://api.your-domain.com).';
+    }
+
+    return `Login request failed (${error.status}).`;
   }
 }
