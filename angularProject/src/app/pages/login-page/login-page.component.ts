@@ -6,7 +6,7 @@ import { finalize } from 'rxjs';
 
 import { CustomerService } from '../../api/api/customer.service';
 import { resolveApiBasePath } from '../../api-base-path';
-import { readStoredAuthToken, toBearerAuthorizationHeaderValue } from '../../auth-token';
+import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
 
 @Component({
   selector: 'app-login-page',
@@ -65,14 +65,14 @@ export class LoginPageComponent {
           localStorage.setItem('loginResponse', JSON.stringify(response));
 
           const token = readStoredAuthToken();
-          const authorizationHeader = toBearerAuthorizationHeaderValue(token);
+          const authorizationHeaders = getAuthorizationHeaderCandidates(token);
 
           if (token) {
             localStorage.setItem('authToken', token);
           }
 
-          if (authorizationHeader) {
-            localStorage.setItem('authorizationHeader', authorizationHeader);
+          if (authorizationHeaders.length > 0) {
+            localStorage.setItem('authorizationHeader', authorizationHeaders[0]);
           }
 
           this.successMessage.set(response.message ?? 'Signed in successfully. Redirecting to home page...');

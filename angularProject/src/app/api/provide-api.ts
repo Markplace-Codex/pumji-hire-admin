@@ -1,6 +1,6 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
 import { Configuration, ConfigurationParameters } from './configuration';
-import { toBearerAuthorizationHeaderValue, readStoredAuthToken } from '../auth-token';
+import { normalizeTokenValue, readStoredAuthToken } from '../auth-token';
 import { BASE_PATH } from './variables';
 
 // Returns the service class providers, to be used in the [ApplicationConfig](https://angular.dev/api/core/ApplicationConfig).
@@ -17,7 +17,7 @@ export function provideApi(configOrBasePath: string | ConfigurationParameters): 
             : existingBearerCredential;
         const storedToken = readStoredAuthToken();
 
-        return toBearerAuthorizationHeaderValue(existingToken ?? storedToken) ?? undefined;
+        return normalizeTokenValue(existingToken ?? storedToken) ?? undefined;
     };
 
     return makeEnvironmentProviders([

@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { readStoredAuthToken, toBearerAuthorizationHeaderValue } from '../../auth-token';
+import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
 
 import { OrderService } from '../../api/api/order.service';
 import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
@@ -105,14 +105,14 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    const authorizationHeader = this.getAuthorizationHeaderValue();
+    const authorizationHeaders = this.getAuthorizationHeaderValues();
 
-    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || !authorizationHeader) {
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || authorizationHeaders.length === 0) {
       return;
     }
 
     const requests = idsToFetch.map((customerId) =>
-      this.getCustomerInfo(customerId, authorizationHeader).pipe(
+      this.getCustomerInfoWithFallback(customerId, authorizationHeaders).pipe(
         map((response) => {
           const customerInfo = response.customerInfoModelDto;
           const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
@@ -149,6 +149,26 @@ export class OrdersPageComponent {
     });
   }
 
+
+  private getCustomerInfoWithFallback(customerId: number, authorizationHeaders: string[]) {
+    const [primaryAuthorization, secondaryAuthorization] = authorizationHeaders;
+
+    return this.getCustomerInfo(customerId, primaryAuthorization).pipe(
+      catchError((error: unknown) => {
+        const shouldRetry =
+          secondaryAuthorization &&
+          error instanceof HttpErrorResponse &&
+          (error.status === 401 || error.status === 403);
+
+        if (!shouldRetry) {
+          return throwError(() => error);
+        }
+
+        return this.getCustomerInfo(customerId, secondaryAuthorization);
+      })
+    );
+  }
+
   private getCustomerInfo(customerId: number, authorizationHeader: string) {
     const headers = new HttpHeaders().set('Authorization', authorizationHeader);
     const params = new HttpParams().set('UserId', customerId);
@@ -156,8 +176,8 @@ export class OrdersPageComponent {
     return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
   }
 
-  private getAuthorizationHeaderValue(): string | null {
-    return toBearerAuthorizationHeaderValue(readStoredAuthToken());
+  private getAuthorizationHeaderValues(): string[] {
+    return getAuthorizationHeaderCandidates(readStoredAuthToken());
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
