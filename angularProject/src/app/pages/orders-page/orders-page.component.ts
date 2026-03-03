@@ -107,7 +107,26 @@ export class OrdersPageComponent {
     const requests = idsToFetch.map((userId) =>
       this.customerService.apiCustomerGetCustomerInfoGet(userId).pipe(
         map((response) => {
+<<<<<<< codex/integrate-orders-page-with-api-data-2jbnn7
+          const responsePayload = response as {
+            customerInfoModelDto?: { firstName?: string | null; lastName?: string | null };
+            customerBasicInfo?: { customerName?: string | null };
+          };
+
+          const customerInfoModelName = [
+            responsePayload.customerInfoModelDto?.firstName?.trim(),
+            responsePayload.customerInfoModelDto?.lastName?.trim()
+          ]
+            .filter((name): name is string => !!name)
+            .join(' ')
+            .trim();
+
+          const customerBasicInfoName = responsePayload.customerBasicInfo?.customerName?.trim();
+          const customerName = customerInfoModelName || customerBasicInfoName;
+
+=======
           const customerName = response.customerBasicInfo?.customerName?.trim();
+>>>>>>> Sravani/Admin
           return {
             userId,
             customerName: customerName && customerName.length > 0 ? customerName : `Customer #${userId}`
