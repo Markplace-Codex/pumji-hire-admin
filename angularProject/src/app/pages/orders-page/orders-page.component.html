@@ -19,7 +19,7 @@
           <tr>
             <th>ID</th>
             <th>Order #</th>
-            <th>Customer ID</th>
+            <th>Customer Name</th>
             <th>Payment Type</th>
             <th>Amount Paid</th>
             <th>Order Total</th>
@@ -37,7 +37,7 @@
               <tr>
                 <td>{{ order.id ?? '-' }}</td>
                 <td>{{ order.customOrderNumber ?? '-' }}</td>
-                <td>{{ order.customerId ?? '-' }}</td>
+                <td>{{ getCustomerName(order.customerId) }}</td>
                 <td>{{ order.paymentType ?? '-' }}</td>
                 <td>{{ order.amountPaid ?? 0 }}</td>
                 <td>{{ order.orderTotal ?? 0 }}</td>

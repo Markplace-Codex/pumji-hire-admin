@@ -1,7 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
+import { CustomerService } from '../../api/api/customer.service';
 import { OrderService } from '../../api/api/order.service';
 import { OrderDto } from '../../api/model/orderDto';
 
@@ -13,6 +16,7 @@ import { OrderDto } from '../../api/model/orderDto';
 })
 export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
+  private readonly customerService = inject(CustomerService);
 
   private readonly defaultPageSize = 5;
 
@@ -24,6 +28,7 @@ export class OrdersPageComponent {
   protected readonly pageSize = signal(this.defaultPageSize);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
+  protected readonly customerNameById = signal<Record<number, string>>({});
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -73,12 +78,54 @@ export class OrdersPageComponent {
         this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
         this.currentPage.set(pageData?.currentPage ?? pageIndex);
         this.totalPages.set(pageData?.totalPages ?? 0);
+        this.loadCustomerNamesForOrders(this.orders());
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage.set(this.resolveErrorMessage(error));
         this.isLoading.set(false);
       }
+    });
+  }
+
+  protected getCustomerName(customerId: number | null | undefined): string {
+    if (typeof customerId !== 'number') {
+      return '-';
+    }
+
+    return this.customerNameById()[customerId] ?? `Customer #${customerId}`;
+  }
+
+  private loadCustomerNamesForOrders(orders: OrderDto[]): void {
+    const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
+      .filter((id) => !this.customerNameById()[id]);
+
+    if (idsToFetch.length === 0) {
+      return;
+    }
+
+    const requests = idsToFetch.map((userId) =>
+      this.customerService.apiCustomerGetCustomerInfoGet(userId).pipe(
+        map((response) => {
+          const customerName = response.customerBasicInfo?.customerName?.trim();
+          return {
+            userId,
+            customerName: customerName && customerName.length > 0 ? customerName : `Customer #${userId}`
+          };
+        }),
+        catchError(() => of({ userId, customerName: `Customer #${userId}` }))
+      )
+    );
+
+    forkJoin(requests).subscribe((results) => {
+      const existing = this.customerNameById();
+      const updated: Record<number, string> = { ...existing };
+
+      for (const result of results) {
+        updated[result.userId] = result.customerName;
+      }
+
+      this.customerNameById.set(updated);
     });
   }
 
