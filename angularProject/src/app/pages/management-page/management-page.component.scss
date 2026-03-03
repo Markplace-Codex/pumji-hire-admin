@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.management-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+h1 {
+  margin: 1rem 0 0.5rem;
+  color: #0f172a;
+}
+
+p {
+  color: #334155;
+}

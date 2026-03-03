@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.home-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+header p {
+  margin: 0.5rem 0 1.5rem;
+  color: #475569;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.nav-card {
+  display: block;
+  text-decoration: none;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.nav-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1d4ed8;
+}
+
+.nav-card p {
+  margin: 0.5rem 0 0;
+  color: #334155;
+  line-height: 1.4;
+}
