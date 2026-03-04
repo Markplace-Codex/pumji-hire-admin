@@ -36,7 +36,6 @@ type CustomersApiResponse = {
   styleUrl: './management-page.component.scss'
 })
 export class ManagementPageComponent {
-  private readonly customerPageSize = 3;
   private readonly contactPageSize = 10;
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
@@ -67,7 +66,7 @@ export class ManagementPageComponent {
 
   constructor() {
     if (this.isCustomersPage()) {
-      this.loadCustomers(0);
+      this.loadCustomers();
       return;
     }
 
@@ -76,26 +75,20 @@ export class ManagementPageComponent {
     }
   }
 
-  private loadCustomers(pageIndex: number): void {
+  private loadCustomers(): void {
     this.isLoadingCustomers.set(true);
     this.customersErrorMessage.set(null);
 
     this.httpClient
-      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
-        params: {
-          pageIndex,
-          pageSize: this.customerPageSize
-        }
-      })
+      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers?pageIndex=0&pageSize=3`)
       .subscribe({
         next: (response) => {
           const customersResponse = response.customereListResponses;
           this.customerList.set(customersResponse?.customerList ?? []);
 
-          const currentPage = customersResponse?.pagination?.currentPage ?? pageIndex;
-          const totalPages = customersResponse?.pagination?.totalPages ?? 1;
+          const currentPage = customersResponse?.pagination?.currentPage ?? 0;
           this.customerCurrentPage.set(currentPage + 1);
-          this.customerTotalPages.set(Math.max(1, totalPages));
+          this.customerTotalPages.set(1);
           this.isLoadingCustomers.set(false);
         },
         error: () => {
@@ -105,17 +98,9 @@ export class ManagementPageComponent {
       });
   }
 
-  protected previousCustomerPage(): void {
-    if (this.customerCurrentPage() > 1) {
-      this.loadCustomers(this.customerCurrentPage() - 2);
-    }
-  }
+  protected previousCustomerPage(): void {}
 
-  protected nextCustomerPage(): void {
-    if (this.customerCurrentPage() < this.customerTotalPages()) {
-      this.loadCustomers(this.customerCurrentPage());
-    }
-  }
+  protected nextCustomerPage(): void {}
 
   private loadContactRequests(): void {
     this.isLoadingContactRequests.set(true);
