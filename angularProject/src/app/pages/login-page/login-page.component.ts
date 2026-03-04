@@ -6,7 +6,7 @@ import { finalize } from 'rxjs';
 
 import { CustomerService } from '../../api/api/customer.service';
 import { resolveApiBasePath } from '../../api-base-path';
-import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
+import { getAuthorizationHeaderCandidates, normalizeTokenValue } from '../../auth-token';
 
 @Component({
   selector: 'app-login-page',
@@ -64,7 +64,7 @@ export class LoginPageComponent {
 
           localStorage.setItem('loginResponse', JSON.stringify(response));
 
-          const token = readStoredAuthToken();
+          const token = normalizeTokenValue(response.authenticateResponse.token);
           const authorizationHeaders = getAuthorizationHeaderCandidates(token);
 
           if (token) {
