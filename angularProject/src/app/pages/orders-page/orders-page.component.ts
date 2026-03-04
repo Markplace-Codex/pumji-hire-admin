@@ -1,15 +1,12 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
-
 import { OrderService } from '../../api/api/order.service';
-import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
 import { OrderDto } from '../../api/model/orderDto';
-import { resolveApiBasePath } from '../../api-base-path';
+import { CustomerService } from '../../api/api/customer.service';
 
 @Component({
   selector: 'app-orders-page',
@@ -19,10 +16,9 @@ import { resolveApiBasePath } from '../../api-base-path';
 })
 export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
-  private readonly httpClient = inject(HttpClient);
+  private readonly customerService = inject(CustomerService);
 
   private readonly defaultPageSize = 5;
-  private readonly apiBasePath = resolveApiBasePath();
   private customerInfoAccessDenied = false;
 
   protected readonly isLoading = signal(false);
@@ -105,26 +101,19 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    const authorizationHeaders = this.getAuthorizationHeaderValues();
-
-    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || authorizationHeaders.length === 0) {
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied) {
       return;
     }
 
     const requests = idsToFetch.map((customerId) =>
-      this.getCustomerInfoWithFallback(customerId, authorizationHeaders).pipe(
+      this.getCustomerInfo(customerId).pipe(
         map((response) => {
-          const customerInfo = response.customerInfoModelDto;
-          const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
-            .filter((name): name is string => Boolean(name))
-            .join(' ')
-            .trim();
-          const username = customerInfo?.username?.trim();
-          const customerName = fullName || username;
+          const customerInfo = response.customerBasicInfo;
+          const customerName = customerInfo?.customerName?.trim() || customerInfo?.userName?.trim() || '';
 
           return {
             customerId,
-            customerName: customerName && customerName.length > 0 ? customerName : `Customer #${customerId}`
+            customerName: customerName.length > 0 ? customerName : `Customer #${customerId}`
           };
         }),
         catchError((error: unknown) => {
@@ -149,35 +138,8 @@ export class OrdersPageComponent {
     });
   }
 
-
-  private getCustomerInfoWithFallback(customerId: number, authorizationHeaders: string[]) {
-    const [primaryAuthorization, secondaryAuthorization] = authorizationHeaders;
-
-    return this.getCustomerInfo(customerId, primaryAuthorization).pipe(
-      catchError((error: unknown) => {
-        const shouldRetry =
-          secondaryAuthorization &&
-          error instanceof HttpErrorResponse &&
-          (error.status === 401 || error.status === 403);
-
-        if (!shouldRetry) {
-          return throwError(() => error);
-        }
-
-        return this.getCustomerInfo(customerId, secondaryAuthorization);
-      })
-    );
-  }
-
-  private getCustomerInfo(customerId: number, authorizationHeader: string) {
-    const headers = new HttpHeaders().set('Authorization', authorizationHeader);
-    const params = new HttpParams().set('UserId', customerId);
-
-    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
-  }
-
-  private getAuthorizationHeaderValues(): string[] {
-    return getAuthorizationHeaderCandidates(readStoredAuthToken());
+  private getCustomerInfo(customerId: number) {
+    return this.customerService.apiCustomerGetCustomerInfoGet(customerId);
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
