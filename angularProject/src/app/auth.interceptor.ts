@@ -1,6 +1,12 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
+import { resolveApiBasePath } from './api-base-path';
 import { normalizeTokenValue, readStoredAuthToken } from './auth-token';
+
+function isApiRequest(url: string): boolean {
+  const apiBasePath = resolveApiBasePath().replace(/\/+$/, '');
+  return url.startsWith('/api/') || url.startsWith(`${apiBasePath}/api/`);
+}
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = normalizeTokenValue(readStoredAuthToken());
@@ -22,6 +28,10 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         'Content-Type': 'application/json; charset=utf-8'
       }
     });
+  }
+
+  if (isApiRequest(requestWithHeaders.url) && !requestWithHeaders.withCredentials) {
+    requestWithHeaders = requestWithHeaders.clone({ withCredentials: true });
   }
 
   return next(requestWithHeaders);
