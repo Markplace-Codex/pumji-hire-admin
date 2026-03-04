@@ -27,7 +27,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (customer of paginatedCustomers(); track customer.id) {
+              @for (customer of customerList(); track customer.id) {
                 <tr>
                   <td>{{ customer.id }}</td>
                   <td>{{ customer.firstName }} {{ customer.lastName }}</td>

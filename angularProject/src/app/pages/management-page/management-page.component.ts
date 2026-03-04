@@ -19,6 +19,12 @@ type CustomerListItem = {
 
 type CustomersApiResponse = {
   customereListResponses?: {
+    pagination?: {
+      totalCount?: number;
+      pageSize?: number;
+      currentPage?: number;
+      totalPages?: number;
+    };
     customerList?: CustomerListItem[];
   };
 };
@@ -39,15 +45,9 @@ export class ManagementPageComponent {
   protected readonly pageDescription = computed(() => this.route.snapshot.data['description'] as string);
   protected readonly customerList = signal<CustomerListItem[]>([]);
   protected readonly customerCurrentPage = signal(1);
+  protected readonly customerTotalPages = signal(1);
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
-  protected readonly paginatedCustomers = computed(() => {
-    const startIndex = (this.customerCurrentPage() - 1) * this.pageSize;
-    return this.customerList().slice(startIndex, startIndex + this.pageSize);
-  });
-  protected readonly customerTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.customerList().length / this.pageSize))
-  );
 
   protected readonly contactRequestList = signal<ContactFromDto[]>([]);
   protected readonly contactCurrentPage = signal(1);
@@ -66,7 +66,7 @@ export class ManagementPageComponent {
 
   constructor() {
     if (this.isCustomersPage()) {
-      this.loadCustomers();
+      this.loadCustomers(0);
       return;
     }
 
@@ -75,16 +75,26 @@ export class ManagementPageComponent {
     }
   }
 
-  private loadCustomers(): void {
+  private loadCustomers(pageIndex: number): void {
     this.isLoadingCustomers.set(true);
     this.customersErrorMessage.set(null);
 
     this.httpClient
-      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`)
+      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
+        params: {
+          pageIndex,
+          pageSize: this.pageSize
+        }
+      })
       .subscribe({
         next: (response) => {
-          this.customerList.set(response.customereListResponses?.customerList ?? []);
-          this.customerCurrentPage.set(1);
+          const customersResponse = response.customereListResponses;
+          this.customerList.set(customersResponse?.customerList ?? []);
+
+          const currentPage = customersResponse?.pagination?.currentPage ?? pageIndex;
+          const totalPages = customersResponse?.pagination?.totalPages ?? 1;
+          this.customerCurrentPage.set(currentPage + 1);
+          this.customerTotalPages.set(Math.max(1, totalPages));
           this.isLoadingCustomers.set(false);
         },
         error: () => {
@@ -96,13 +106,13 @@ export class ManagementPageComponent {
 
   protected previousCustomerPage(): void {
     if (this.customerCurrentPage() > 1) {
-      this.customerCurrentPage.update((currentPage) => currentPage - 1);
+      this.loadCustomers(this.customerCurrentPage() - 2);
     }
   }
 
   protected nextCustomerPage(): void {
     if (this.customerCurrentPage() < this.customerTotalPages()) {
-      this.customerCurrentPage.update((currentPage) => currentPage + 1);
+      this.loadCustomers(this.customerCurrentPage());
     }
   }
 
