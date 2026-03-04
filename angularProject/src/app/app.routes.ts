@@ -4,6 +4,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { ManagementPageComponent } from './pages/management-page/management-page.component';
 import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
+import { InterviewSchedulesPageComponent } from './pages/interview-schedules-page/interview-schedules-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -26,14 +27,7 @@ export const routes: Routes = [
       description: 'This page is ready for adding and editing credits.'
     }
   },
-  {
-    path: 'interview-schedules',
-    component: ManagementPageComponent,
-    data: {
-      title: 'Interview Schedules',
-      description: 'This page is ready for interview schedule management.'
-    }
-  },
+  { path: 'interview-schedules', component: InterviewSchedulesPageComponent },
   {
     path: 'contract-requests',
     component: ManagementPageComponent,
