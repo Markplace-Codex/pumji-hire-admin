@@ -36,6 +36,7 @@ type CustomersApiResponse = {
   styleUrl: './management-page.component.scss'
 })
 export class ManagementPageComponent {
+  private readonly defaultCustomerPageSize = 10;
   private readonly contactPageSize = 10;
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
@@ -44,10 +45,21 @@ export class ManagementPageComponent {
   protected readonly pageTitle = computed(() => this.route.snapshot.data['title'] as string);
   protected readonly pageDescription = computed(() => this.route.snapshot.data['description'] as string);
   protected readonly customerList = signal<CustomerListItem[]>([]);
-  protected readonly customerCurrentPage = signal(1);
-  protected readonly customerTotalPages = signal(1);
+  protected readonly customerCurrentPage = signal(0);
+  protected readonly customerPageSize = signal(this.defaultCustomerPageSize);
+  protected readonly customerTotalPages = signal(0);
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
+  protected readonly customerPageLabel = computed(() => {
+    const totalPages = this.customerTotalPages();
+    if (totalPages === 0) {
+      return 'Page 0 of 0';
+    }
+
+    return `Page ${this.customerCurrentPage() + 1} of ${totalPages}`;
+  });
+  protected readonly hasPreviousCustomerPage = computed(() => this.customerCurrentPage() > 0);
+  protected readonly hasNextCustomerPage = computed(() => this.customerCurrentPage() + 1 < this.customerTotalPages());
 
   protected readonly contactRequestList = signal<ContactFromDto[]>([]);
   protected readonly contactCurrentPage = signal(1);
@@ -75,20 +87,23 @@ export class ManagementPageComponent {
     }
   }
 
-  private loadCustomers(): void {
+  private loadCustomers(pageIndex: number = 0): void {
     this.isLoadingCustomers.set(true);
     this.customersErrorMessage.set(null);
 
     this.httpClient
-      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers?pageIndex=0&pageSize=3`)
+      .get<CustomersApiResponse>(
+        `${resolveApiBasePath()}/api/SuperAdmin/Customers?pageIndex=${pageIndex}&pageSize=${this.customerPageSize()}`
+      )
       .subscribe({
         next: (response) => {
           const customersResponse = response.customereListResponses;
-          this.customerList.set(customersResponse?.customerList ?? []);
+          const pagination = customersResponse?.pagination;
 
-          const currentPage = customersResponse?.pagination?.currentPage ?? 0;
-          this.customerCurrentPage.set(currentPage + 1);
-          this.customerTotalPages.set(1);
+          this.customerList.set(customersResponse?.customerList ?? []);
+          this.customerCurrentPage.set(pagination?.currentPage ?? pageIndex);
+          this.customerPageSize.set(pagination?.pageSize ?? this.defaultCustomerPageSize);
+          this.customerTotalPages.set(pagination?.totalPages ?? 0);
           this.isLoadingCustomers.set(false);
         },
         error: () => {
@@ -98,9 +113,21 @@ export class ManagementPageComponent {
       });
   }
 
-  protected previousCustomerPage(): void {}
+  protected previousCustomerPage(): void {
+    if (!this.hasPreviousCustomerPage() || this.isLoadingCustomers()) {
+      return;
+    }
 
-  protected nextCustomerPage(): void {}
+    this.loadCustomers(this.customerCurrentPage() - 1);
+  }
+
+  protected nextCustomerPage(): void {
+    if (!this.hasNextCustomerPage() || this.isLoadingCustomers()) {
+      return;
+    }
+
+    this.loadCustomers(this.customerCurrentPage() + 1);
+  }
 
   private loadContactRequests(): void {
     this.isLoadingContactRequests.set(true);
