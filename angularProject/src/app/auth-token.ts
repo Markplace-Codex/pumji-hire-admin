@@ -1,19 +1,6 @@
-function logToBrowserConsole(message: string, payload: unknown): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  console.log(message, payload);
-}
-
-export function logAuthDebug(message: string, payload: unknown): void {
-  logToBrowserConsole(`[Auth Debug] ${message}`, payload);
-}
-
 export function readStoredAuthToken(storage: Storage | undefined = globalThis.localStorage): string | null {
   const authToken = normalizeTokenValue(storage?.getItem('authToken'));
   if (authToken) {
-    logAuthDebug('Retrieved token from localStorage authToken:', authToken);
     return authToken;
   }
 
@@ -28,13 +15,7 @@ export function readStoredAuthToken(storage: Storage | undefined = globalThis.lo
     };
 
     const nestedToken = parsedResponse.authenticateResponse?.token;
-    const normalizedNestedToken = typeof nestedToken === 'string' ? normalizeTokenValue(nestedToken) : null;
-
-    if (normalizedNestedToken) {
-      logAuthDebug('Retrieved token from localStorage loginResponse:', normalizedNestedToken);
-    }
-
-    return normalizedNestedToken;
+    return typeof nestedToken === 'string' ? normalizeTokenValue(nestedToken) : null;
   } catch {
     return null;
   }

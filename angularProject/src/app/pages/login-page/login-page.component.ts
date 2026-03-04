@@ -6,7 +6,7 @@ import { finalize } from 'rxjs';
 
 import { CustomerService } from '../../api/api/customer.service';
 import { resolveApiBasePath } from '../../api-base-path';
-import { getAuthorizationHeaderCandidates, logAuthDebug, normalizeTokenValue } from '../../auth-token';
+import { getAuthorizationHeaderCandidates, normalizeTokenValue } from '../../auth-token';
 
 @Component({
   selector: 'app-login-page',
@@ -69,7 +69,6 @@ export class LoginPageComponent {
 
           if (token) {
             localStorage.setItem('authToken', token);
-            logAuthDebug('Token stored after login:', token);
           }
 
           if (authorizationHeaders.length > 0) {
