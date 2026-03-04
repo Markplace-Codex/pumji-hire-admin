@@ -92,10 +92,10 @@ export class OrdersPageComponent {
 
   protected getCustomerName(customerId: number | null | undefined): string {
     if (typeof customerId !== 'number') {
-      return '-';
+      return '';
     }
 
-    return this.customerNameById()[customerId] ?? `Customer #${customerId}`;
+    return this.customerNameById()[customerId] ?? '';
   }
 
   private loadCustomerNamesForOrders(orders: OrderDto[]): void {
@@ -114,7 +114,7 @@ export class OrdersPageComponent {
 
           return {
             customerId,
-            customerName: customerName.length > 0 ? customerName : `Customer #${customerId}`
+            customerName
           };
         }),
         catchError((error: unknown) => {
@@ -122,7 +122,7 @@ export class OrdersPageComponent {
             this.customerInfoAccessDenied = true;
           }
 
-          return of({ customerId, customerName: `Customer #${customerId}` });
+          return of({ customerId, customerName: '' });
         })
       )
     );
