@@ -19,6 +19,12 @@ type CustomerListItem = {
 
 type CustomersApiResponse = {
   customereListResponses?: {
+    pagination?: {
+      totalCount?: number;
+      pageSize?: number;
+      currentPage?: number;
+      totalPages?: number;
+    };
     customerList?: CustomerListItem[];
   };
 };
@@ -30,7 +36,7 @@ type CustomersApiResponse = {
   styleUrl: './management-page.component.scss'
 })
 export class ManagementPageComponent {
-  private readonly pageSize = 10;
+  private readonly contactPageSize = 10;
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
   private readonly contactService = inject(ContactService);
@@ -39,26 +45,20 @@ export class ManagementPageComponent {
   protected readonly pageDescription = computed(() => this.route.snapshot.data['description'] as string);
   protected readonly customerList = signal<CustomerListItem[]>([]);
   protected readonly customerCurrentPage = signal(1);
+  protected readonly customerTotalPages = signal(1);
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
-  protected readonly paginatedCustomers = computed(() => {
-    const startIndex = (this.customerCurrentPage() - 1) * this.pageSize;
-    return this.customerList().slice(startIndex, startIndex + this.pageSize);
-  });
-  protected readonly customerTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.customerList().length / this.pageSize))
-  );
 
   protected readonly contactRequestList = signal<ContactFromDto[]>([]);
   protected readonly contactCurrentPage = signal(1);
   protected readonly isLoadingContactRequests = signal(false);
   protected readonly contactRequestsErrorMessage = signal<string | null>(null);
   protected readonly paginatedContactRequests = computed(() => {
-    const startIndex = (this.contactCurrentPage() - 1) * this.pageSize;
-    return this.contactRequestList().slice(startIndex, startIndex + this.pageSize);
+    const startIndex = (this.contactCurrentPage() - 1) * this.contactPageSize;
+    return this.contactRequestList().slice(startIndex, startIndex + this.contactPageSize);
   });
   protected readonly contactTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.contactRequestList().length / this.pageSize))
+    Math.max(1, Math.ceil(this.contactRequestList().length / this.contactPageSize))
   );
 
   protected readonly isCustomersPage = computed(() => this.route.snapshot.routeConfig?.path === 'customers');
@@ -80,11 +80,15 @@ export class ManagementPageComponent {
     this.customersErrorMessage.set(null);
 
     this.httpClient
-      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`)
+      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers?pageIndex=0&pageSize=3`)
       .subscribe({
         next: (response) => {
-          this.customerList.set(response.customereListResponses?.customerList ?? []);
-          this.customerCurrentPage.set(1);
+          const customersResponse = response.customereListResponses;
+          this.customerList.set(customersResponse?.customerList ?? []);
+
+          const currentPage = customersResponse?.pagination?.currentPage ?? 0;
+          this.customerCurrentPage.set(currentPage + 1);
+          this.customerTotalPages.set(1);
           this.isLoadingCustomers.set(false);
         },
         error: () => {
@@ -94,17 +98,9 @@ export class ManagementPageComponent {
       });
   }
 
-  protected previousCustomerPage(): void {
-    if (this.customerCurrentPage() > 1) {
-      this.customerCurrentPage.update((currentPage) => currentPage - 1);
-    }
-  }
+  protected previousCustomerPage(): void {}
 
-  protected nextCustomerPage(): void {
-    if (this.customerCurrentPage() < this.customerTotalPages()) {
-      this.customerCurrentPage.update((currentPage) => currentPage + 1);
-    }
-  }
+  protected nextCustomerPage(): void {}
 
   private loadContactRequests(): void {
     this.isLoadingContactRequests.set(true);
