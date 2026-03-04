@@ -1,10 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-
-import { getAuthorizationHeaderCandidates, readStoredAuthToken } from '../../auth-token';
 
 import { OrderService } from '../../api/api/order.service';
 import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
@@ -105,14 +103,12 @@ export class OrdersPageComponent {
     const idsToFetch = [...new Set(orders.map((order) => order.customerId).filter((id): id is number => typeof id === 'number'))]
       .filter((id) => !this.customerNameById()[id]);
 
-    const authorizationHeaders = this.getAuthorizationHeaderValues();
-
-    if (idsToFetch.length === 0 || this.customerInfoAccessDenied || authorizationHeaders.length === 0) {
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied) {
       return;
     }
 
     const requests = idsToFetch.map((customerId) =>
-      this.getCustomerInfoWithFallback(customerId, authorizationHeaders).pipe(
+      this.getCustomerInfo(customerId).pipe(
         map((response) => {
           const customerInfo = response.customerInfoModelDto;
           const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
@@ -149,35 +145,10 @@ export class OrdersPageComponent {
     });
   }
 
-
-  private getCustomerInfoWithFallback(customerId: number, authorizationHeaders: string[]) {
-    const [primaryAuthorization, secondaryAuthorization] = authorizationHeaders;
-
-    return this.getCustomerInfo(customerId, primaryAuthorization).pipe(
-      catchError((error: unknown) => {
-        const shouldRetry =
-          secondaryAuthorization &&
-          error instanceof HttpErrorResponse &&
-          (error.status === 401 || error.status === 403);
-
-        if (!shouldRetry) {
-          return throwError(() => error);
-        }
-
-        return this.getCustomerInfo(customerId, secondaryAuthorization);
-      })
-    );
-  }
-
-  private getCustomerInfo(customerId: number, authorizationHeader: string) {
-    const headers = new HttpHeaders().set('Authorization', authorizationHeader);
+  private getCustomerInfo(customerId: number) {
     const params = new HttpParams().set('UserId', customerId);
 
-    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { headers, params });
-  }
-
-  private getAuthorizationHeaderValues(): string[] {
-    return getAuthorizationHeaderCandidates(readStoredAuthToken());
+    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { params });
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
