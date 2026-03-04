@@ -42,12 +42,14 @@
         </div>
 
         <div class="pagination-controls">
-          <button type="button" (click)="previousCustomerPage()" [disabled]="customerCurrentPage() === 1">Previous</button>
-          <span>Page {{ customerCurrentPage() }} of {{ customerTotalPages() }}</span>
+          <button type="button" (click)="previousCustomerPage()" [disabled]="!hasPreviousCustomerPage() || isLoadingCustomers()">
+            Previous
+          </button>
+          <span>{{ customerPageLabel() }}</span>
           <button
             type="button"
             (click)="nextCustomerPage()"
-            [disabled]="customerCurrentPage() === customerTotalPages()"
+            [disabled]="!hasNextCustomerPage() || isLoadingCustomers()"
           >
             Next
           </button>
