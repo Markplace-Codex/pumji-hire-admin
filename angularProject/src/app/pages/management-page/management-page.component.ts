@@ -47,6 +47,7 @@ export class ManagementPageComponent {
   protected readonly customerList = signal<CustomerListItem[]>([]);
   protected readonly customerCurrentPage = signal(0);
   protected readonly customerPageSize = signal(this.defaultCustomerPageSize);
+  protected readonly customerTotalCount = signal(0);
   protected readonly customerTotalPages = signal(0);
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
@@ -87,6 +88,10 @@ export class ManagementPageComponent {
     }
   }
 
+  protected retryCustomers(): void {
+    this.loadCustomers(this.customerCurrentPage());
+  }
+
   private loadCustomers(pageIndex: number = 0): void {
     this.isLoadingCustomers.set(true);
     this.customersErrorMessage.set(null);
@@ -101,6 +106,7 @@ export class ManagementPageComponent {
           const pagination = customersResponse?.pagination;
 
           this.customerList.set(customersResponse?.customerList ?? []);
+          this.customerTotalCount.set(pagination?.totalCount ?? 0);
           this.customerCurrentPage.set(pagination?.currentPage ?? pageIndex);
           this.customerPageSize.set(pagination?.pageSize ?? this.defaultCustomerPageSize);
           this.customerTotalPages.set(pagination?.totalPages ?? 0);

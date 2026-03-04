@@ -71,15 +71,55 @@ tbody tr:last-child td {
   color: #b91c1c;
 }
 
+.empty-cell {
+  text-align: center;
+  color: #64748b;
+  padding: 1rem;
+}
+
+.state {
+  margin-top: 1.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.state-error {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.pagination-row {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pagination-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #334155;
+}
+
+.pagination-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .pagination-controls {
+  margin-top: 1rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 1rem;
 }
 
-.pagination-controls button {
+button {
   border: 1px solid #cbd5e1;
   background: #fff;
   color: #1e293b;
@@ -88,7 +128,7 @@ tbody tr:last-child td {
   cursor: pointer;
 }
 
-.pagination-controls button:disabled {
+button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
