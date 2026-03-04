@@ -1,13 +1,12 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { OrderService } from '../../api/api/order.service';
-import { CustomerInfoModelDtoSchema } from '../../api/model/customerInfoModelDtoSchema';
 import { OrderDto } from '../../api/model/orderDto';
-import { resolveApiBasePath } from '../../api-base-path';
+import { CustomerService } from '../../api/api/customer.service';
 
 @Component({
   selector: 'app-orders-page',
@@ -17,10 +16,9 @@ import { resolveApiBasePath } from '../../api-base-path';
 })
 export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
-  private readonly httpClient = inject(HttpClient);
+  private readonly customerService = inject(CustomerService);
 
   private readonly defaultPageSize = 5;
-  private readonly apiBasePath = resolveApiBasePath();
   private customerInfoAccessDenied = false;
 
   protected readonly isLoading = signal(false);
@@ -110,17 +108,12 @@ export class OrdersPageComponent {
     const requests = idsToFetch.map((customerId) =>
       this.getCustomerInfo(customerId).pipe(
         map((response) => {
-          const customerInfo = response.customerInfoModelDto;
-          const fullName = [customerInfo?.firstName?.trim(), customerInfo?.lastName?.trim()]
-            .filter((name): name is string => Boolean(name))
-            .join(' ')
-            .trim();
-          const username = customerInfo?.username?.trim();
-          const customerName = fullName || username;
+          const customerInfo = response.customerBasicInfo;
+          const customerName = customerInfo?.customerName?.trim() || customerInfo?.userName?.trim() || '';
 
           return {
             customerId,
-            customerName: customerName && customerName.length > 0 ? customerName : `Customer #${customerId}`
+            customerName: customerName.length > 0 ? customerName : `Customer #${customerId}`
           };
         }),
         catchError((error: unknown) => {
@@ -146,9 +139,7 @@ export class OrdersPageComponent {
   }
 
   private getCustomerInfo(customerId: number) {
-    const params = new HttpParams().set('UserId', customerId);
-
-    return this.httpClient.get<CustomerInfoModelDtoSchema>(`${this.apiBasePath}/api/Customer/GetCustomerInfo`, { params });
+    return this.customerService.apiCustomerGetCustomerInfoGet(customerId);
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
