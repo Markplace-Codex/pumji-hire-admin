@@ -27,7 +27,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (customer of customerList(); track customer.id) {
+              @for (customer of paginatedCustomers(); track customer.id) {
                 <tr>
                   <td>{{ customer.id }}</td>
                   <td>{{ customer.firstName }} {{ customer.lastName }}</td>
@@ -39,6 +39,67 @@
               }
             </tbody>
           </table>
+        </div>
+
+        <div class="pagination-controls">
+          <button type="button" (click)="previousCustomerPage()" [disabled]="customerCurrentPage() === 1">Previous</button>
+          <span>Page {{ customerCurrentPage() }} of {{ customerTotalPages() }}</span>
+          <button
+            type="button"
+            (click)="nextCustomerPage()"
+            [disabled]="customerCurrentPage() === customerTotalPages()"
+          >
+            Next
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  @if (isContactUsPage()) {
+    <section class="customers-section">
+      <h2>Contact Us Requests</h2>
+
+      @if (isLoadingContactRequests()) {
+        <p class="status-message">Loading contact requests...</p>
+      } @else if (contactRequestsErrorMessage()) {
+        <p class="status-message error">{{ contactRequestsErrorMessage() }}</p>
+      } @else if (contactRequestList().length === 0) {
+        <p class="status-message">No contact requests found.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Type</th>
+                <th>Message</th>
+                <th>Created On</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (contact of paginatedContactRequests(); track contact.id) {
+                <tr>
+                  <td>{{ contact.id }}</td>
+                  <td>{{ contact.name || '-' }}</td>
+                  <td>{{ contact.emailID || '-' }}</td>
+                  <td>{{ contact.phoneNumber || '-' }}</td>
+                  <td>{{ contact.type || '-' }}</td>
+                  <td>{{ contact.message || '-' }}</td>
+                  <td>{{ contact.createdOn | date: 'medium' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-controls">
+          <button type="button" (click)="previousContactPage()" [disabled]="contactCurrentPage() === 1">Previous</button>
+          <span>Page {{ contactCurrentPage() }} of {{ contactTotalPages() }}</span>
+          <button type="button" (click)="nextContactPage()" [disabled]="contactCurrentPage() === contactTotalPages()">Next</button>
         </div>
       }
     </section>
