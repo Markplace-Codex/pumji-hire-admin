@@ -2,4 +2,45 @@
   <a routerLink="/home" class="back-link">← Back to home</a>
   <h1>{{ pageTitle() }}</h1>
   <p>{{ pageDescription() }}</p>
+
+  @if (isCustomersPage()) {
+    <section class="customers-section">
+      <h2>Customers</h2>
+
+      @if (isLoadingCustomers()) {
+        <p class="status-message">Loading customer list...</p>
+      } @else if (customersErrorMessage()) {
+        <p class="status-message error">{{ customersErrorMessage() }}</p>
+      } @else if (customerList().length === 0) {
+        <p class="status-message">No customers found.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (customer of customerList(); track customer.id) {
+                <tr>
+                  <td>{{ customer.id }}</td>
+                  <td>{{ customer.firstName }} {{ customer.lastName }}</td>
+                  <td>{{ customer.username }}</td>
+                  <td>{{ customer.email }}</td>
+                  <td>{{ customer.phone }}</td>
+                  <td>{{ customer.active ? 'Active' : 'Inactive' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
 </main>
