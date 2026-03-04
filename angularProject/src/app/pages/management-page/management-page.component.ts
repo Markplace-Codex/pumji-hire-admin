@@ -36,7 +36,8 @@ type CustomersApiResponse = {
   styleUrl: './management-page.component.scss'
 })
 export class ManagementPageComponent {
-  private readonly pageSize = 10;
+  private readonly customerPageSize = 3;
+  private readonly contactPageSize = 10;
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
   private readonly contactService = inject(ContactService);
@@ -54,11 +55,11 @@ export class ManagementPageComponent {
   protected readonly isLoadingContactRequests = signal(false);
   protected readonly contactRequestsErrorMessage = signal<string | null>(null);
   protected readonly paginatedContactRequests = computed(() => {
-    const startIndex = (this.contactCurrentPage() - 1) * this.pageSize;
-    return this.contactRequestList().slice(startIndex, startIndex + this.pageSize);
+    const startIndex = (this.contactCurrentPage() - 1) * this.contactPageSize;
+    return this.contactRequestList().slice(startIndex, startIndex + this.contactPageSize);
   });
   protected readonly contactTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.contactRequestList().length / this.pageSize))
+    Math.max(1, Math.ceil(this.contactRequestList().length / this.contactPageSize))
   );
 
   protected readonly isCustomersPage = computed(() => this.route.snapshot.routeConfig?.path === 'customers');
@@ -83,7 +84,7 @@ export class ManagementPageComponent {
       .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
         params: {
           pageIndex,
-          pageSize: this.pageSize
+          pageSize: this.customerPageSize
         }
       })
       .subscribe({
