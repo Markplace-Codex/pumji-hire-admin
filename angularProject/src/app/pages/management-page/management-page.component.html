@@ -7,14 +7,17 @@
     <section class="customers-section">
       <h2>Customers</h2>
 
-      @if (isLoadingCustomers()) {
-        <p class="status-message">Loading customer list...</p>
-      } @else if (customersErrorMessage()) {
-        <p class="status-message error">{{ customersErrorMessage() }}</p>
-      } @else if (customerList().length === 0) {
-        <p class="status-message">No customers found.</p>
+      @if (customersErrorMessage()) {
+        <section class="state state-error">
+          <p>{{ customersErrorMessage() }}</p>
+          <button type="button" (click)="retryCustomers()" [disabled]="isLoadingCustomers()">Retry</button>
+        </section>
+      } @else if (isLoadingCustomers() && customerList().length === 0) {
+        <section class="state">
+          <p>Loading customer list...</p>
+        </section>
       } @else {
-        <div class="table-wrapper">
+        <section class="table-wrapper">
           <table>
             <thead>
               <tr>
@@ -27,33 +30,45 @@
               </tr>
             </thead>
             <tbody>
-              @for (customer of customerList(); track customer.id) {
+              @if (customerList().length === 0) {
                 <tr>
-                  <td>{{ customer.id }}</td>
-                  <td>{{ customer.firstName }} {{ customer.lastName }}</td>
-                  <td>{{ customer.username }}</td>
-                  <td>{{ customer.email }}</td>
-                  <td>{{ customer.phone }}</td>
-                  <td>{{ customer.active ? 'Active' : 'Inactive' }}</td>
+                  <td colspan="6" class="empty-cell">No customers found.</td>
                 </tr>
+              } @else {
+                @for (customer of customerList(); track customer.id) {
+                  <tr>
+                    <td>{{ customer.id }}</td>
+                    <td>{{ customer.firstName }} {{ customer.lastName }}</td>
+                    <td>{{ customer.username }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td>{{ customer.active ? 'Active' : 'Inactive' }}</td>
+                  </tr>
+                }
               }
             </tbody>
           </table>
-        </div>
+        </section>
 
-        <div class="pagination-controls">
-          <button type="button" (click)="previousCustomerPage()" [disabled]="!hasPreviousCustomerPage() || isLoadingCustomers()">
-            Previous
-          </button>
-          <span>{{ customerPageLabel() }}</span>
-          <button
-            type="button"
-            (click)="nextCustomerPage()"
-            [disabled]="!hasNextCustomerPage() || isLoadingCustomers()"
-          >
-            Next
-          </button>
-        </div>
+        <section class="pagination-row">
+          <div class="pagination-meta">
+            <span>{{ customerPageLabel() }}</span>
+            <span>Total Customers: {{ customerTotalCount() }}</span>
+          </div>
+
+          <div class="pagination-actions">
+            <button
+              type="button"
+              (click)="previousCustomerPage()"
+              [disabled]="!hasPreviousCustomerPage() || isLoadingCustomers()"
+            >
+              Previous
+            </button>
+            <button type="button" (click)="nextCustomerPage()" [disabled]="!hasNextCustomerPage() || isLoadingCustomers()">
+              Next
+            </button>
+          </div>
+        </section>
       }
     </section>
   }
