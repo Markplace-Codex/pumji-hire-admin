@@ -1,6 +1,6 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
 import { Configuration, ConfigurationParameters } from './configuration';
-import { logAuthDebug, normalizeTokenValue, readStoredAuthToken } from '../auth-token';
+import { normalizeTokenValue, readStoredAuthToken } from '../auth-token';
 import { BASE_PATH } from './variables';
 
 function toBearerAuthorizationHeader(token: string | null | undefined): string | undefined {
@@ -26,13 +26,8 @@ export function provideApi(configOrBasePath: string | ConfigurationParameters): 
             ? existingBearerCredential()
             : existingBearerCredential;
         const storedToken = readStoredAuthToken();
-        const tokenSource = existingToken ?? storedToken;
-        const authorizationHeader = toBearerAuthorizationHeader(tokenSource);
 
-        logAuthDebug('Token used for Authorization header:', tokenSource);
-        logAuthDebug('Authorization header passed to API client:', authorizationHeader);
-
-        return authorizationHeader;
+        return toBearerAuthorizationHeader(existingToken ?? storedToken);
     };
 
     return makeEnvironmentProviders([
