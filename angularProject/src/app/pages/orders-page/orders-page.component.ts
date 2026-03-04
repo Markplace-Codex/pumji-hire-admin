@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -6,7 +6,8 @@ import { catchError, map } from 'rxjs/operators';
 
 import { OrderService } from '../../api/api/order.service';
 import { OrderDto } from '../../api/model/orderDto';
-import { CustomerService } from '../../api/api/customer.service';
+import { CustomerBasicInfoSchema } from '../../api/model/customerBasicInfoSchema';
+import { resolveApiBasePath } from '../../api-base-path';
 
 @Component({
   selector: 'app-orders-page',
@@ -16,7 +17,7 @@ import { CustomerService } from '../../api/api/customer.service';
 })
 export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
-  private readonly customerService = inject(CustomerService);
+  private readonly httpClient = inject(HttpClient);
 
   private readonly defaultPageSize = 5;
   private customerInfoAccessDenied = false;
@@ -139,7 +140,9 @@ export class OrdersPageComponent {
   }
 
   private getCustomerInfo(customerId: number) {
-    return this.customerService.apiCustomerGetCustomerInfoGet(customerId);
+    return this.httpClient.get<CustomerBasicInfoSchema>(`${resolveApiBasePath()}/api/Customer/GetCustomerInfo`, {
+      params: { UserId: customerId }
+    });
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
