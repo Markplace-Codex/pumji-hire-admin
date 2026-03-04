@@ -3,6 +3,16 @@ import { Configuration, ConfigurationParameters } from './configuration';
 import { normalizeTokenValue, readStoredAuthToken } from '../auth-token';
 import { BASE_PATH } from './variables';
 
+function toBearerAuthorizationHeader(token: string | null | undefined): string | undefined {
+    const normalizedToken = normalizeTokenValue(token);
+    if (!normalizedToken) {
+        return undefined;
+    }
+
+    const strippedToken = normalizedToken.replace(/^bearer\s+/i, '').trim();
+    return strippedToken ? `Bearer ${strippedToken}` : undefined;
+}
+
 // Returns the service class providers, to be used in the [ApplicationConfig](https://angular.dev/api/core/ApplicationConfig).
 export function provideApi(configOrBasePath: string | ConfigurationParameters): EnvironmentProviders {
     const config = typeof configOrBasePath === "string"
@@ -17,7 +27,7 @@ export function provideApi(configOrBasePath: string | ConfigurationParameters): 
             : existingBearerCredential;
         const storedToken = readStoredAuthToken();
 
-        return normalizeTokenValue(existingToken ?? storedToken) ?? undefined;
+        return toBearerAuthorizationHeader(existingToken ?? storedToken);
     };
 
     return makeEnvironmentProviders([

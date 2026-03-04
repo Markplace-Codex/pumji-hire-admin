@@ -32,7 +32,8 @@ export function getAuthorizationHeaderCandidates(token: string | null | undefine
     return [];
   }
 
-  const candidates = [normalizedToken, strippedToken, `Bearer ${strippedToken}`];
+  const bearerHeader = `Bearer ${strippedToken}`;
+  const candidates = [bearerHeader, normalizedToken, strippedToken];
   return [...new Set(candidates)];
 }
 
