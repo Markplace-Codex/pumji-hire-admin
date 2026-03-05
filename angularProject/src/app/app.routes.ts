@@ -5,11 +5,13 @@ import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { ManagementPageComponent } from './pages/management-page/management-page.component';
 import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
 import { InterviewSchedulesPageComponent } from './pages/interview-schedules-page/interview-schedules-page.component';
+import { CustomersPageComponent } from './pages/customers-page/customers-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'login', component: LoginPageComponent },
   { path: 'home', component: HomePageComponent },
+  { path: 'customers', component: CustomersPageComponent },
   { path: 'orders', component: OrdersPageComponent },
   {
     path: 'credits',

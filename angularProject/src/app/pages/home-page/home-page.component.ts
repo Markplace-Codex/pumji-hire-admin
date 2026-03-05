@@ -17,7 +17,8 @@ export class HomePageComponent {
   protected readonly navigationCards: NavigationCard[] = [
     {
       title: 'Customers List',
-      description: 'Customer list page is temporarily removed.'
+      description: 'View registered customers with pagination.',
+      route: '/customers'
     },
     {
       title: 'Orders',
