@@ -25,7 +25,7 @@ type PaginationDetails = {
 };
 
 type CustomersApiResponse = {
-  customereListResponses?: {
+  customerListResponses?: {
     pagination?: PaginationDetails;
     customerList?: CustomerListItem[];
   };
@@ -100,9 +100,9 @@ export class CustomersPageComponent {
       })
       .subscribe({
         next: (response) => {
-          const pageData = response.customereListResponses?.pagination;
+          const pageData = response.customerListResponses?.pagination;
 
-          this.customers.set(response.customereListResponses?.customerList ?? []);
+          this.customers.set(response.customerListResponses?.customerList ?? []);
           this.totalCount.set(pageData?.totalCount ?? 0);
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
