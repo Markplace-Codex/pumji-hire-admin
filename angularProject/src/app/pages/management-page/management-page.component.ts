@@ -99,11 +99,11 @@ export class ManagementPageComponent {
     }
 
     if (data !== undefined) {
-      console.info(`[Customers Page] ${message}`, data);
+      console.log(`[Customers Page] ${message}`, data);
       return;
     }
 
-    console.info(`[Customers Page] ${message}`);
+    console.log(`[Customers Page] ${message}`);
   }
 
   private async loadCustomers(): Promise<void> {
@@ -123,6 +123,9 @@ export class ManagementPageComponent {
 
         const response = await firstValueFrom(this.httpClient.get<CustomersApiResponse>(requestUrl));
         this.debugCustomerApi('API response data:', response);
+        if (this.isBrowser) {
+          (window as Window & { __customersApiDebug?: unknown }).__customersApiDebug = response;
+        }
 
         const customersResponse = response.customereListResponses;
         const pagination = customersResponse?.pagination;
