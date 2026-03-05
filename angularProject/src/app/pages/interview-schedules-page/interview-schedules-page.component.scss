@@ -32,6 +32,20 @@ code {
   padding: 0.15rem 0.3rem;
 }
 
+.toolbar {
+  margin-top: 1rem;
+}
+
+.action-link {
+  display: inline-flex;
+  text-decoration: none;
+  border: 1px solid #1d4ed8;
+  color: #1d4ed8;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  font-weight: 600;
+}
+
 .table-wrapper {
   margin-top: 1.5rem;
   border: 1px solid #cbd5e1;
@@ -43,7 +57,7 @@ code {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1080px;
+  min-width: 1180px;
 }
 
 th,

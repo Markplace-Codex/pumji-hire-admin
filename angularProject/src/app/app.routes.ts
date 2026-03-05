@@ -7,6 +7,7 @@ import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
 import { InterviewSchedulesPageComponent } from './pages/interview-schedules-page/interview-schedules-page.component';
 import { CustomersPageComponent } from './pages/customers-page/customers-page.component';
 import { OrderFormPageComponent } from './pages/order-form-page/order-form-page.component';
+import { InterviewScheduleFormPageComponent } from './pages/interview-schedule-form-page/interview-schedule-form-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -25,6 +26,8 @@ export const routes: Routes = [
     }
   },
   { path: 'interview-schedules', component: InterviewSchedulesPageComponent },
+  { path: 'interview-schedules/add', component: InterviewScheduleFormPageComponent },
+  { path: 'interview-schedules/edit', component: InterviewScheduleFormPageComponent },
   {
     path: 'contract-requests',
     component: ManagementPageComponent,
