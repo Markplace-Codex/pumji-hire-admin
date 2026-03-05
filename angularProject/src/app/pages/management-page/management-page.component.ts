@@ -100,11 +100,14 @@ export class ManagementPageComponent {
       let pageIndex = 0;
 
       do {
+        const requestUrl = `${this.customerApiUrl}?pageIndex=${pageIndex}&pageSize=${this.customerRequestPageSize}`;
+        console.log('[Customers Page] Calling API:', requestUrl);
+
         const response = await firstValueFrom(
-          this.httpClient.get<CustomersApiResponse>(
-            `${this.customerApiUrl}?pageIndex=${pageIndex}&pageSize=${this.customerRequestPageSize}`
-          )
+          this.httpClient.get<CustomersApiResponse>(requestUrl)
         );
+        console.log('[Customers Page] API response data:', response);
+
         const customersResponse = response.customereListResponses;
         const pagination = customersResponse?.pagination;
 
