@@ -2,10 +2,9 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ContactService } from '../../api/api/contact.service';
 import { ContactFromDto } from '../../api/model/contactFromDto';
-
-import { resolveApiBasePath } from '../../api-base-path';
 
 type CustomerListItem = {
   id: number;
@@ -36,7 +35,8 @@ type CustomersApiResponse = {
   styleUrl: './management-page.component.scss'
 })
 export class ManagementPageComponent {
-  private readonly defaultCustomerPageSize = 10;
+  private readonly customerApiUrl = 'https://dev.pumji.com/api/SuperAdmin/Customers';
+  private readonly customerRequestPageSize = 500;
   private readonly contactPageSize = 10;
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
@@ -45,22 +45,9 @@ export class ManagementPageComponent {
   protected readonly pageTitle = computed(() => this.route.snapshot.data['title'] as string);
   protected readonly pageDescription = computed(() => this.route.snapshot.data['description'] as string);
   protected readonly customerList = signal<CustomerListItem[]>([]);
-  protected readonly customerCurrentPage = signal(0);
-  protected readonly customerPageSize = signal(this.defaultCustomerPageSize);
   protected readonly customerTotalCount = signal(0);
-  protected readonly customerTotalPages = signal(0);
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
-  protected readonly customerPageLabel = computed(() => {
-    const totalPages = this.customerTotalPages();
-    if (totalPages === 0) {
-      return 'Page 0 of 0';
-    }
-
-    return `Page ${this.customerCurrentPage() + 1} of ${totalPages}`;
-  });
-  protected readonly hasPreviousCustomerPage = computed(() => this.customerCurrentPage() > 0);
-  protected readonly hasNextCustomerPage = computed(() => this.customerCurrentPage() + 1 < this.customerTotalPages());
 
   protected readonly contactRequestList = signal<ContactFromDto[]>([]);
   protected readonly contactCurrentPage = signal(1);
@@ -79,7 +66,7 @@ export class ManagementPageComponent {
 
   constructor() {
     if (this.isCustomersPage()) {
-      this.loadCustomers();
+      void this.loadCustomers();
       return;
     }
 
@@ -89,50 +76,43 @@ export class ManagementPageComponent {
   }
 
   protected retryCustomers(): void {
-    this.loadCustomers(this.customerCurrentPage());
+    void this.loadCustomers();
   }
 
-  private loadCustomers(pageIndex: number = 0): void {
+  private async loadCustomers(): Promise<void> {
     this.isLoadingCustomers.set(true);
     this.customersErrorMessage.set(null);
 
-    this.httpClient
-      .get<CustomersApiResponse>(
-        `${resolveApiBasePath()}/api/SuperAdmin/Customers?pageIndex=${pageIndex}&pageSize=${this.customerPageSize()}`
-      )
-      .subscribe({
-        next: (response) => {
-          const customersResponse = response.customereListResponses;
-          const pagination = customersResponse?.pagination;
+    try {
+      const allCustomers: CustomerListItem[] = [];
+      let totalCount = 0;
+      let totalPages = 1;
+      let pageIndex = 0;
 
-          this.customerList.set(customersResponse?.customerList ?? []);
-          this.customerTotalCount.set(pagination?.totalCount ?? 0);
-          this.customerCurrentPage.set(pagination?.currentPage ?? pageIndex);
-          this.customerPageSize.set(pagination?.pageSize ?? this.defaultCustomerPageSize);
-          this.customerTotalPages.set(pagination?.totalPages ?? 0);
-          this.isLoadingCustomers.set(false);
-        },
-        error: () => {
-          this.customersErrorMessage.set('Unable to load customers right now. Please try again.');
-          this.isLoadingCustomers.set(false);
-        }
-      });
-  }
+      do {
+        const response = await firstValueFrom(
+          this.httpClient.get<CustomersApiResponse>(
+            `${this.customerApiUrl}?pageIndex=${pageIndex}&pageSize=${this.customerRequestPageSize}`
+          )
+        );
+        const customersResponse = response.customereListResponses;
+        const pagination = customersResponse?.pagination;
 
-  protected previousCustomerPage(): void {
-    if (!this.hasPreviousCustomerPage() || this.isLoadingCustomers()) {
-      return;
+        allCustomers.push(...(customersResponse?.customerList ?? []));
+        totalCount = pagination?.totalCount ?? allCustomers.length;
+        totalPages = Math.max(1, pagination?.totalPages ?? 1);
+        pageIndex += 1;
+      } while (pageIndex < totalPages && allCustomers.length < totalCount);
+
+      const uniqueCustomers = Array.from(new Map(allCustomers.map((customer) => [customer.id, customer])).values());
+
+      this.customerList.set(uniqueCustomers);
+      this.customerTotalCount.set(totalCount || uniqueCustomers.length);
+    } catch {
+      this.customersErrorMessage.set('Unable to load customers right now. Please try again.');
+    } finally {
+      this.isLoadingCustomers.set(false);
     }
-
-    this.loadCustomers(this.customerCurrentPage() - 1);
-  }
-
-  protected nextCustomerPage(): void {
-    if (!this.hasNextCustomerPage() || this.isLoadingCustomers()) {
-      return;
-    }
-
-    this.loadCustomers(this.customerCurrentPage() + 1);
   }
 
   private loadContactRequests(): void {

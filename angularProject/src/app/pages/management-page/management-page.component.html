@@ -52,21 +52,8 @@
 
         <section class="pagination-row">
           <div class="pagination-meta">
-            <span>{{ customerPageLabel() }}</span>
+            <span>Loaded Customers: {{ customerList().length }}</span>
             <span>Total Customers: {{ customerTotalCount() }}</span>
-          </div>
-
-          <div class="pagination-actions">
-            <button
-              type="button"
-              (click)="previousCustomerPage()"
-              [disabled]="!hasPreviousCustomerPage() || isLoadingCustomers()"
-            >
-              Previous
-            </button>
-            <button type="button" (click)="nextCustomerPage()" [disabled]="!hasNextCustomerPage() || isLoadingCustomers()">
-              Next
-            </button>
           </div>
         </section>
       }
