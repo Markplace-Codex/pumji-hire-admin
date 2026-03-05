@@ -35,7 +35,7 @@
                   <td colspan="6" class="empty-cell">No customers found.</td>
                 </tr>
               } @else {
-                @for (customer of customerList(); track customer.id) {
+                @for (customer of paginatedCustomers(); track customer.id) {
                   <tr>
                     <td>{{ customer.id }}</td>
                     <td>{{ customer.firstName }} {{ customer.lastName }}</td>
@@ -52,8 +52,21 @@
 
         <section class="pagination-row">
           <div class="pagination-meta">
-            <span>Loaded Customers: {{ customerList().length }}</span>
+            <span>Page {{ customerCurrentPage() }} of {{ customerTotalPages() }}</span>
             <span>Total Customers: {{ customerTotalCount() }}</span>
+          </div>
+
+          <div class="pagination-actions">
+            <button type="button" (click)="previousCustomerPage()" [disabled]="customerCurrentPage() === 1">
+              Previous
+            </button>
+            <button
+              type="button"
+              (click)="nextCustomerPage()"
+              [disabled]="customerCurrentPage() === customerTotalPages()"
+            >
+              Next
+            </button>
           </div>
         </section>
       }
