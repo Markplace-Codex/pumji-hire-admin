@@ -1,6 +1,6 @@
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, PLATFORM_ID, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContactService } from '../../api/api/contact.service';
@@ -34,7 +34,7 @@ type CustomersApiResponse = {
   templateUrl: './management-page.component.html',
   styleUrl: './management-page.component.scss'
 })
-export class ManagementPageComponent {
+export class ManagementPageComponent implements OnInit {
   private readonly customerApiUrl = 'https://dev.pumji.com/api/SuperAdmin/Customers';
   private readonly customerRequestPageSize = 500;
   private readonly customerPageSize = 10;
@@ -75,7 +75,7 @@ export class ManagementPageComponent {
   protected readonly isCustomersPage = computed(() => this.route.snapshot.routeConfig?.path === 'customers');
   protected readonly isContactUsPage = computed(() => this.route.snapshot.routeConfig?.path === 'contact-us-requests');
 
-  constructor() {
+  ngOnInit(): void {
     if (this.isCustomersPage()) {
       if (this.isBrowser) {
         this.debugCustomerApi('Customer page opened in browser. Starting customer API fetch.');
