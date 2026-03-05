@@ -52,7 +52,7 @@
 
         <section class="pagination-row">
           <div class="pagination-meta">
-            <span>Loaded Customers: {{ customerList().length }}</span>
+            <span>Page {{ customerCurrentPage() }} of {{ customerTotalPages() }}</span>
             <span>Total Customers: {{ customerTotalCount() }}</span>
           </div>
         </section>
