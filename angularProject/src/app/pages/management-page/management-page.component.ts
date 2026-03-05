@@ -96,6 +96,7 @@ export class ManagementPageComponent {
       const allCustomers: CustomerListItem[] = [];
       let totalCount = 0;
       let totalPages = 1;
+      let currentPage = 1;
       let pageIndex = 0;
 
       do {
@@ -110,6 +111,7 @@ export class ManagementPageComponent {
         allCustomers.push(...(customersResponse?.customerList ?? []));
         totalCount = pagination?.totalCount ?? allCustomers.length;
         totalPages = Math.max(1, pagination?.totalPages ?? 1);
+        currentPage = Math.max(1, (pagination?.currentPage ?? 0) + 1);
         pageIndex += 1;
       } while (pageIndex < totalPages && allCustomers.length < totalCount);
 
