@@ -37,6 +37,7 @@ type CustomersApiResponse = {
 export class ManagementPageComponent {
   private readonly customerApiUrl = 'https://dev.pumji.com/api/SuperAdmin/Customers';
   private readonly customerRequestPageSize = 500;
+  private readonly customerPageSize = 10;
   private readonly contactPageSize = 10;
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
@@ -47,7 +48,13 @@ export class ManagementPageComponent {
   protected readonly customerList = signal<CustomerListItem[]>([]);
   protected readonly customerTotalCount = signal(0);
   protected readonly customerCurrentPage = signal(1);
-  protected readonly customerTotalPages = signal(0);
+  protected readonly customerTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.customerList().length / this.customerPageSize))
+  );
+  protected readonly paginatedCustomers = computed(() => {
+    const startIndex = (this.customerCurrentPage() - 1) * this.customerPageSize;
+    return this.customerList().slice(startIndex, startIndex + this.customerPageSize);
+  });
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
 
@@ -112,8 +119,7 @@ export class ManagementPageComponent {
 
       this.customerList.set(uniqueCustomers);
       this.customerTotalCount.set(totalCount || uniqueCustomers.length);
-      this.customerCurrentPage.set(Math.min(currentPage, totalPages));
-      this.customerTotalPages.set(totalPages);
+      this.customerCurrentPage.set(1);
     } catch {
       this.customersErrorMessage.set('Unable to load customers right now. Please try again.');
     } finally {
@@ -136,6 +142,18 @@ export class ManagementPageComponent {
         this.isLoadingContactRequests.set(false);
       }
     });
+  }
+
+  protected previousCustomerPage(): void {
+    if (this.customerCurrentPage() > 1) {
+      this.customerCurrentPage.update((currentPage) => currentPage - 1);
+    }
+  }
+
+  protected nextCustomerPage(): void {
+    if (this.customerCurrentPage() < this.customerTotalPages()) {
+      this.customerCurrentPage.update((currentPage) => currentPage + 1);
+    }
   }
 
   protected previousContactPage(): void {
