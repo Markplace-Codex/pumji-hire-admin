@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -18,6 +18,7 @@ import { resolveApiBasePath } from '../../api-base-path';
 export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
   private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
 
   private readonly defaultPageSize = 5;
   private customerInfoAccessDenied = false;
@@ -65,6 +66,16 @@ export class OrdersPageComponent {
 
   protected retry(): void {
     this.loadOrders(this.currentPage());
+  }
+
+  protected navigateToAddOrder(): void {
+    this.router.navigate(['/orders/add']);
+  }
+
+  protected navigateToEditOrder(order: OrderDto): void {
+    this.router.navigate(['/orders/edit'], {
+      state: { order }
+    });
   }
 
   private loadOrders(pageIndex: number): void {

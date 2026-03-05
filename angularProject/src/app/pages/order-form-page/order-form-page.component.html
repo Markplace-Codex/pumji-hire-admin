@@ -1,0 +1,73 @@
+<main class="order-form-page">
+  <a routerLink="/orders" class="back-link">← Back to orders</a>
+  <h1>{{ isEditMode() ? 'Edit Order' : 'Add Order' }}</h1>
+  <p>
+    {{ isEditMode() ? 'Update order details using' : 'Create an order using' }}
+    <code>{{ isEditMode() ? '/api/Order/Update' : '/api/Order/Create' }}</code>
+  </p>
+
+  <section class="form-actions-top">
+    <button type="button" (click)="applySampleData()" [disabled]="isSubmitting()">Load sample data</button>
+  </section>
+
+  @if (submitError()) {
+    <section class="state state-error">{{ submitError() }}</section>
+  }
+
+  @if (submitSuccess()) {
+    <section class="state state-success">{{ submitSuccess() }}</section>
+  }
+
+  <form class="order-form" (ngSubmit)="submitForm()">
+    <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" required /></label>
+    <label>Key Usage <input type="text" name="keyUsage" [(ngModel)]="formModel.keyUsage" /></label>
+    <label>Amount Paid <input type="number" name="amountPaid" [(ngModel)]="formModel.amountPaid" required /></label>
+    <label>Symbol <input type="text" name="symbol" [(ngModel)]="formModel.symbol" /></label>
+    <label>Customer Id <input type="number" name="customerId" [(ngModel)]="formModel.customerId" required /></label>
+    <label>Credit Count <input type="number" name="creditCount" [(ngModel)]="formModel.creditCount" required /></label>
+    <label>Order Guid <input type="text" name="orderGuid" [(ngModel)]="formModel.orderGuid" required /></label>
+    <label>Store Id <input type="number" name="storeId" [(ngModel)]="formModel.storeId" required /></label>
+    <label>Billing Address Id <input type="number" name="billingAddressId" [(ngModel)]="formModel.billingAddressId" required /></label>
+    <label>Order Status Id <input type="number" name="orderStatusId" [(ngModel)]="formModel.orderStatusId" required /></label>
+    <label>Payment Status Id <input type="number" name="paymentStatusId" [(ngModel)]="formModel.paymentStatusId" required /></label>
+    <label>Payment Method System Name <input type="text" name="paymentMethodSystemName" [(ngModel)]="formModel.paymentMethodSystemName" /></label>
+    <label>Customer Currency Code <input type="text" name="customerCurrencyCode" [(ngModel)]="formModel.customerCurrencyCode" /></label>
+    <label>Currency Rate <input type="number" name="currencyRate" [(ngModel)]="formModel.currencyRate" required /></label>
+    <label>Order Sub Total Discount Incl Tax <input type="number" name="orderSubTotalDiscountInclTax" [(ngModel)]="formModel.orderSubTotalDiscountInclTax" required /></label>
+    <label>Order Sub Total Discount Excl Tax <input type="number" name="orderSubTotalDiscountExclTax" [(ngModel)]="formModel.orderSubTotalDiscountExclTax" required /></label>
+    <label>Order Discount <input type="number" name="orderDiscount" [(ngModel)]="formModel.orderDiscount" required /></label>
+    <label>Order Total <input type="number" name="orderTotal" [(ngModel)]="formModel.orderTotal" required /></label>
+
+    <label class="checkbox-row">
+      <input type="checkbox" [ngModel]="includePaidDateUtc()" (ngModelChange)="includePaidDateUtc.set($event)" name="includePaidDateUtc" />
+      Include Paid Date Utc
+    </label>
+    @if (includePaidDateUtc()) {
+      <label>Paid Date Utc <input type="datetime-local" name="paidDateUtc" [(ngModel)]="formModel.paidDateUtc" /></label>
+    }
+
+    <label class="checkbox-row">
+      <input type="checkbox" [ngModel]="includeCreatedOnUtc()" (ngModelChange)="includeCreatedOnUtc.set($event)" name="includeCreatedOnUtc" />
+      Include Created On Utc
+    </label>
+    @if (includeCreatedOnUtc()) {
+      <label>Created On Utc <input type="datetime-local" name="createdOnUtc" [(ngModel)]="formModel.createdOnUtc" /></label>
+    }
+
+    <label>Custom Order Number <input type="text" name="customOrderNumber" [(ngModel)]="formModel.customOrderNumber" /></label>
+    <label>Redeemed Coins Entry Id <input type="number" name="redeemedCoinsEntryId" [(ngModel)]="formModel.redeemedCoinsEntryId" required /></label>
+    <label>Product Type <input type="text" name="productType" [(ngModel)]="formModel.productType" /></label>
+    <label>Payment Type <input type="text" name="paymentType" [(ngModel)]="formModel.paymentType" /></label>
+    <label>Product Attribute Id <input type="number" name="productAttributeId" [(ngModel)]="formModel.productAttributeId" required /></label>
+    <label>Advisor Id <input type="number" name="advisorId" [(ngModel)]="formModel.advisorId" required /></label>
+    <label>Order Tax <input type="number" name="orderTax" [(ngModel)]="formModel.orderTax" required /></label>
+    <label>Order Status <input type="number" name="orderStatus" [(ngModel)]="formModel.orderStatus" required /></label>
+    <label>Payment Status <input type="number" name="paymentStatus" [(ngModel)]="formModel.paymentStatus" required /></label>
+
+    <div class="submit-row">
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Saving...' : (isEditMode() ? 'Update Order' : 'Add Order') }}
+      </button>
+    </div>
+  </form>
+</main>

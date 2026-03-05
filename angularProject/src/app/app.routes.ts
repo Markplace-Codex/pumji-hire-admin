@@ -6,6 +6,7 @@ import { ManagementPageComponent } from './pages/management-page/management-page
 import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
 import { InterviewSchedulesPageComponent } from './pages/interview-schedules-page/interview-schedules-page.component';
 import { CustomersPageComponent } from './pages/customers-page/customers-page.component';
+import { OrderFormPageComponent } from './pages/order-form-page/order-form-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -13,6 +14,8 @@ export const routes: Routes = [
   { path: 'home', component: HomePageComponent },
   { path: 'customers', component: CustomersPageComponent },
   { path: 'orders', component: OrdersPageComponent },
+  { path: 'orders/add', component: OrderFormPageComponent },
+  { path: 'orders/edit', component: OrderFormPageComponent },
   {
     path: 'credits',
     component: ManagementPageComponent,
