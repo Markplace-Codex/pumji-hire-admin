@@ -26,6 +26,12 @@ p {
   color: #334155;
 }
 
+h2 {
+  margin: 0 0 0.5rem;
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+
 code {
   background: #e2e8f0;
   border-radius: 4px;
@@ -38,6 +44,39 @@ code {
   border-radius: 12px;
   overflow: auto;
   background: #ffffff;
+}
+
+.editor-panel {
+  margin-top: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.panel-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.panel-message {
+  color: #1e293b;
+  font-size: 0.9rem;
 }
 
 table {
