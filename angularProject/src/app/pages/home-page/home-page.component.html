@@ -5,11 +5,18 @@
   </header>
 
   <section class="card-grid">
-    @for (card of navigationCards; track card.route) {
-      <a class="nav-card" [routerLink]="card.route">
-        <h2>{{ card.title }}</h2>
-        <p>{{ card.description }}</p>
-      </a>
+    @for (card of navigationCards; track card.title) {
+      @if (card.route) {
+        <a class="nav-card" [routerLink]="card.route">
+          <h2>{{ card.title }}</h2>
+          <p>{{ card.description }}</p>
+        </a>
+      } @else {
+        <article class="nav-card nav-card--static">
+          <h2>{{ card.title }}</h2>
+          <p>{{ card.description }}</p>
+        </article>
+      }
     }
   </section>
 </main>

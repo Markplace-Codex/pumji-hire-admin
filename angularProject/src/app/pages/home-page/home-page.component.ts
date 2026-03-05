@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+type NavigationCard = {
+  title: string;
+  description: string;
+  route?: string;
+};
+
 @Component({
   selector: 'app-home-page',
   imports: [RouterLink],
@@ -8,11 +14,10 @@ import { RouterLink } from '@angular/router';
   styleUrl: './home-page.component.scss'
 })
 export class HomePageComponent {
-  protected readonly navigationCards = [
+  protected readonly navigationCards: NavigationCard[] = [
     {
       title: 'Customers List',
-      description: 'Review and manage customer profiles.',
-      route: '/customers'
+      description: 'Customer list page is temporarily removed.'
     },
     {
       title: 'Orders',
