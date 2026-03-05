@@ -46,6 +46,8 @@ export class ManagementPageComponent {
   protected readonly pageDescription = computed(() => this.route.snapshot.data['description'] as string);
   protected readonly customerList = signal<CustomerListItem[]>([]);
   protected readonly customerTotalCount = signal(0);
+  protected readonly customerCurrentPage = signal(1);
+  protected readonly customerTotalPages = signal(0);
   protected readonly isLoadingCustomers = signal(false);
   protected readonly customersErrorMessage = signal<string | null>(null);
 
@@ -87,6 +89,7 @@ export class ManagementPageComponent {
       const allCustomers: CustomerListItem[] = [];
       let totalCount = 0;
       let totalPages = 1;
+      let currentPage = 1;
       let pageIndex = 0;
 
       do {
@@ -101,6 +104,7 @@ export class ManagementPageComponent {
         allCustomers.push(...(customersResponse?.customerList ?? []));
         totalCount = pagination?.totalCount ?? allCustomers.length;
         totalPages = Math.max(1, pagination?.totalPages ?? 1);
+        currentPage = Math.max(1, (pagination?.currentPage ?? 0) + 1);
         pageIndex += 1;
       } while (pageIndex < totalPages && allCustomers.length < totalCount);
 
@@ -108,6 +112,8 @@ export class ManagementPageComponent {
 
       this.customerList.set(uniqueCustomers);
       this.customerTotalCount.set(totalCount || uniqueCustomers.length);
+      this.customerCurrentPage.set(Math.min(currentPage, totalPages));
+      this.customerTotalPages.set(totalPages);
     } catch {
       this.customersErrorMessage.set('Unable to load customers right now. Please try again.');
     } finally {
