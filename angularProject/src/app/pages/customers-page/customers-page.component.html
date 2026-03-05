@@ -1,0 +1,71 @@
+<main class="interview-schedules-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Customers List</h1>
+  <p>Customers from <code>/api/SuperAdmin/Customers</code> with pagination.</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && customers().length === 0) {
+    <section class="state">
+      <p>Loading customers...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Gender</th>
+            <th>Active</th>
+            <th>Created On</th>
+            <th>Modified On</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (customers().length === 0) {
+            <tr>
+              <td colspan="9" class="empty-cell">No customers found.</td>
+            </tr>
+          } @else {
+            @for (customer of customers(); track customer.id ?? $index) {
+              <tr>
+                <td>{{ customer.id ?? '-' }}</td>
+                <td>{{ customer.username ?? '-' }}</td>
+                <td>{{ ((customer.firstName ?? '') + ' ' + (customer.lastName ?? '')).trim() || '-' }}</td>
+                <td>{{ customer.email ?? '-' }}</td>
+                <td>{{ customer.phone ?? '-' }}</td>
+                <td>{{ customer.gender ?? '-' }}</td>
+                <td>{{ customer.active ? 'Yes' : 'No' }}</td>
+                <td>{{ customer.createdOn ?? '-' }}</td>
+                <td>{{ customer.modifiedOn ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Customers: {{ totalCount() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">
+          Previous
+        </button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">
+          Next
+        </button>
+      </div>
+    </section>
+  }
+</main>
