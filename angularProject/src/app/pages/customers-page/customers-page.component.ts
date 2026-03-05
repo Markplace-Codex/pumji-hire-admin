@@ -94,7 +94,7 @@ export class CustomersPageComponent {
     this.httpClient
       .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
         params: {
-          pageNumber: pageIndex,
+          pageIndex,
           pageSize: this.pageSize()
         }
       })
