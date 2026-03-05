@@ -51,4 +51,124 @@
       }
     </section>
   }
+
+  @if (isCreditsPage()) {
+    <section class="customers-section">
+      <h2>User Credits</h2>
+
+      @if (isLoadingCredits()) {
+        <p class="status-message">Loading credits...</p>
+      } @else if (creditsErrorMessage()) {
+        <p class="status-message error">{{ creditsErrorMessage() }}</p>
+        <button type="button" (click)="retryCredits()">Retry</button>
+      } @else if (credits().length === 0) {
+        <p class="status-message">No credits data found.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Available Credits</th>
+                <th>Used Credits</th>
+                <th>Created On</th>
+                <th>Expiry</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (credit of credits(); track credit.id) {
+                <tr>
+                  <td>{{ credit.id }}</td>
+                  <td>{{ credit.userId ?? '-' }}</td>
+                  <td>{{ credit.availableCredits ?? 0 }}</td>
+                  <td>{{ credit.usedCredits ?? 0 }}</td>
+                  <td>{{ credit.createdOn ? (credit.createdOn | date: 'medium') : '-' }}</td>
+                  <td>{{ credit.expiry ? (credit.expiry | date: 'medium') : '-' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-controls">
+          <button type="button" (click)="goToPreviousCreditsPage()" [disabled]="!hasPreviousCreditsPage() || isLoadingCredits()">
+            Previous
+          </button>
+          <span>{{ creditsPageLabel() }} • Total {{ creditsTotalCount() }}</span>
+          <button type="button" (click)="goToNextCreditsPage()" [disabled]="!hasNextCreditsPage() || isLoadingCredits()">
+            Next
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  @if (isContractRequestsPage()) {
+    <section class="customers-section">
+      <h2>Contract Requests</h2>
+
+      @if (isLoadingContractRequests()) {
+        <p class="status-message">Loading contract requests...</p>
+      } @else if (contractRequestsErrorMessage()) {
+        <p class="status-message error">{{ contractRequestsErrorMessage() }}</p>
+        <button type="button" (click)="retryContractRequests()">Retry</button>
+      } @else if (contractRequests().length === 0) {
+        <p class="status-message">No contract requests found.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Work Type</th>
+                <th>Company Preference</th>
+                <th>Weekly</th>
+                <th>Monthly</th>
+                <th>6 Months</th>
+                <th>Year</th>
+                <th>Status</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (request of contractRequests(); track request.id) {
+                <tr>
+                  <td>{{ request.id }}</td>
+                  <td>{{ request.userId ?? '-' }}</td>
+                  <td>{{ request.worktype || '-' }}</td>
+                  <td>{{ request.companyTypePref || '-' }}</td>
+                  <td>{{ request.weeklyBasis ?? 0 }}</td>
+                  <td>{{ request.monthlyBasis ?? 0 }}</td>
+                  <td>{{ request.sixMonths ?? 0 }}</td>
+                  <td>{{ request.year ?? 0 }}</td>
+                  <td>{{ request.status || '-' }}</td>
+                  <td>{{ request.createdAt ? (request.createdAt | date: 'medium') : '-' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-controls">
+          <button
+            type="button"
+            (click)="goToPreviousContractPage()"
+            [disabled]="!hasPreviousContractPage() || isLoadingContractRequests()"
+          >
+            Previous
+          </button>
+          <span>{{ contractPageLabel() }} • Total {{ contractTotalCount() }}</span>
+          <button
+            type="button"
+            (click)="goToNextContractPage()"
+            [disabled]="!hasNextContractPage() || isLoadingContractRequests()"
+          >
+            Next
+          </button>
+        </div>
+      }
+    </section>
+  }
 </main>
