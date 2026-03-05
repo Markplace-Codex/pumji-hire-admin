@@ -10,14 +10,6 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'login', component: LoginPageComponent },
   { path: 'home', component: HomePageComponent },
-  {
-    path: 'customers',
-    component: ManagementPageComponent,
-    data: {
-      title: 'Customers List',
-      description: 'This page is ready for customer list management features.'
-    }
-  },
   { path: 'orders', component: OrdersPageComponent },
   {
     path: 'credits',
