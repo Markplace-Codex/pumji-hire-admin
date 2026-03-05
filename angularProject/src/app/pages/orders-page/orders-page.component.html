@@ -3,6 +3,33 @@
   <h1>Orders</h1>
   <p>Orders from <code>/api/Order/GetAll</code> with pagination.</p>
 
+  <section class="editor-panel">
+    <h2>Add Order</h2>
+    <p>POST <code>/api/Order/Create</code></p>
+    <textarea [ngModel]="createPayload()" (ngModelChange)="createPayload.set($event)"></textarea>
+    <div class="panel-actions">
+      <button type="button" (click)="createOrder()" [disabled]="isCreating()">{{ isCreating() ? 'Creating...' : 'Create Order' }}</button>
+      @if (createMessage()) {
+        <span class="panel-message">{{ createMessage() }}</span>
+      }
+    </div>
+  </section>
+
+  @if (editingOrderId() !== null) {
+    <section class="editor-panel">
+      <h2>Edit Order #{{ editingOrderId() }}</h2>
+      <p>PUT <code>/api/Order/Update</code></p>
+      <textarea [ngModel]="editPayload()" (ngModelChange)="editPayload.set($event)"></textarea>
+      <div class="panel-actions">
+        <button type="button" (click)="updateOrder()" [disabled]="isUpdating()">{{ isUpdating() ? 'Updating...' : 'Update Order' }}</button>
+        <button type="button" (click)="cancelEditing()" [disabled]="isUpdating()">Cancel</button>
+        @if (updateMessage()) {
+          <span class="panel-message">{{ updateMessage() }}</span>
+        }
+      </div>
+    </section>
+  }
+
   @if (errorMessage()) {
     <section class="state state-error">
       <p>{{ errorMessage() }}</p>
@@ -24,12 +51,13 @@
             <th>Order Total</th>
             <th>Status</th>
             <th>Created On (UTC)</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (orders().length === 0) {
             <tr>
-              <td colspan="7" class="empty-cell">No orders found.</td>
+              <td colspan="8" class="empty-cell">No orders found.</td>
             </tr>
           } @else {
             @for (order of orders(); track order.id ?? $index) {
@@ -41,6 +69,9 @@
                 <td>{{ order.orderTotal ?? 0 }}</td>
                 <td>{{ order.orderStatusId ?? '-' }}</td>
                 <td>{{ order.createdOnUtc ?? '-' }}</td>
+                <td>
+                  <button type="button" (click)="startEditing(order)">Edit</button>
+                </td>
               </tr>
             }
           }
