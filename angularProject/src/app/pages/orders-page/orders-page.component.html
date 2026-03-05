@@ -3,6 +3,8 @@
   <h1>Orders</h1>
   <p>Orders from <code>/api/Order/GetAll</code> with pagination.</p>
 
+  <button type="button" (click)="navigateToAddOrder()">Add Order</button>
+
   @if (errorMessage()) {
     <section class="state state-error">
       <p>{{ errorMessage() }}</p>
@@ -24,12 +26,13 @@
             <th>Order Total</th>
             <th>Status</th>
             <th>Created On (UTC)</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (orders().length === 0) {
             <tr>
-              <td colspan="7" class="empty-cell">No orders found.</td>
+              <td colspan="8" class="empty-cell">No orders found.</td>
             </tr>
           } @else {
             @for (order of orders(); track order.id ?? $index) {
@@ -41,6 +44,9 @@
                 <td>{{ order.orderTotal ?? 0 }}</td>
                 <td>{{ order.orderStatusId ?? '-' }}</td>
                 <td>{{ order.createdOnUtc ?? '-' }}</td>
+                <td>
+                  <button type="button" (click)="navigateToEditOrder(order)">Edit</button>
+                </td>
               </tr>
             }
           }
