@@ -94,7 +94,7 @@ export class CustomersPageComponent {
     this.httpClient
       .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
         params: {
-          pageNumber: pageIndex + 1,
+          pageNumber: pageIndex,
           pageSize: this.pageSize()
         }
       })
@@ -105,7 +105,7 @@ export class CustomersPageComponent {
           this.customers.set(response.customereListResponses?.customerList ?? []);
           this.totalCount.set(pageData?.totalCount ?? 0);
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
-          this.currentPage.set(pageIndex);
+          this.currentPage.set(pageData?.currentPage ?? pageIndex);
           this.totalPages.set(pageData?.totalPages ?? 0);
           this.isLoading.set(false);
         },
