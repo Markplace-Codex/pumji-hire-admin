@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { resolveApiBasePath } from '../../api-base-path';
 
@@ -10,10 +10,28 @@ type InterviewScheduleItem = {
   scheduleDate?: string;
   scheduleTime?: string | null;
   status?: number;
-  candidateAccept?: string | null;
-  scheduleType?: number;
-  interviewStatus?: string | null;
   createdAt?: string;
+  updatedAt?: string;
+  feedbackId?: number;
+  jobId?: number;
+  recruiterId?: number;
+  interviewRound?: number;
+  candidateAccept?: string | null;
+  orderId?: number;
+  supportAdminId?: number;
+  scheduleTimeSlot?: string | null;
+  scheduleType?: number;
+  productId?: number;
+  keyskills?: string | null;
+  serverExtension?: string | null;
+  isVideoReady?: boolean;
+  prioritizerId?: number;
+  isAcceptedDiscount?: boolean;
+  completedAt?: string;
+  isRetakeInterview?: boolean;
+  isPopupClosed?: boolean;
+  questionIds?: string | null;
+  interviewStatus?: string | null;
 };
 
 type PaginationDetails = {
@@ -40,6 +58,7 @@ type InterviewSchedulesApiResponse = {
 })
 export class InterviewSchedulesPageComponent {
   private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
 
   private readonly defaultPageSize = 5;
 
@@ -84,6 +103,12 @@ export class InterviewSchedulesPageComponent {
 
   protected retry(): void {
     this.loadInterviewSchedules(this.currentPage());
+  }
+
+  protected editSchedule(schedule: InterviewScheduleItem): void {
+    this.router.navigate(['/interview-schedules/edit'], {
+      state: { schedule }
+    });
   }
 
   private loadInterviewSchedules(pageIndex: number): void {

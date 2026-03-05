@@ -1,0 +1,59 @@
+<main class="schedule-form-page">
+  <a routerLink="/interview-schedules" class="back-link">← Back to interview schedules</a>
+
+  <h1>{{ isEditMode() ? 'Edit Interview Schedule' : 'Add Interview Schedule' }}</h1>
+  <p>
+    {{ isEditMode() ? 'Update data using /api/Order/Update.' : 'Create data using /api/Interview/CreateInterviewSchedule.' }}
+  </p>
+
+  @if (submitError()) {
+    <div class="alert alert-error">{{ submitError() }}</div>
+  }
+
+  @if (submitSuccess()) {
+    <div class="alert alert-success">{{ submitSuccess() }}</div>
+  }
+
+  <form (ngSubmit)="submitForm()" class="form-grid">
+    <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" /></label>
+    <label>User ID <input type="number" name="userId" [(ngModel)]="formModel.userId" /></label>
+    <label>Schedule Date <input type="datetime-local" name="scheduleDate" [(ngModel)]="formModel.scheduleDate" /></label>
+    <label>Schedule Time <input type="text" name="scheduleTime" [(ngModel)]="formModel.scheduleTime" /></label>
+    <label>Status <input type="number" name="status" [(ngModel)]="formModel.status" /></label>
+    <label>Created At <input type="datetime-local" name="createdAt" [(ngModel)]="formModel.createdAt" /></label>
+    <label>Updated At <input type="datetime-local" name="updatedAt" [(ngModel)]="formModel.updatedAt" /></label>
+    <label>Feedback ID <input type="number" name="feedbackId" [(ngModel)]="formModel.feedbackId" /></label>
+    <label>Job ID <input type="number" name="jobId" [(ngModel)]="formModel.jobId" /></label>
+    <label>Recruiter ID <input type="number" name="recruiterId" [(ngModel)]="formModel.recruiterId" /></label>
+    <label>Interview Round <input type="number" name="interviewRound" [(ngModel)]="formModel.interviewRound" /></label>
+    <label>Candidate Accept <input type="text" name="candidateAccept" [(ngModel)]="formModel.candidateAccept" /></label>
+    <label>Order ID <input type="number" name="orderId" [(ngModel)]="formModel.orderId" /></label>
+    <label>Support Admin ID <input type="number" name="supportAdminId" [(ngModel)]="formModel.supportAdminId" /></label>
+    <label>Schedule Time Slot <input type="text" name="scheduleTimeSlot" [(ngModel)]="formModel.scheduleTimeSlot" /></label>
+    <label>Schedule Type <input type="number" name="scheduleType" [(ngModel)]="formModel.scheduleType" /></label>
+    <label>Product ID <input type="number" name="productId" [(ngModel)]="formModel.productId" /></label>
+    <label>Keyskills <input type="text" name="keyskills" [(ngModel)]="formModel.keyskills" /></label>
+    <label>Server Extension <input type="text" name="serverExtension" [(ngModel)]="formModel.serverExtension" /></label>
+    <label>Prioritizer ID <input type="number" name="prioritizerId" [(ngModel)]="formModel.prioritizerId" /></label>
+    <label>Completed At <input type="datetime-local" name="completedAt" [(ngModel)]="formModel.completedAt" /></label>
+    <label>Question IDs <input type="text" name="questionIds" [(ngModel)]="formModel.questionIds" /></label>
+
+    @if (!isEditMode()) {
+      <label class="full-width">Skills (comma separated)
+        <input type="text" name="skillsCsv" [(ngModel)]="formModel.skillsCsv" />
+      </label>
+    }
+
+    <label class="checkbox-label"><input type="checkbox" name="isVideoReady" [(ngModel)]="formModel.isVideoReady" /> Is Video Ready</label>
+    <label class="checkbox-label"><input type="checkbox" name="isAcceptedDiscount" [(ngModel)]="formModel.isAcceptedDiscount" /> Is Accepted Discount</label>
+    <label class="checkbox-label"><input type="checkbox" name="isRetakeInterview" [(ngModel)]="formModel.isRetakeInterview" /> Is Retake Interview</label>
+    <label class="checkbox-label"><input type="checkbox" name="isPopupClosed" [(ngModel)]="formModel.isPopupClosed" /> Is Popup Closed</label>
+
+    <div class="actions full-width">
+      <button type="button" (click)="applySampleData()" [disabled]="isSubmitting()">Reset sample data</button>
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Submitting...' : isEditMode() ? 'Update interview schedule' : 'Add interview schedule' }}
+      </button>
+    </div>
+  </form>
+</main>
