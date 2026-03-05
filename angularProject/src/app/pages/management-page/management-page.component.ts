@@ -1,6 +1,6 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContactService } from '../../api/api/contact.service';
@@ -42,6 +42,8 @@ export class ManagementPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
   private readonly contactService = inject(ContactService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   protected readonly pageTitle = computed(() => this.route.snapshot.data['title'] as string);
   protected readonly pageDescription = computed(() => this.route.snapshot.data['description'] as string);
@@ -75,6 +77,9 @@ export class ManagementPageComponent {
 
   constructor() {
     if (this.isCustomersPage()) {
+      if (this.isBrowser) {
+        this.debugCustomerApi('Customer page opened in browser. Starting customer API fetch.');
+      }
       void this.loadCustomers();
       return;
     }
@@ -86,6 +91,19 @@ export class ManagementPageComponent {
 
   protected retryCustomers(): void {
     void this.loadCustomers();
+  }
+
+  private debugCustomerApi(message: string, data?: unknown): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    if (data !== undefined) {
+      console.log(`[Customers Page] ${message}`, data);
+      return;
+    }
+
+    console.log(`[Customers Page] ${message}`);
   }
 
   private async loadCustomers(): Promise<void> {
@@ -101,12 +119,13 @@ export class ManagementPageComponent {
 
       do {
         const requestUrl = `${this.customerApiUrl}?pageIndex=${pageIndex}&pageSize=${this.customerRequestPageSize}`;
-        console.log('[Customers Page] Calling API:', requestUrl);
+        this.debugCustomerApi('Calling API URL:', requestUrl);
 
-        const response = await firstValueFrom(
-          this.httpClient.get<CustomersApiResponse>(requestUrl)
-        );
-        console.log('[Customers Page] API response data:', response);
+        const response = await firstValueFrom(this.httpClient.get<CustomersApiResponse>(requestUrl));
+        this.debugCustomerApi('API response data:', response);
+        if (this.isBrowser) {
+          (window as Window & { __customersApiDebug?: unknown }).__customersApiDebug = response;
+        }
 
         const customersResponse = response.customereListResponses;
         const pagination = customersResponse?.pagination;
@@ -118,12 +137,20 @@ export class ManagementPageComponent {
         pageIndex += 1;
       } while (pageIndex < totalPages && allCustomers.length < totalCount);
 
+      this.debugCustomerApi('Completed API fetch.', {
+        totalCustomersFetched: allCustomers.length,
+        totalCount,
+        totalPages,
+        currentPage
+      });
+
       const uniqueCustomers = Array.from(new Map(allCustomers.map((customer) => [customer.id, customer])).values());
 
       this.customerList.set(uniqueCustomers);
       this.customerTotalCount.set(totalCount || uniqueCustomers.length);
       this.customerCurrentPage.set(1);
-    } catch {
+    } catch (error) {
+      this.debugCustomerApi('API request failed:', error);
       this.customersErrorMessage.set('Unable to load customers right now. Please try again.');
     } finally {
       this.isLoadingCustomers.set(false);
