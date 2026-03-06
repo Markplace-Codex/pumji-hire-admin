@@ -2,10 +2,13 @@ import { DatePipe } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { resolveApiBasePath } from '../../api-base-path';
 import { ContactService } from '../../api/api/contact.service';
 import { ContactFromDto } from '../../api/model/contactFromDto';
+import { CustomerBasicInfoSchema } from '../../api/model/customerBasicInfoSchema';
 
 type PaginationDetails = {
   totalCount?: number;
@@ -63,6 +66,7 @@ type ContractRequestsApiResponse = {
 export class ManagementPageComponent implements OnInit {
   private readonly contactPageSize = 10;
   private readonly defaultPageSize = 10;
+  private customerInfoAccessDenied = false;
 
   private readonly route = inject(ActivatedRoute);
   private readonly httpClient = inject(HttpClient);
@@ -94,6 +98,7 @@ export class ManagementPageComponent implements OnInit {
   protected readonly creditsPageSize = signal(this.defaultPageSize);
   protected readonly creditsTotalCount = signal(0);
   protected readonly creditsTotalPages = signal(0);
+  protected readonly customerNameByUserId = signal<Record<number, string>>({});
   protected readonly creditsPageLabel = computed(() => {
     if (this.creditsTotalPages() === 0) {
       return 'Page 0 of 0';
@@ -120,6 +125,14 @@ export class ManagementPageComponent implements OnInit {
   });
   protected readonly hasPreviousContractPage = computed(() => this.contractCurrentPage() > 0);
   protected readonly hasNextContractPage = computed(() => this.contractCurrentPage() + 1 < this.contractTotalPages());
+
+  protected getCustomerName(userId: number | undefined): string {
+    if (typeof userId !== 'number') {
+      return '';
+    }
+
+    return this.customerNameByUserId()[userId] ?? '';
+  }
 
   ngOnInit(): void {
     if (this.isContactUsPage()) {
@@ -170,6 +183,7 @@ export class ManagementPageComponent implements OnInit {
           const pagination = response.creditsListResponses?.pagination;
 
           this.credits.set(response.creditsListResponses?.creditsList ?? []);
+          this.loadCustomerNamesForCredits(this.credits());
           this.creditsCurrentPage.set(pagination?.currentPage ?? pageIndex);
           this.creditsPageSize.set(pagination?.pageSize ?? this.defaultPageSize);
           this.creditsTotalCount.set(pagination?.totalCount ?? 0);
@@ -181,6 +195,54 @@ export class ManagementPageComponent implements OnInit {
           this.isLoadingCredits.set(false);
         }
       });
+  }
+
+  private loadCustomerNamesForCredits(credits: CreditsListItem[]): void {
+    const idsToFetch = [...new Set(credits.map((credit) => credit.userId).filter((id): id is number => typeof id === 'number'))].filter(
+      (id) => !this.customerNameByUserId()[id]
+    );
+
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied) {
+      return;
+    }
+
+    const requests = idsToFetch.map((userId) =>
+      this.getCustomerInfo(userId).pipe(
+        map((response) => {
+          const customerInfo = response.customerBasicInfo;
+          const customerName = customerInfo?.customerName?.trim() || customerInfo?.userName?.trim() || '';
+
+          return {
+            userId,
+            customerName
+          };
+        }),
+        catchError((error: unknown) => {
+          if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+            this.customerInfoAccessDenied = true;
+          }
+
+          return of({ userId, customerName: '' });
+        })
+      )
+    );
+
+    forkJoin(requests).subscribe((results) => {
+      const existing = this.customerNameByUserId();
+      const updated: Record<number, string> = { ...existing };
+
+      for (const result of results) {
+        updated[result.userId] = result.customerName;
+      }
+
+      this.customerNameByUserId.set(updated);
+    });
+  }
+
+  private getCustomerInfo(userId: number) {
+    return this.httpClient.get<CustomerBasicInfoSchema>(`${resolveApiBasePath()}/api/Customer/GetCustomerInfo`, {
+      params: { UserId: userId }
+    });
   }
 
   private loadContractRequests(pageIndex: number): void {
