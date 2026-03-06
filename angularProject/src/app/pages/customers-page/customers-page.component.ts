@@ -33,6 +33,12 @@ type CustomersApiResponse = {
   message?: string | null;
 };
 
+type CustomerSearchApiResponse = {
+  customerList?: CustomerListItem[];
+  isSuccess?: boolean;
+  message?: string | null;
+};
+
 type CustomerSearchField = 'username' | 'name' | 'email' | 'phone' | 'active' | 'createdOn';
 
 type CustomerSearchRequest = {
@@ -247,12 +253,16 @@ export class CustomersPageComponent {
     };
 
     this.httpClient
-      .post<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers/Search`, payload)
+      .post<CustomerSearchApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers/Search`, payload)
       .subscribe({
         next: (response) => {
-          this.applyCustomersResponse(response, 0);
+          const customerList = response.customerList ?? [];
+
+          this.customers.set(customerList);
+          this.totalCount.set(customerList.length);
+          this.pageSize.set(this.defaultPageSize);
           this.currentPage.set(0);
-          this.totalPages.set(response.customerListResponses?.pagination?.totalPages ?? (this.customers().length > 0 ? 1 : 0));
+          this.totalPages.set(customerList.length > 0 ? 1 : 0);
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
