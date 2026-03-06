@@ -22,7 +22,7 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>User ID</th>
+            <th>Customer Name</th>
             <th>Schedule Date</th>
             <th>Schedule Time</th>
             <th>Status</th>
@@ -42,7 +42,7 @@
             @for (schedule of schedules(); track schedule.id ?? $index) {
               <tr>
                 <td>{{ schedule.id ?? '-' }}</td>
-                <td>{{ schedule.userId ?? '-' }}</td>
+                <td>{{ getCustomerName(schedule.userId) || '-' }}</td>
                 <td>{{ schedule.scheduleDate ?? '-' }}</td>
                 <td>{{ schedule.scheduleTime ?? '-' }}</td>
                 <td>{{ schedule.status ?? '-' }}</td>
