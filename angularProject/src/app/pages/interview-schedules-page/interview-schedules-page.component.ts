@@ -1,7 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
+import { CustomerBasicInfoSchema } from '../../api/model/customerBasicInfoSchema';
 import { resolveApiBasePath } from '../../api-base-path';
 
 type InterviewScheduleItem = {
@@ -61,10 +64,12 @@ export class InterviewSchedulesPageComponent {
   private readonly router = inject(Router);
 
   private readonly defaultPageSize = 5;
+  private customerInfoAccessDenied = false;
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly schedules = signal<InterviewScheduleItem[]>([]);
+  protected readonly customerNameByUserId = signal<Record<number, string>>({});
 
   protected readonly totalCount = signal(0);
   protected readonly pageSize = signal(this.defaultPageSize);
@@ -111,6 +116,14 @@ export class InterviewSchedulesPageComponent {
     });
   }
 
+  protected getCustomerName(userId: number | undefined): string {
+    if (typeof userId !== 'number') {
+      return '';
+    }
+
+    return this.customerNameByUserId()[userId] ?? '';
+  }
+
   private loadInterviewSchedules(pageIndex: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -127,6 +140,7 @@ export class InterviewSchedulesPageComponent {
           const pageData = response.paginationOrder?.pagination;
 
           this.schedules.set(response.paginationOrder?.orderDto ?? []);
+          this.loadCustomerNamesForSchedules(this.schedules());
           this.totalCount.set(pageData?.totalCount ?? 0);
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
@@ -138,6 +152,53 @@ export class InterviewSchedulesPageComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  private loadCustomerNamesForSchedules(schedules: InterviewScheduleItem[]): void {
+    const idsToFetch = [...new Set(schedules.map((schedule) => schedule.userId).filter((id): id is number => typeof id === 'number'))]
+      .filter((id) => !this.customerNameByUserId()[id]);
+
+    if (idsToFetch.length === 0 || this.customerInfoAccessDenied) {
+      return;
+    }
+
+    const requests = idsToFetch.map((userId) =>
+      this.getCustomerInfo(userId).pipe(
+        map((response) => {
+          const customerInfo = response.customerBasicInfo;
+          const customerName = customerInfo?.customerName?.trim() || customerInfo?.userName?.trim() || '';
+
+          return {
+            userId,
+            customerName
+          };
+        }),
+        catchError((error: unknown) => {
+          if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+            this.customerInfoAccessDenied = true;
+          }
+
+          return of({ userId, customerName: '' });
+        })
+      )
+    );
+
+    forkJoin(requests).subscribe((results) => {
+      const existing = this.customerNameByUserId();
+      const updated: Record<number, string> = { ...existing };
+
+      for (const result of results) {
+        updated[result.userId] = result.customerName;
+      }
+
+      this.customerNameByUserId.set(updated);
+    });
+  }
+
+  private getCustomerInfo(userId: number) {
+    return this.httpClient.get<CustomerBasicInfoSchema>(`${resolveApiBasePath()}/api/Customer/GetCustomerInfo`, {
+      params: { UserId: userId }
+    });
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
