@@ -1,7 +1,42 @@
 <main class="orders-page">
   <a routerLink="/home" class="back-link">← Back to home</a>
   <h1>Orders</h1>
-  <p>Orders from <code>/api/Order/GetAll</code> with pagination.</p>
+  <p>Orders from <code>/api/Order/GetAll</code> with pagination and filter search via <code>/api/SuperAdmin/OrdersSearch</code>.</p>
+
+  <section class="filter-panel">
+    <h2>Filter Orders</h2>
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="filter-form">
+      <label>
+        Customer Name
+        <input type="text" formControlName="customerName" placeholder="e.g. John" />
+      </label>
+
+      <label>
+        Payment Type
+        <input type="text" formControlName="paymentType" placeholder="e.g. Card" />
+      </label>
+
+      <label>
+        Amount Paid
+        <input type="number" formControlName="amountPaid" placeholder="e.g. 100" />
+      </label>
+
+      <label>
+        Status
+        <input type="text" formControlName="status" placeholder="e.g. Completed" />
+      </label>
+
+      <label>
+        Created On
+        <input type="datetime-local" formControlName="createdOn" />
+      </label>
+
+      <div class="filter-actions">
+        <button type="submit" [disabled]="isLoading()">Apply Filter</button>
+        <button type="button" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
+      </div>
+    </form>
+  </section>
 
   <button type="button" (click)="navigateToAddOrder()">Add Order</button>
 
@@ -61,10 +96,10 @@
       </div>
 
       <div class="pagination-actions">
-        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading() || isFilterActive()">
           Previous
         </button>
-        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading() || isFilterActive()">
           Next
         </button>
       </div>

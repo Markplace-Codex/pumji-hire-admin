@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -7,11 +8,20 @@ import { catchError, map } from 'rxjs/operators';
 import { OrderService } from '../../api/api/order.service';
 import { OrderDto } from '../../api/model/orderDto';
 import { CustomerBasicInfoSchema } from '../../api/model/customerBasicInfoSchema';
+import { PaginationOrderSchema } from '../../api/model/paginationOrderSchema';
 import { resolveApiBasePath } from '../../api-base-path';
+
+interface OrdersSearchPayload {
+  customerName?: string;
+  paymentType?: string;
+  amountPaid?: number;
+  status?: string;
+  createdOn?: string;
+}
 
 @Component({
   selector: 'app-orders-page',
-  imports: [RouterLink],
+  imports: [RouterLink, ReactiveFormsModule],
   templateUrl: './orders-page.component.html',
   styleUrl: './orders-page.component.scss'
 })
@@ -19,6 +29,7 @@ export class OrdersPageComponent {
   private readonly orderService = inject(OrderService);
   private readonly httpClient = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly formBuilder = inject(FormBuilder);
 
   private readonly defaultPageSize = 5;
   private customerInfoAccessDenied = false;
@@ -32,6 +43,15 @@ export class OrdersPageComponent {
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly customerNameById = signal<Record<number, string>>({});
+  protected readonly isFilterActive = signal(false);
+
+  protected readonly filterForm = this.formBuilder.group({
+    customerName: [''],
+    paymentType: [''],
+    amountPaid: [''],
+    status: [''],
+    createdOn: ['']
+  });
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -49,7 +69,7 @@ export class OrdersPageComponent {
   }
 
   protected goToPreviousPage(): void {
-    if (!this.hasPreviousPage() || this.isLoading()) {
+    if (!this.hasPreviousPage() || this.isLoading() || this.isFilterActive()) {
       return;
     }
 
@@ -57,7 +77,7 @@ export class OrdersPageComponent {
   }
 
   protected goToNextPage(): void {
-    if (!this.hasNextPage() || this.isLoading()) {
+    if (!this.hasNextPage() || this.isLoading() || this.isFilterActive()) {
       return;
     }
 
@@ -65,7 +85,28 @@ export class OrdersPageComponent {
   }
 
   protected retry(): void {
+    if (this.isFilterActive()) {
+      this.searchOrders();
+      return;
+    }
+
     this.loadOrders(this.currentPage());
+  }
+
+  protected applyFilters(): void {
+    this.searchOrders();
+  }
+
+  protected clearFilters(): void {
+    this.filterForm.reset({
+      customerName: '',
+      paymentType: '',
+      amountPaid: '',
+      status: '',
+      createdOn: ''
+    });
+    this.isFilterActive.set(false);
+    this.loadOrders(0);
   }
 
   protected navigateToAddOrder(): void {
@@ -99,6 +140,69 @@ export class OrdersPageComponent {
         this.isLoading.set(false);
       }
     });
+  }
+
+  private searchOrders(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    const payload = this.buildSearchPayload();
+    this.isFilterActive.set(Object.keys(payload).length > 0);
+
+    this.httpClient.post<PaginationOrderSchema>(`${resolveApiBasePath()}/api/SuperAdmin/OrdersSearch`, payload).subscribe({
+      next: (response) => {
+        const pageData = response.paginationOrder?.pagination;
+        const orderList = response.paginationOrder?.orderDto ?? [];
+
+        this.orders.set(orderList);
+        this.totalCount.set(pageData?.totalCount ?? orderList.length);
+        this.pageSize.set(pageData?.pageSize ?? Math.max(orderList.length, this.defaultPageSize));
+        this.currentPage.set(pageData?.currentPage ?? 0);
+        this.totalPages.set(pageData?.totalPages ?? (orderList.length > 0 ? 1 : 0));
+        this.loadCustomerNamesForOrders(this.orders());
+        this.isLoading.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage.set(this.resolveErrorMessage(error));
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private buildSearchPayload(): OrdersSearchPayload {
+    const raw = this.filterForm.getRawValue();
+    const payload: OrdersSearchPayload = {};
+
+    const customerName = raw.customerName?.trim();
+    const paymentType = raw.paymentType?.trim();
+    const status = raw.status?.trim();
+    const createdOn = raw.createdOn?.trim();
+    const amountPaidValue = raw.amountPaid?.trim();
+
+    if (customerName) {
+      payload.customerName = customerName;
+    }
+
+    if (paymentType) {
+      payload.paymentType = paymentType;
+    }
+
+    if (status) {
+      payload.status = status;
+    }
+
+    if (amountPaidValue && !Number.isNaN(Number(amountPaidValue))) {
+      payload.amountPaid = Number(amountPaidValue);
+    }
+
+    if (createdOn) {
+      const parsedDate = new Date(createdOn);
+      if (!Number.isNaN(parsedDate.getTime())) {
+        payload.createdOn = parsedDate.toISOString();
+      }
+    }
+
+    return payload;
   }
 
   protected getCustomerName(customerId: number | null | undefined): string {
