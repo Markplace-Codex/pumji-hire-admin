@@ -32,6 +32,23 @@ code {
   padding: 0.15rem 0.3rem;
 }
 
+
+.toolbar {
+  margin-top: 1.25rem;
+}
+
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 0.5rem 0.8rem;
+  text-decoration: none;
+}
+
 .table-wrapper {
   margin-top: 1.5rem;
   border: 1px solid #cbd5e1;
@@ -43,7 +60,7 @@ code {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1080px;
+  min-width: 1180px;
 }
 
 th,

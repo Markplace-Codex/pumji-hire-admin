@@ -8,12 +8,15 @@ import { InterviewSchedulesPageComponent } from './pages/interview-schedules-pag
 import { CustomersPageComponent } from './pages/customers-page/customers-page.component';
 import { OrderFormPageComponent } from './pages/order-form-page/order-form-page.component';
 import { InterviewScheduleFormPageComponent } from './pages/interview-schedule-form-page/interview-schedule-form-page.component';
+import { CustomerFormPageComponent } from './pages/customer-form-page/customer-form-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'login', component: LoginPageComponent },
   { path: 'home', component: HomePageComponent },
   { path: 'customers', component: CustomersPageComponent },
+  { path: 'customers/add', component: CustomerFormPageComponent },
+  { path: 'customers/edit', component: CustomerFormPageComponent },
   { path: 'orders', component: OrdersPageComponent },
   { path: 'orders/add', component: OrderFormPageComponent },
   { path: 'orders/edit', component: OrderFormPageComponent },

@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { resolveApiBasePath } from '../../api-base-path';
 
@@ -41,6 +41,7 @@ type CustomersApiResponse = {
 })
 export class CustomersPageComponent {
   private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
 
   private readonly defaultPageSize = 10;
 
@@ -85,6 +86,26 @@ export class CustomersPageComponent {
 
   protected retry(): void {
     this.loadCustomers(this.currentPage());
+  }
+
+  protected editCustomer(customer: CustomerListItem): void {
+    this.router.navigate(['/customers/edit'], {
+      state: {
+        customer: {
+          email: customer.email ?? '',
+          username: customer.username ?? '',
+          password: 'string',
+          gender: customer.gender ?? '',
+          firstName: customer.firstName ?? '',
+          lastName: customer.lastName ?? '',
+          dateOfBirth: '',
+          phoneNumber: customer.phone ?? '',
+          is18OrAbove: true,
+          isWhatsAppNumber: true,
+          countryId: 'string'
+        }
+      }
+    });
   }
 
   private loadCustomers(pageIndex: number): void {
