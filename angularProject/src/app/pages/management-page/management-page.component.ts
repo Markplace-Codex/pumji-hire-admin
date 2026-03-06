@@ -183,7 +183,7 @@ export class ManagementPageComponent implements OnInit {
           const pagination = response.creditsListResponses?.pagination;
 
           this.credits.set(response.creditsListResponses?.creditsList ?? []);
-          this.loadCustomerNamesForCredits(this.credits());
+          this.loadCustomerNamesByUserIds(this.credits());
           this.creditsCurrentPage.set(pagination?.currentPage ?? pageIndex);
           this.creditsPageSize.set(pagination?.pageSize ?? this.defaultPageSize);
           this.creditsTotalCount.set(pagination?.totalCount ?? 0);
@@ -197,8 +197,8 @@ export class ManagementPageComponent implements OnInit {
       });
   }
 
-  private loadCustomerNamesForCredits(credits: CreditsListItem[]): void {
-    const idsToFetch = [...new Set(credits.map((credit) => credit.userId).filter((id): id is number => typeof id === 'number'))].filter(
+  private loadCustomerNamesByUserIds(entries: Array<{ userId?: number }>): void {
+    const idsToFetch = [...new Set(entries.map((entry) => entry.userId).filter((id): id is number => typeof id === 'number'))].filter(
       (id) => !this.customerNameByUserId()[id]
     );
 
@@ -261,6 +261,7 @@ export class ManagementPageComponent implements OnInit {
           const pagination = response.contractListResponses?.pagination;
 
           this.contractRequests.set(response.contractListResponses?.contractorsList ?? []);
+          this.loadCustomerNamesByUserIds(this.contractRequests());
           this.contractCurrentPage.set(pagination?.currentPage ?? pageIndex);
           this.contractPageSize.set(pagination?.pageSize ?? this.defaultPageSize);
           this.contractTotalCount.set(pagination?.totalCount ?? 0);

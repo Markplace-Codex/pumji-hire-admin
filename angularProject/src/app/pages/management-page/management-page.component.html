@@ -121,7 +121,7 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>User ID</th>
+                <th>Customer Name</th>
                 <th>Work Type</th>
                 <th>Company Preference</th>
                 <th>Weekly</th>
@@ -136,7 +136,7 @@
               @for (request of contractRequests(); track request.id) {
                 <tr>
                   <td>{{ request.id }}</td>
-                  <td>{{ request.userId ?? '-' }}</td>
+                  <td>{{ getCustomerName(request.userId) || '-' }}</td>
                   <td>{{ request.worktype || '-' }}</td>
                   <td>{{ request.companyTypePref || '-' }}</td>
                   <td>{{ request.weeklyBasis ?? 0 }}</td>
