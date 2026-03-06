@@ -3,6 +3,10 @@
   <h1>Customers List</h1>
   <p>Customers from <code>/api/SuperAdmin/Customers</code> with pagination.</p>
 
+  <section class="toolbar">
+    <a routerLink="/customers/add" class="action-link">+ Add customer</a>
+  </section>
+
   @if (errorMessage()) {
     <section class="state state-error">
       <p>{{ errorMessage() }}</p>
@@ -26,12 +30,13 @@
             <th>Active</th>
             <th>Created On</th>
             <th>Modified On</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (customers().length === 0) {
             <tr>
-              <td colspan="9" class="empty-cell">No customers found.</td>
+              <td colspan="10" class="empty-cell">No customers found.</td>
             </tr>
           } @else {
             @for (customer of customers(); track customer.id ?? $index) {
@@ -45,6 +50,7 @@
                 <td>{{ customer.active ? 'Yes' : 'No' }}</td>
                 <td>{{ customer.createdOn ?? '-' }}</td>
                 <td>{{ customer.modifiedOn ?? '-' }}</td>
+                <td><button type="button" (click)="editCustomer(customer)">Edit</button></td>
               </tr>
             }
           }

@@ -1,0 +1,36 @@
+<main class="customer-form-page">
+  <a routerLink="/customers" class="back-link">← Back to customers</a>
+
+  <h1>{{ isEditMode() ? 'Edit Customer' : 'Add Customer' }}</h1>
+  <p>Submit customer data using <code>/api/Customer/Register</code>.</p>
+
+  @if (submitError()) {
+    <div class="alert alert-error">{{ submitError() }}</div>
+  }
+
+  @if (submitSuccess()) {
+    <div class="alert alert-success">{{ submitSuccess() }}</div>
+  }
+
+  <form (ngSubmit)="submitForm()" class="form-grid">
+    <label>Email <input type="email" name="email" [(ngModel)]="formModel.email" required /></label>
+    <label>Username <input type="text" name="username" [(ngModel)]="formModel.username" required /></label>
+    <label>Password <input type="text" name="password" [(ngModel)]="formModel.password" required /></label>
+    <label>Gender <input type="text" name="gender" [(ngModel)]="formModel.gender" /></label>
+    <label>First Name <input type="text" name="firstName" [(ngModel)]="formModel.firstName" /></label>
+    <label>Last Name <input type="text" name="lastName" [(ngModel)]="formModel.lastName" /></label>
+    <label>Date Of Birth <input type="datetime-local" name="dateOfBirth" [(ngModel)]="formModel.dateOfBirth" /></label>
+    <label>Phone Number <input type="text" name="phoneNumber" [(ngModel)]="formModel.phoneNumber" /></label>
+    <label>Country ID <input type="text" name="countryId" [(ngModel)]="formModel.countryId" /></label>
+
+    <label class="checkbox-label"><input type="checkbox" name="is18OrAbove" [(ngModel)]="formModel.is18OrAbove" /> Is 18 Or Above</label>
+    <label class="checkbox-label"><input type="checkbox" name="isWhatsAppNumber" [(ngModel)]="formModel.isWhatsAppNumber" /> Is WhatsApp Number</label>
+
+    <div class="actions full-width">
+      <button type="button" (click)="applySampleData()" [disabled]="isSubmitting()">Reset sample data</button>
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Submitting...' : isEditMode() ? 'Update customer' : 'Add customer' }}
+      </button>
+    </div>
+  </form>
+</main>
