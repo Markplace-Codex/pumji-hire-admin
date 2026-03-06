@@ -47,10 +47,39 @@
                 <td>{{ customer.email ?? '-' }}</td>
                 <td>{{ customer.phone ?? '-' }}</td>
                 <td>{{ customer.gender ?? '-' }}</td>
-                <td>{{ customer.active ? 'Yes' : 'No' }}</td>
+                <td>
+                  @if (isEditingCustomer(customer.id)) {
+                    <select
+                      [value]="editingActiveValue() ? 'true' : 'false'"
+                      (change)="updateEditingActiveValue($any($event.target).value)">
+                      <option value="true">true</option>
+                      <option value="false">false</option>
+                    </select>
+                  } @else {
+                    {{ customer.active ? 'Yes' : 'No' }}
+                  }
+                </td>
                 <td>{{ customer.createdOn ?? '-' }}</td>
                 <td>{{ customer.modifiedOn ?? '-' }}</td>
-                <td><button type="button" (click)="editCustomer(customer)">Edit</button></td>
+                <td class="actions-cell">
+                  @if (isEditingCustomer(customer.id)) {
+                    <button
+                      type="button"
+                      (click)="saveActiveStatus(customer)"
+                      [disabled]="savingCustomerId() === customer.id">
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      (click)="cancelEdit()"
+                      [disabled]="savingCustomerId() === customer.id"
+                      class="secondary-button">
+                      Cancel
+                    </button>
+                  } @else {
+                    <button type="button" (click)="editCustomer(customer)">Edit</button>
+                  }
+                </td>
               </tr>
             }
           }

@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { resolveApiBasePath } from '../../api-base-path';
 
@@ -41,7 +41,6 @@ type CustomersApiResponse = {
 })
 export class CustomersPageComponent {
   private readonly httpClient = inject(HttpClient);
-  private readonly router = inject(Router);
 
   private readonly defaultPageSize = 10;
 
@@ -53,6 +52,9 @@ export class CustomersPageComponent {
   protected readonly pageSize = signal(this.defaultPageSize);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
+  protected readonly editingCustomerId = signal<number | null>(null);
+  protected readonly editingActiveValue = signal<boolean | null>(null);
+  protected readonly savingCustomerId = signal<number | null>(null);
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -89,23 +91,72 @@ export class CustomersPageComponent {
   }
 
   protected editCustomer(customer: CustomerListItem): void {
-    this.router.navigate(['/customers/edit'], {
-      state: {
-        customer: {
-          email: customer.email ?? '',
-          username: customer.username ?? '',
-          password: 'string',
-          gender: customer.gender ?? '',
-          firstName: customer.firstName ?? '',
-          lastName: customer.lastName ?? '',
-          dateOfBirth: '',
-          phoneNumber: customer.phone ?? '',
-          is18OrAbove: true,
-          isWhatsAppNumber: true,
-          countryId: 'string'
+    if (customer.id == null) {
+      this.errorMessage.set('Unable to edit active status because customer id is missing.');
+      return;
+    }
+
+    this.errorMessage.set(null);
+    this.editingCustomerId.set(customer.id);
+    this.editingActiveValue.set(!!customer.active);
+  }
+
+  protected isEditingCustomer(customerId: number | undefined): boolean {
+    if (customerId == null) {
+      return false;
+    }
+
+    return this.editingCustomerId() === customerId;
+  }
+
+  protected updateEditingActiveValue(rawValue: string): void {
+    this.editingActiveValue.set(rawValue === 'true');
+  }
+
+  protected cancelEdit(): void {
+    this.editingCustomerId.set(null);
+    this.editingActiveValue.set(null);
+    this.savingCustomerId.set(null);
+  }
+
+  protected saveActiveStatus(customer: CustomerListItem): void {
+    if (customer.id == null || this.editingActiveValue() == null) {
+      this.errorMessage.set('Unable to save active status because required data is missing.');
+      return;
+    }
+
+    this.errorMessage.set(null);
+    this.savingCustomerId.set(customer.id);
+
+    this.httpClient
+      .put<void>(`${resolveApiBasePath()}/api/SuperAdmin/CustomerActiveStatus`, null, {
+        params: {
+          CustomerId: customer.id,
+          Active: this.editingActiveValue()!
         }
-      }
-    });
+      })
+      .subscribe({
+        next: () => {
+          this.customers.update((customers) =>
+            customers.map((item) => {
+              if (item.id !== customer.id) {
+                return item;
+              }
+
+              return {
+                ...item,
+                active: this.editingActiveValue()!
+              };
+            })
+          );
+
+          this.cancelEdit();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(this.resolveErrorMessage(error));
+          this.savingCustomerId.set(null);
+        }
+      });
   }
 
   private loadCustomers(pageIndex: number): void {
