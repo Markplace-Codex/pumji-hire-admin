@@ -33,6 +33,13 @@ type CustomersApiResponse = {
   message?: string | null;
 };
 
+type CustomerSearchField = 'username' | 'name' | 'email' | 'phone' | 'active' | 'createdOn';
+
+type CustomerSearchRequest = {
+  searchBy: string;
+  searchValue: string;
+};
+
 @Component({
   selector: 'app-customers-page',
   imports: [RouterLink],
@@ -52,9 +59,30 @@ export class CustomersPageComponent {
   protected readonly pageSize = signal(this.defaultPageSize);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
+  protected readonly selectedSearchField = signal<CustomerSearchField>('username');
+  protected readonly searchValue = signal('');
   protected readonly editingCustomerId = signal<number | null>(null);
   protected readonly editingActiveValue = signal<boolean | null>(null);
   protected readonly savingCustomerId = signal<number | null>(null);
+
+  protected readonly searchFieldOptions: Array<{ value: CustomerSearchField; label: string }> = [
+    { value: 'username', label: 'Username' },
+    { value: 'name', label: 'Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'phone', label: 'Phone Number' },
+    { value: 'active', label: 'Active' },
+    { value: 'createdOn', label: 'Created On' }
+  ];
+
+  protected readonly isActiveSearch = computed(() => this.selectedSearchField() === 'active');
+  protected readonly isCreatedOnSearch = computed(() => this.selectedSearchField() === 'createdOn');
+  protected readonly hasActiveFilter = computed(
+    () => this.selectedSearchField() === 'active' && this.searchValue().trim().length > 0
+  );
+  protected readonly hasTextFilter = computed(
+    () => this.selectedSearchField() !== 'active' && this.searchValue().trim().length > 0
+  );
+  protected readonly hasSearchFilter = computed(() => this.hasTextFilter() || this.hasActiveFilter());
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -88,6 +116,25 @@ export class CustomersPageComponent {
 
   protected retry(): void {
     this.loadCustomers(this.currentPage());
+  }
+
+  protected updateSelectedSearchField(rawValue: string): void {
+    const selectedOption = this.searchFieldOptions.find((option) => option.value === rawValue);
+    this.selectedSearchField.set(selectedOption?.value ?? 'username');
+    this.searchValue.set('');
+  }
+
+  protected updateSearchValue(rawValue: string): void {
+    this.searchValue.set(rawValue);
+  }
+
+  protected applySearchFilter(): void {
+    this.loadCustomers(0);
+  }
+
+  protected clearSearchFilter(): void {
+    this.searchValue.set('');
+    this.loadCustomers(0);
   }
 
   protected editCustomer(customer: CustomerListItem): void {
@@ -163,6 +210,11 @@ export class CustomersPageComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
+    if (this.hasSearchFilter()) {
+      this.searchCustomers();
+      return;
+    }
+
     this.httpClient
       .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
         params: {
@@ -186,6 +238,38 @@ export class CustomersPageComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  private searchCustomers(): void {
+    const payload: CustomerSearchRequest = {
+      searchBy: this.selectedSearchField(),
+      searchValue: this.searchValue().trim()
+    };
+
+    this.httpClient
+      .post<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers/Search`, payload)
+      .subscribe({
+        next: (response) => {
+          this.applyCustomersResponse(response, 0);
+          this.currentPage.set(0);
+          this.totalPages.set(response.customerListResponses?.pagination?.totalPages ?? (this.customers().length > 0 ? 1 : 0));
+          this.isLoading.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(this.resolveErrorMessage(error));
+          this.isLoading.set(false);
+        }
+      });
+  }
+
+  private applyCustomersResponse(response: CustomersApiResponse, fallbackPageIndex: number): void {
+    const pageData = response.customerListResponses?.pagination;
+
+    this.customers.set(response.customerListResponses?.customerList ?? []);
+    this.totalCount.set(pageData?.totalCount ?? response.customerListResponses?.customerList?.length ?? 0);
+    this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
+    this.currentPage.set(pageData?.currentPage ?? fallbackPageIndex);
+    this.totalPages.set(pageData?.totalPages ?? 0);
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
