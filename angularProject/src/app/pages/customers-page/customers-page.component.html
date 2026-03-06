@@ -1,10 +1,49 @@
 <main class="interview-schedules-page">
   <a routerLink="/home" class="back-link">← Back to home</a>
   <h1>Customers List</h1>
-  <p>Customers from <code>/api/SuperAdmin/Customers</code> with pagination.</p>
+  <p>Customers from <code>/api/SuperAdmin/Customers</code> with pagination and search.</p>
 
   <section class="toolbar">
     <a routerLink="/customers/add" class="action-link">+ Add customer</a>
+  </section>
+
+  <section class="filter-row">
+    <label>
+      Search By
+      <select [value]="selectedSearchField()" (change)="updateSelectedSearchField($any($event.target).value)">
+        @for (option of searchFieldOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Search Value
+      @if (isActiveSearch()) {
+        <select [value]="searchValue()" (change)="updateSearchValue($any($event.target).value)">
+          <option value="">Select</option>
+          <option value="true">true</option>
+          <option value="false">false</option>
+        </select>
+      } @else if (isCreatedOnSearch()) {
+        <input
+          type="date"
+          [value]="searchValue()"
+          (input)="updateSearchValue($any($event.target).value)"
+          placeholder="Select created date" />
+      } @else {
+        <input
+          type="text"
+          [value]="searchValue()"
+          (input)="updateSearchValue($any($event.target).value)"
+          placeholder="Enter search value" />
+      }
+    </label>
+
+    <div class="filter-actions">
+      <button type="button" (click)="applySearchFilter()" [disabled]="isLoading()">Search</button>
+      <button type="button" class="secondary-button" (click)="clearSearchFilter()" [disabled]="isLoading()">Clear</button>
+    </div>
   </section>
 
   @if (errorMessage()) {
@@ -94,10 +133,10 @@
       </div>
 
       <div class="pagination-actions">
-        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading() || hasSearchFilter()">
           Previous
         </button>
-        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading() || hasSearchFilter()">
           Next
         </button>
       </div>
