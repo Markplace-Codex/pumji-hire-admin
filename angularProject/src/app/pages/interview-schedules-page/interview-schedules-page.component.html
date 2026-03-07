@@ -1,10 +1,60 @@
 <main class="interview-schedules-page">
   <a routerLink="/home" class="back-link">← Back to home</a>
   <h1>Interview Schedules</h1>
-  <p>Interview schedules from <code>/api/SuperAdmin/InterviewSchedules</code> with pagination.</p>
+  <p>
+    Interview schedules from <code>/api/SuperAdmin/InterviewSchedules</code> and filtered search via
+    <code>/api/SuperAdmin/SearchInterviewSchedules</code>.
+  </p>
 
   <section class="toolbar">
     <a routerLink="/interview-schedules/add" class="action-link">+ Add interview schedule</a>
+  </section>
+
+  <section class="filters-card">
+    <h2>Filters</h2>
+    <p class="filters-help">Use comma-separated values for multi-select filters.</p>
+
+    <div class="filters-grid">
+      <label>
+        <span>Customer Name</span>
+        <input
+          type="text"
+          placeholder="e.g. John, Alice"
+          [(ngModel)]="customerNameFilter"
+          [disabled]="isLoading()"
+        />
+      </label>
+
+      <label>
+        <span>Schedule Date</span>
+        <input type="date" [(ngModel)]="scheduleDateFilter" [disabled]="isLoading()" />
+      </label>
+
+      <label>
+        <span>Schedule Time</span>
+        <input
+          type="text"
+          placeholder="e.g. 10:00 AM, 02:30 PM"
+          [(ngModel)]="scheduleTimeFilter"
+          [disabled]="isLoading()"
+        />
+      </label>
+
+      <label>
+        <span>Status</span>
+        <input
+          type="text"
+          placeholder="e.g. Pending, Completed"
+          [(ngModel)]="statusFilter"
+          [disabled]="isLoading()"
+        />
+      </label>
+    </div>
+
+    <div class="filters-actions">
+      <button type="button" (click)="searchSchedules()" [disabled]="isLoading()">Apply filters</button>
+      <button type="button" class="secondary" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
+    </div>
   </section>
 
   @if (errorMessage()) {
@@ -60,6 +110,7 @@
       </table>
     </section>
 
+    @if (!isFilterApplied) {
     <section class="pagination-row">
       <div class="pagination-meta">
         <span>{{ pageLabel() }}</span>
@@ -75,5 +126,6 @@
         </button>
       </div>
     </section>
+    }
   }
 </main>

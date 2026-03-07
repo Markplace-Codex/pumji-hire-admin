@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -53,9 +54,16 @@ type InterviewSchedulesApiResponse = {
   message?: string | null;
 };
 
+type SearchInterviewSchedulesRequest = {
+  customerName: string | string[];
+  scheduleDate?: string | string[];
+  scheduleTime?: string | string[];
+  status: string | string[];
+};
+
 @Component({
   selector: 'app-interview-schedules-page',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './interview-schedules-page.component.html',
   styleUrl: './interview-schedules-page.component.scss'
 })
@@ -75,6 +83,12 @@ export class InterviewSchedulesPageComponent {
   protected readonly pageSize = signal(this.defaultPageSize);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
+
+  protected customerNameFilter = '';
+  protected scheduleDateFilter = '';
+  protected scheduleTimeFilter = '';
+  protected statusFilter = '';
+  protected isFilterApplied = false;
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -107,7 +121,46 @@ export class InterviewSchedulesPageComponent {
   }
 
   protected retry(): void {
+    if (this.isFilterApplied) {
+      this.searchSchedules();
+      return;
+    }
+
     this.loadInterviewSchedules(this.currentPage());
+  }
+
+  protected searchSchedules(): void {
+    const payload = this.buildSearchPayload();
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    this.httpClient.post<InterviewSchedulesApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/SearchInterviewSchedules`, payload).subscribe({
+      next: (response) => {
+        const results = response.paginationOrder?.orderDto ?? [];
+        this.schedules.set(results);
+        this.loadCustomerNamesForSchedules(results);
+        this.totalCount.set(results.length);
+        this.currentPage.set(0);
+        this.totalPages.set(results.length > 0 ? 1 : 0);
+        this.isFilterApplied = true;
+        this.isLoading.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage.set(this.resolveErrorMessage(error));
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  protected clearFilters(): void {
+    this.customerNameFilter = '';
+    this.scheduleDateFilter = '';
+    this.scheduleTimeFilter = '';
+    this.statusFilter = '';
+    this.isFilterApplied = false;
+
+    this.loadInterviewSchedules(0);
   }
 
   protected editSchedule(schedule: InterviewScheduleItem): void {
@@ -145,6 +198,7 @@ export class InterviewSchedulesPageComponent {
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
           this.totalPages.set(pageData?.totalPages ?? 0);
+          this.isFilterApplied = false;
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
@@ -152,6 +206,38 @@ export class InterviewSchedulesPageComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  private buildSearchPayload(): SearchInterviewSchedulesRequest {
+    const payload: SearchInterviewSchedulesRequest = {
+      customerName: this.toSingleOrMultiValue(this.customerNameFilter) ?? '',
+      status: this.toSingleOrMultiValue(this.statusFilter) ?? ''
+    };
+
+    const scheduleDateValues = this.toSingleOrMultiValue(this.scheduleDateFilter, true);
+    if (scheduleDateValues !== undefined) {
+      payload.scheduleDate = scheduleDateValues;
+    }
+
+    const scheduleTimeValues = this.toSingleOrMultiValue(this.scheduleTimeFilter, true);
+    if (scheduleTimeValues !== undefined) {
+      payload.scheduleTime = scheduleTimeValues;
+    }
+
+    return payload;
+  }
+
+  private toSingleOrMultiValue(value: string, omitWhenEmpty = false): string | string[] | undefined {
+    const normalizedValues = value
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+
+    if (normalizedValues.length === 0) {
+      return omitWhenEmpty ? undefined : '';
+    }
+
+    return normalizedValues.length === 1 ? normalizedValues[0] : normalizedValues;
   }
 
   private loadCustomerNamesForSchedules(schedules: InterviewScheduleItem[]): void {
