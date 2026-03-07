@@ -154,7 +154,7 @@ export class OrdersPageComponent {
     this.errorMessage.set(null);
 
     const payload = this.buildSearchPayload();
-    this.isFilterActive.set(this.hasActiveFilters(payload));
+    this.isFilterActive.set(this.hasActiveFilters());
 
     this.httpClient.post<OrdersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/OrdersSearch`, payload).subscribe({
       next: (response) => {
@@ -181,7 +181,7 @@ export class OrdersPageComponent {
     const payload: OrdersSearchPayload = {
       customerName: this.toSingleOrMultiValue(raw.customerName) ?? '',
       paymentType: this.toSingleOrMultiValue(raw.paymentType) ?? '',
-      amountPaid: this.toSingleOrMultiValue(raw.amountPaid) ?? '0',
+      amountPaid: this.toSingleOrMultiValue(raw.amountPaid, true) ?? '0',
       status: this.toSingleOrMultiValue(raw.status) ?? ''
     };
 
@@ -218,13 +218,15 @@ export class OrdersPageComponent {
     return '';
   }
 
-  private hasActiveFilters(payload: OrdersSearchPayload): boolean {
+  private hasActiveFilters(): boolean {
+    const raw = this.filterForm.getRawValue();
+
     return (
-      this.hasValue(payload.customerName) ||
-      this.hasValue(payload.paymentType) ||
-      this.hasValue(payload.status) ||
-      this.hasValue(payload.amountPaid) ||
-      this.hasValue(payload.createdOn)
+      this.hasValue(this.toSingleOrMultiValue(raw.customerName, true)) ||
+      this.hasValue(this.toSingleOrMultiValue(raw.paymentType, true)) ||
+      this.hasValue(this.toSingleOrMultiValue(raw.status, true)) ||
+      this.hasValue(this.toSingleOrMultiValue(raw.amountPaid, true)) ||
+      this.hasValue(this.toSingleOrMultiValue(raw.createdOn, true))
     );
   }
 
