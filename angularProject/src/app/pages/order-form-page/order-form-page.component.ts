@@ -132,7 +132,7 @@ export class OrderFormPageComponent {
       orderSubTotalDiscountInclTax: model.orderSubTotalDiscountInclTax,
       orderSubTotalDiscountExclTax: model.orderSubTotalDiscountExclTax,
       orderDiscount: model.orderDiscount,
-      orderTotal: model.orderTotal,
+      orderTotal: this.toNumberOrZero(model.orderTotal),
       paidDateUtc: this.includePaidDateUtc() ? this.localToIsoString(model.paidDateUtc) : null,
       createdOnUtc: this.includeCreatedOnUtc() ? this.localToIsoString(model.createdOnUtc) : undefined,
       customOrderNumber: model.customOrderNumber || null,
@@ -234,6 +234,10 @@ export class OrderFormPageComponent {
 
   private localToIsoString(value: string): string {
     return value ? new Date(value).toISOString() : '';
+  }
+
+  private toNumberOrZero(value: number | null | undefined): number {
+    return typeof value === 'number' && Number.isFinite(value) ? value : 0;
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
