@@ -43,6 +43,7 @@ type AcceptanceHistoryApiResponse = {
 export class ConsentVersioningPageComponent {
   private readonly httpClient = inject(HttpClient);
   private readonly defaultPageSize = 10;
+  private apiPageIndexOffset = 0;
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -86,9 +87,11 @@ export class ConsentVersioningPageComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
+    const apiPageIndex = pageIndex + this.apiPageIndexOffset;
+
     this.httpClient
       .get<AcceptanceHistoryApiResponse>(`${resolveApiBasePath()}/api/AcceptanceHistory/GetAll`, {
-        params: { pageIndex, pageSize: this.defaultPageSize }
+        params: { pageIndex: apiPageIndex, pageSize: this.defaultPageSize }
       })
       .subscribe({
         next: (response) => {
@@ -104,12 +107,16 @@ export class ConsentVersioningPageComponent {
 
           const pageData = response.acceptanceHistoryListResponses?.pagination;
           const histories = response.acceptanceHistoryListResponses?.acceptanceHistories ?? [];
+          const totalPages = pageData?.totalPages ?? 0;
+
+          this.updateApiPageIndexOffset(pageData?.currentPage, pageIndex);
+          const currentPage = this.resolveCurrentPage(pageData?.currentPage, pageIndex, totalPages);
 
           this.acceptanceHistories.set(histories);
           this.totalCount.set(pageData?.totalCount ?? histories.length);
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
-          this.currentPage.set(pageData?.currentPage ?? pageIndex);
-          this.totalPages.set(pageData?.totalPages ?? 0);
+          this.currentPage.set(currentPage);
+          this.totalPages.set(totalPages);
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
@@ -117,6 +124,38 @@ export class ConsentVersioningPageComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  private updateApiPageIndexOffset(currentPage: number | undefined, requestedPageIndex: number): void {
+    if (typeof currentPage !== 'number') {
+      return;
+    }
+
+    if (currentPage === requestedPageIndex + 1) {
+      this.apiPageIndexOffset = 1;
+      return;
+    }
+
+    if (currentPage === requestedPageIndex) {
+      this.apiPageIndexOffset = 0;
+    }
+  }
+
+  private resolveCurrentPage(
+    currentPageFromApi: number | undefined,
+    requestedPageIndex: number,
+    totalPages: number
+  ): number {
+    if (typeof currentPageFromApi !== 'number') {
+      return requestedPageIndex;
+    }
+
+    const normalizedPage = currentPageFromApi - this.apiPageIndexOffset;
+    if (normalizedPage >= 0 && (totalPages === 0 || normalizedPage < totalPages)) {
+      return normalizedPage;
+    }
+
+    return requestedPageIndex;
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
