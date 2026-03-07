@@ -73,6 +73,29 @@ export class ErrorLogsPageComponent {
     logDate: ''
   });
 
+  protected readonly appliedFilters = signal({
+    severity: '',
+    keyword: '',
+    username: '',
+    logDate: ''
+  });
+
+  protected readonly appliedFiltersLabel = computed(() => {
+    const currentAppliedFilters = this.appliedFilters();
+    const selectedFilters = [
+      currentAppliedFilters.severity ? `Severity: ${currentAppliedFilters.severity}` : null,
+      currentAppliedFilters.keyword ? `Keyword: ${currentAppliedFilters.keyword}` : null,
+      currentAppliedFilters.username ? `Username: ${currentAppliedFilters.username}` : null,
+      currentAppliedFilters.logDate ? `Log Date: ${new Date(currentAppliedFilters.logDate).toLocaleString()}` : null
+    ].filter((item): item is string => item !== null);
+
+    if (selectedFilters.length === 0) {
+      return 'Showing all error logs.';
+    }
+
+    return `Showing filtered results for ${selectedFilters.join(', ')}.`;
+  });
+
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
   protected readonly pageLabel = computed(() => {
@@ -108,6 +131,7 @@ export class ErrorLogsPageComponent {
   }
 
   protected applyFilters(): void {
+    this.appliedFilters.set({ ...this.filters() });
     this.loadErrorLogs(0);
   }
 
@@ -129,12 +153,15 @@ export class ErrorLogsPageComponent {
   }
 
   protected clearFilters(): void {
-    this.filters.set({
+    const resetFilters = {
       severity: '',
       keyword: '',
       username: '',
       logDate: ''
-    });
+    };
+
+    this.filters.set(resetFilters);
+    this.appliedFilters.set(resetFilters);
 
     this.loadErrorLogs(0);
   }
@@ -188,14 +215,14 @@ export class ErrorLogsPageComponent {
   }
 
   private buildSearchPayload(pageIndex: number): ErrorLogSearchRequest {
-    const activeFilters = this.filters();
+    const activeFilters = this.appliedFilters();
 
     const searchPayload: ErrorLogSearchRequest = {
       severity: activeFilters.severity.trim(),
       keyword: activeFilters.keyword.trim(),
       username: activeFilters.username.trim(),
-      pageIndex,
-      pageSize: this.pageSize() || 0
+      pageIndex: Math.max(pageIndex, 0),
+      pageSize: 0
     };
 
     const logDateValue = activeFilters.logDate.trim();

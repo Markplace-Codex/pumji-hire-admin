@@ -30,6 +30,8 @@
       <button type="button" (click)="applyFilters()" [disabled]="isLoading()">Apply Filters</button>
       <button type="button" class="secondary" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
     </div>
+
+    <p class="filter-results-label">{{ appliedFiltersLabel() }}</p>
   </section>
 
   @if (errorMessage()) {
