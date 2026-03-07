@@ -1,0 +1,72 @@
+<main class="consent-versioning-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Consent (Versioning)</h1>
+  <p>Consent acceptance history from <code>/api/AcceptanceHistory/GetAll</code>.</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && acceptanceHistories().length === 0) {
+    <section class="state">
+      <p>Loading consent versioning data...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Document Version</th>
+            <th>Accepted</th>
+            <th>Accepted On</th>
+            <th>IP Signature</th>
+            <th>Device Info</th>
+            <th>Location</th>
+            <th>Action ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (acceptanceHistories().length === 0) {
+            <tr>
+              <td colspan="11" class="empty-cell">No consent history found.</td>
+            </tr>
+          } @else {
+            @for (history of acceptanceHistories(); track history.id ?? $index) {
+              <tr>
+                <td>{{ history.id ?? '-' }}</td>
+                <td>{{ history.userId ?? '-' }}</td>
+                <td>{{ history.name ?? '-' }}</td>
+                <td>{{ history.type ?? '-' }}</td>
+                <td>{{ history.documentVersion ?? '-' }}</td>
+                <td>{{ history.isAccepted === true ? 'Yes' : history.isAccepted === false ? 'No' : '-' }}</td>
+                <td>{{ history.acceptedOn ?? '-' }}</td>
+                <td>{{ history.ipSignature || '-' }}</td>
+                <td class="text-wrap">{{ history.deviceInfo || '-' }}</td>
+                <td>{{ history.locationInfo || '-' }}</td>
+                <td>{{ history.actionId ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Records: {{ totalCount() }}</span>
+        <span>Page Size: {{ pageSize() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>

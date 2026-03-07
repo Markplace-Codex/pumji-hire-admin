@@ -55,6 +55,11 @@ export class HomePageComponent {
       title: 'Configuration',
       description: 'Manage dropdowns, settings, products, and commissions.',
       route: '/configuration'
+    },
+    {
+      title: 'Consent (Versioning)',
+      description: 'View consent acceptance history with pagination.',
+      route: '/consent-versioning'
     }
   ];
 }
