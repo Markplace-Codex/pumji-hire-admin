@@ -18,6 +18,7 @@ import { ProductsPageComponent } from './pages/products-page/products-page.compo
 import { AffiliateCommissionPageComponent } from './pages/affiliate-commission-page/affiliate-commission-page.component';
 import { AffiliateCommissionFormPageComponent } from './pages/affiliate-commission-form-page/affiliate-commission-form-page.component';
 import { ProductFormPageComponent } from './pages/product-form-page/product-form-page.component';
+import { ErrorLogsPageComponent } from './pages/error-logs-page/error-logs-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -56,6 +57,7 @@ export const routes: Routes = [
       description: 'This page is ready for contact us request management.'
     }
   },
+  { path: 'error-logs', component: ErrorLogsPageComponent },
   { path: 'configuration', component: ConfigurationPageComponent },
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
   { path: 'configuration/dropdown-datas/add', component: DropdownDataFormPageComponent },
