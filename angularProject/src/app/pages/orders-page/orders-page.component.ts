@@ -181,7 +181,7 @@ export class OrdersPageComponent {
     const payload: OrdersSearchPayload = {
       customerName: this.toSingleOrMultiValue(raw.customerName) ?? '',
       paymentType: this.toSingleOrMultiValue(raw.paymentType) ?? '',
-      amountPaid: this.toSingleOrMultiValue(raw.amountPaid) ?? '',
+      amountPaid: this.toSingleOrMultiValue(raw.amountPaid) ?? '0',
       status: this.toSingleOrMultiValue(raw.status) ?? ''
     };
 
