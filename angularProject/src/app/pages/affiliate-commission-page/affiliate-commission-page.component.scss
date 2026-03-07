@@ -1,0 +1,79 @@
+:host {
+  display: block;
+}
+
+.affiliate-commission-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+header h1 {
+  margin: 0.4rem 0;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #1f4f85;
+  font-weight: 600;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.list-wrapper {
+  border: 1px solid #d9e3f5;
+  border-radius: 12px;
+  overflow: auto;
+  background: #fff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+th,
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #edf2fa;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #f7f9fd;
+  font-weight: 600;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #53627a;
+}
+
+.state {
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e3e8f5;
+  padding: 1rem;
+}
+
+.state-error {
+  border-color: #ef9a9a;
+}
+
+.state button {
+  margin-top: 0.75rem;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background: #1f4f85;
+  color: white;
+}
+
+.state button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

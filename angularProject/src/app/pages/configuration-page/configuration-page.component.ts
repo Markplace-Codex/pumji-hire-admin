@@ -32,7 +32,8 @@ export class ConfigurationPageComponent {
     },
     {
       title: 'Affiliate commision',
-      description: 'Manage affiliate commission configurations.'
+      description: 'Manage affiliate commission configurations.',
+      route: '/configuration/affiliate-commission'
     }
   ];
 }
