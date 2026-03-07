@@ -46,3 +46,17 @@ td {
 th {
   background: #f5f8fd;
 }
+
+.header-actions {
+  margin-top: 12px;
+}
+
+.action-link {
+  color: #164fa3;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}

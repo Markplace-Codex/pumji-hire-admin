@@ -3,6 +3,9 @@
     <a routerLink="/configuration" class="back-link">← Back to configuration</a>
     <h1>Dropdown datas</h1>
     <p>Showing ID, Field Name, Field Type, and Options from API response.</p>
+    <div class="header-actions">
+      <a routerLink="/configuration/dropdown-datas/add" class="action-link">+ Add dropdown data</a>
+    </div>
   </header>
 
   @if (isLoading()) {
@@ -21,6 +24,7 @@
             <th>Field Name</th>
             <th>Field Type</th>
             <th>Options</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -30,6 +34,13 @@
               <td>{{ item.fieldName || '-' }}</td>
               <td>{{ item.fieldType || '-' }}</td>
               <td>{{ item.options || '-' }}</td>
+              <td>
+                @if (item.id) {
+                  <a [routerLink]="['/configuration/dropdown-datas/edit', item.id]" class="action-link">Edit</a>
+                } @else {
+                  -
+                }
+              </td>
             </tr>
           }
         </tbody>

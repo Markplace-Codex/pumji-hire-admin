@@ -11,6 +11,7 @@ import { InterviewScheduleFormPageComponent } from './pages/interview-schedule-f
 import { CustomerFormPageComponent } from './pages/customer-form-page/customer-form-page.component';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { DropdownDatasPageComponent } from './pages/dropdown-datas-page/dropdown-datas-page.component';
+import { DropdownDataFormPageComponent } from './pages/dropdown-data-form-page/dropdown-data-form-page.component';
 import { AllSettingsPageComponent } from './pages/all-settings-page/all-settings-page.component';
 import { ProductsPageComponent } from './pages/products-page/products-page.component';
 import { AffiliateCommissionPageComponent } from './pages/affiliate-commission-page/affiliate-commission-page.component';
@@ -54,6 +55,8 @@ export const routes: Routes = [
   },
   { path: 'configuration', component: ConfigurationPageComponent },
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
+  { path: 'configuration/dropdown-datas/add', component: DropdownDataFormPageComponent },
+  { path: 'configuration/dropdown-datas/edit/:id', component: DropdownDataFormPageComponent },
   { path: 'configuration/all-settings', component: AllSettingsPageComponent },
   { path: 'configuration/products', component: ProductsPageComponent },
   { path: 'configuration/affiliate-commission', component: AffiliateCommissionPageComponent },
