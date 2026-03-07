@@ -9,6 +9,8 @@ import { CustomersPageComponent } from './pages/customers-page/customers-page.co
 import { OrderFormPageComponent } from './pages/order-form-page/order-form-page.component';
 import { InterviewScheduleFormPageComponent } from './pages/interview-schedule-form-page/interview-schedule-form-page.component';
 import { CustomerFormPageComponent } from './pages/customer-form-page/customer-form-page.component';
+import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
+import { DropdownDatasPageComponent } from './pages/dropdown-datas-page/dropdown-datas-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -47,5 +49,7 @@ export const routes: Routes = [
       description: 'This page is ready for contact us request management.'
     }
   },
+  { path: 'configuration', component: ConfigurationPageComponent },
+  { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
   { path: '**', redirectTo: 'login' }
 ];

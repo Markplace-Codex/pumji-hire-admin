@@ -1,0 +1,23 @@
+<main class="configuration-page">
+  <header>
+    <a routerLink="/home" class="back-link">← Back to home</a>
+    <h1>Configuration</h1>
+    <p>Choose a configuration section below.</p>
+  </header>
+
+  <section class="card-grid">
+    @for (option of options; track option.title) {
+      @if (option.route) {
+        <a class="nav-card" [routerLink]="option.route">
+          <h2>{{ option.title }}</h2>
+          <p>{{ option.description }}</p>
+        </a>
+      } @else {
+        <article class="nav-card nav-card--static">
+          <h2>{{ option.title }}</h2>
+          <p>{{ option.description }}</p>
+        </article>
+      }
+    }
+  </section>
+</main>

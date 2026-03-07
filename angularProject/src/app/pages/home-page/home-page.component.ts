@@ -44,6 +44,11 @@ export class HomePageComponent {
       title: 'Contact Us Requests',
       description: 'Respond to contact form submissions.',
       route: '/contact-us-requests'
+    },
+    {
+      title: 'Configuration',
+      description: 'Manage dropdowns, settings, products, and commissions.',
+      route: '/configuration'
     }
   ];
 }
