@@ -40,8 +40,6 @@ type ErrorLogSearchRequest = {
   keyword: string;
   username: string;
   logDate?: string;
-  pageIndex: number;
-  pageSize: number;
 };
 
 @Component({
@@ -65,6 +63,7 @@ export class ErrorLogsPageComponent {
   protected readonly pageSize = signal(this.defaultPageSize);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
+  protected readonly isFilterApplied = signal(false);
 
   protected readonly filters = signal({
     severity: '',
@@ -111,7 +110,7 @@ export class ErrorLogsPageComponent {
   }
 
   protected goToPreviousPage(): void {
-    if (!this.hasPreviousPage() || this.isLoading()) {
+    if (!this.hasPreviousPage() || this.isLoading() || this.isFilterApplied()) {
       return;
     }
 
@@ -119,7 +118,7 @@ export class ErrorLogsPageComponent {
   }
 
   protected goToNextPage(): void {
-    if (!this.hasNextPage() || this.isLoading()) {
+    if (!this.hasNextPage() || this.isLoading() || this.isFilterApplied()) {
       return;
     }
 
@@ -127,12 +126,17 @@ export class ErrorLogsPageComponent {
   }
 
   protected retry(): void {
+    if (this.isFilterApplied()) {
+      this.searchErrorLogs();
+      return;
+    }
+
     this.loadErrorLogs(this.currentPage());
   }
 
   protected applyFilters(): void {
     this.appliedFilters.set({ ...this.filters() });
-    this.loadErrorLogs(0);
+    this.searchErrorLogs();
   }
 
 
@@ -162,6 +166,7 @@ export class ErrorLogsPageComponent {
 
     this.filters.set(resetFilters);
     this.appliedFilters.set(resetFilters);
+    this.isFilterApplied.set(false);
 
     this.loadErrorLogs(0);
   }
@@ -170,10 +175,13 @@ export class ErrorLogsPageComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const searchPayload = this.buildSearchPayload(pageIndex);
-
     this.httpClient
-      .post<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/ErrorLogs/Search`, searchPayload)
+      .get<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/ErrorLogs`, {
+        params: {
+          pageNumber: pageIndex,
+          pageSize: this.pageSize()
+        }
+      })
       .pipe(
         switchMap((response) => {
           const logs = response.errorLogListResponses?.errorLogs ?? [];
@@ -205,6 +213,7 @@ export class ErrorLogsPageComponent {
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
           this.totalPages.set(pageData?.totalPages ?? 0);
+          this.isFilterApplied.set(false);
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
@@ -214,15 +223,62 @@ export class ErrorLogsPageComponent {
       });
   }
 
-  private buildSearchPayload(pageIndex: number): ErrorLogSearchRequest {
+  private searchErrorLogs(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    const searchPayload = this.buildSearchPayload();
+
+    this.httpClient
+      .post<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/ErrorLogs/Search`, searchPayload)
+      .pipe(
+        switchMap((response) => {
+          const logs = response.errorLogListResponses?.errorLogs ?? [];
+
+          return this.resolveCustomerNames(logs).pipe(
+            map((customerNames) => ({ response, logs, customerNames }))
+          );
+        })
+      )
+      .subscribe({
+        next: ({ response, logs, customerNames }) => {
+          const pageData = response.errorLogListResponses?.pagination;
+
+          this.customerNameByUserId.update((currentNames) => ({
+            ...currentNames,
+            ...customerNames
+          }));
+
+          const resolvedLogs = logs.map((log) => ({
+            ...log,
+            customerName:
+              log.userId !== undefined && log.userId !== null
+                ? customerNames[log.userId] ?? log.customerName
+                : log.customerName
+          }));
+
+          this.errorLogs.set(resolvedLogs);
+          this.totalCount.set(pageData?.totalCount ?? resolvedLogs.length);
+          this.pageSize.set(pageData?.pageSize ?? Math.max(resolvedLogs.length, this.defaultPageSize));
+          this.currentPage.set(pageData?.currentPage ?? 0);
+          this.totalPages.set(pageData?.totalPages ?? (resolvedLogs.length > 0 ? 1 : 0));
+          this.isFilterApplied.set(true);
+          this.isLoading.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(this.resolveErrorMessage(error));
+          this.isLoading.set(false);
+        }
+      });
+  }
+
+  private buildSearchPayload(): ErrorLogSearchRequest {
     const activeFilters = this.appliedFilters();
 
     const searchPayload: ErrorLogSearchRequest = {
       severity: activeFilters.severity.trim(),
       keyword: activeFilters.keyword.trim(),
-      username: activeFilters.username.trim(),
-      pageIndex: Math.max(pageIndex, 0),
-      pageSize: 0
+      username: activeFilters.username.trim()
     };
 
     const logDateValue = activeFilters.logDate.trim();
