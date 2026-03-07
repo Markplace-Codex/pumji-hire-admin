@@ -22,7 +22,8 @@ export class ConfigurationPageComponent {
     },
     {
       title: 'AllSettings',
-      description: 'Manage global application settings.'
+      description: 'Manage global application settings.',
+      route: '/configuration/all-settings'
     },
     {
       title: 'Products',

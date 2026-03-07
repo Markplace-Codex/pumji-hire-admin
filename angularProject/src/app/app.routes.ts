@@ -11,6 +11,7 @@ import { InterviewScheduleFormPageComponent } from './pages/interview-schedule-f
 import { CustomerFormPageComponent } from './pages/customer-form-page/customer-form-page.component';
 import { ConfigurationPageComponent } from './pages/configuration-page/configuration-page.component';
 import { DropdownDatasPageComponent } from './pages/dropdown-datas-page/dropdown-datas-page.component';
+import { AllSettingsPageComponent } from './pages/all-settings-page/all-settings-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -51,5 +52,6 @@ export const routes: Routes = [
   },
   { path: 'configuration', component: ConfigurationPageComponent },
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
+  { path: 'configuration/all-settings', component: AllSettingsPageComponent },
   { path: '**', redirectTo: 'login' }
 ];
