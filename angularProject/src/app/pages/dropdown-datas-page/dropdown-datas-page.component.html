@@ -1,0 +1,39 @@
+<main class="dropdown-datas-page">
+  <header>
+    <a routerLink="/configuration" class="back-link">← Back to configuration</a>
+    <h1>Dropdown datas</h1>
+    <p>Showing ID, Field Name, Field Type, and Options from API response.</p>
+  </header>
+
+  @if (isLoading()) {
+    <p class="status-message">Loading dropdown datas...</p>
+  } @else if (errorMessage()) {
+    <p class="status-message error">{{ errorMessage() }}</p>
+    <button type="button" (click)="retry()">Retry</button>
+  } @else if (!hasDropDownItems()) {
+    <p class="status-message">No dropdown data found.</p>
+  } @else {
+    <div class="list-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Field Name</th>
+            <th>Field Type</th>
+            <th>Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of dropDownItems(); track item.id) {
+            <tr>
+              <td>{{ item.id }}</td>
+              <td>{{ item.fieldName || '-' }}</td>
+              <td>{{ item.fieldType || '-' }}</td>
+              <td>{{ item.options || '-' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
