@@ -77,3 +77,33 @@ th {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+
+header {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.add-button {
+  justify-self: start;
+  text-decoration: none;
+  background: #1f4f85;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  font-weight: 600;
+}
+
+.add-button:hover {
+  background: #163a64;
+}
+
+.row-action-link {
+  color: #1f4f85;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.row-action-link:hover {
+  text-decoration: underline;
+}

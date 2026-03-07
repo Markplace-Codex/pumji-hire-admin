@@ -16,6 +16,7 @@ import { AllSettingsPageComponent } from './pages/all-settings-page/all-settings
 import { AllSettingsFormPageComponent } from './pages/all-settings-form-page/all-settings-form-page.component';
 import { ProductsPageComponent } from './pages/products-page/products-page.component';
 import { AffiliateCommissionPageComponent } from './pages/affiliate-commission-page/affiliate-commission-page.component';
+import { AffiliateCommissionFormPageComponent } from './pages/affiliate-commission-form-page/affiliate-commission-form-page.component';
 import { ProductFormPageComponent } from './pages/product-form-page/product-form-page.component';
 
 export const routes: Routes = [
@@ -66,5 +67,7 @@ export const routes: Routes = [
   { path: 'configuration/products/add', component: ProductFormPageComponent },
   { path: 'configuration/products/edit/:id', component: ProductFormPageComponent },
   { path: 'configuration/affiliate-commission', component: AffiliateCommissionPageComponent },
+  { path: 'configuration/affiliate-commission/add', component: AffiliateCommissionFormPageComponent },
+  { path: 'configuration/affiliate-commission/edit/:id', component: AffiliateCommissionFormPageComponent },
   { path: '**', redirectTo: 'login' }
 ];

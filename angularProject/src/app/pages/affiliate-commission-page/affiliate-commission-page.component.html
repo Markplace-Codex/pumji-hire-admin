@@ -3,6 +3,7 @@
     <a routerLink="/configuration" class="back-link">← Back to configuration</a>
     <h1>Affiliate commision</h1>
     <p>Showing data from <code>/api/AffiliateCommission/GetAllAffiliateCommision</code>.</p>
+    <a routerLink="/configuration/affiliate-commission/add" class="add-button">+ Add affiliate commission</a>
   </header>
 
   @if (errorMessage()) {
@@ -22,12 +23,13 @@
             <th>ID</th>
             <th>Name</th>
             <th>Earning Amount</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (commissions().length === 0) {
             <tr>
-              <td colspan="3" class="empty-cell">No affiliate commissions found.</td>
+              <td colspan="4" class="empty-cell">No affiliate commissions found.</td>
             </tr>
           } @else {
             @for (commission of commissions(); track commission.id ?? $index) {
@@ -35,6 +37,13 @@
                 <td>{{ commission.id ?? '-' }}</td>
                 <td>{{ commission.name ?? '-' }}</td>
                 <td>{{ commission.earningAmount ?? '-' }}</td>
+                <td>
+                  @if (commission.id) {
+                    <a class="row-action-link" [routerLink]="['/configuration/affiliate-commission/edit', commission.id]">Edit</a>
+                  } @else {
+                    -
+                  }
+                </td>
               </tr>
             }
           }
