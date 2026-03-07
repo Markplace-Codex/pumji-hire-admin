@@ -3,6 +3,7 @@
     <a routerLink="/configuration" class="back-link">← Back to configuration</a>
     <h1>Products</h1>
     <p>Showing products from <code>/api/Product/GetAllProducts</code> with 10 records per page.</p>
+    <a routerLink="/configuration/products/add" class="add-link">+ Add Product</a>
   </header>
 
   @if (errorMessage()) {
@@ -24,12 +25,13 @@
             <th>Short Description</th>
             <th>Full Description</th>
             <th>Price</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (products().length === 0) {
             <tr>
-              <td colspan="5" class="empty-cell">No products found.</td>
+              <td colspan="6" class="empty-cell">No products found.</td>
             </tr>
           } @else {
             @for (product of products(); track product.id ?? $index) {
@@ -39,6 +41,13 @@
                 <td>{{ product.shortDescription ?? '-' }}</td>
                 <td>{{ product.fullDescription ?? '-' }}</td>
                 <td>{{ product.price ?? '-' }}</td>
+                <td>
+                  @if (product.id) {
+                    <a [routerLink]="['/configuration/products/edit', product.id]">Edit</a>
+                  } @else {
+                    -
+                  }
+                </td>
               </tr>
             }
           }
