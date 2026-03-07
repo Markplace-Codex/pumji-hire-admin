@@ -50,6 +50,9 @@ type InterviewSchedulesApiResponse = {
     pagination?: PaginationDetails;
     orderDto?: InterviewScheduleItem[];
   };
+  orderDto?: InterviewScheduleItem[];
+  interviewSchedule?: InterviewScheduleItem[];
+  interviewSchedules?: InterviewScheduleItem[];
   isSuccess?: boolean;
   message?: string | null;
 };
@@ -137,7 +140,7 @@ export class InterviewSchedulesPageComponent {
 
     this.httpClient.post<InterviewSchedulesApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/SearchInterviewSchedules`, payload).subscribe({
       next: (response) => {
-        const results = response.paginationOrder?.orderDto ?? [];
+        const results = this.extractSchedules(response);
         this.schedules.set(results);
         this.loadCustomerNamesForSchedules(results);
         this.totalCount.set(results.length);
@@ -191,9 +194,10 @@ export class InterviewSchedulesPageComponent {
       .subscribe({
         next: (response) => {
           const pageData = response.paginationOrder?.pagination;
+          const schedules = this.extractSchedules(response);
 
-          this.schedules.set(response.paginationOrder?.orderDto ?? []);
-          this.loadCustomerNamesForSchedules(this.schedules());
+          this.schedules.set(schedules);
+          this.loadCustomerNamesForSchedules(schedules);
           this.totalCount.set(pageData?.totalCount ?? 0);
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
@@ -238,6 +242,10 @@ export class InterviewSchedulesPageComponent {
     }
 
     return normalizedValues.length === 1 ? normalizedValues[0] : normalizedValues;
+  }
+
+  private extractSchedules(response: InterviewSchedulesApiResponse): InterviewScheduleItem[] {
+    return response.paginationOrder?.orderDto ?? response.orderDto ?? response.interviewSchedules ?? response.interviewSchedule ?? [];
   }
 
   private loadCustomerNamesForSchedules(schedules: InterviewScheduleItem[]): void {
