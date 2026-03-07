@@ -260,7 +260,7 @@ export class InterviewSchedulesPageComponent {
       this.getCustomerInfo(userId).pipe(
         map((response) => {
           const customerInfo = response.customerBasicInfo;
-          const customerName = customerInfo?.customerName?.trim() || customerInfo?.userName?.trim() || '';
+          const customerName = customerInfo?.customerName?.trim() || '';
 
           return {
             userId,
