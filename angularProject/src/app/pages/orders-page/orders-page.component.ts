@@ -14,7 +14,7 @@ import { resolveApiBasePath } from '../../api-base-path';
 interface OrdersSearchPayload {
   customerName?: string;
   paymentType?: string;
-  amountPaid?: number;
+  amountPaid?: number | '';
   status?: string;
   createdOn?: string;
 }
@@ -147,7 +147,7 @@ export class OrdersPageComponent {
     this.errorMessage.set(null);
 
     const payload = this.buildSearchPayload();
-    this.isFilterActive.set(Object.keys(payload).length > 0);
+    this.isFilterActive.set(this.hasActiveFilters(payload));
 
     this.httpClient.post<PaginationOrderSchema>(`${resolveApiBasePath()}/api/SuperAdmin/OrdersSearch`, payload).subscribe({
       next: (response) => {
@@ -171,30 +171,22 @@ export class OrdersPageComponent {
 
   private buildSearchPayload(): OrdersSearchPayload {
     const raw = this.filterForm.getRawValue();
-    const payload: OrdersSearchPayload = {};
+    const payload: OrdersSearchPayload = {
+      customerName: this.normalizeText(raw.customerName),
+      paymentType: this.normalizeText(raw.paymentType),
+      status: this.normalizeText(raw.status),
+      amountPaid: ''
+    };
 
-    const customerName = raw.customerName?.trim();
-    const paymentType = raw.paymentType?.trim();
-    const status = raw.status?.trim();
-    const createdOn = raw.createdOn?.trim();
-    const amountPaidValue = raw.amountPaid?.trim();
-
-    if (customerName) {
-      payload.customerName = customerName;
+    const amountPaidValue = this.normalizeText(raw.amountPaid);
+    if (amountPaidValue.length > 0) {
+      const parsedAmountPaid = Number(amountPaidValue);
+      if (!Number.isNaN(parsedAmountPaid)) {
+        payload.amountPaid = parsedAmountPaid;
+      }
     }
 
-    if (paymentType) {
-      payload.paymentType = paymentType;
-    }
-
-    if (status) {
-      payload.status = status;
-    }
-
-    if (amountPaidValue && !Number.isNaN(Number(amountPaidValue))) {
-      payload.amountPaid = Number(amountPaidValue);
-    }
-
+    const createdOn = this.normalizeText(raw.createdOn);
     if (createdOn) {
       const parsedDate = new Date(createdOn);
       if (!Number.isNaN(parsedDate.getTime())) {
@@ -203,6 +195,28 @@ export class OrdersPageComponent {
     }
 
     return payload;
+  }
+
+  private normalizeText(value: unknown): string {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+
+    if (typeof value === 'number') {
+      return value.toString().trim();
+    }
+
+    return '';
+  }
+
+  private hasActiveFilters(payload: OrdersSearchPayload): boolean {
+    return (
+      (payload.customerName ?? '').length > 0 ||
+      (payload.paymentType ?? '').length > 0 ||
+      (payload.status ?? '').length > 0 ||
+      typeof payload.amountPaid === 'number' ||
+      typeof payload.createdOn === 'string'
+    );
   }
 
   protected getCustomerName(customerId: number | null | undefined): string {
