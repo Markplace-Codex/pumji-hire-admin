@@ -1,28 +1,28 @@
 <main class="error-logs-page">
   <a routerLink="/home" class="back-link">← Back to home</a>
   <h1>Error Logs</h1>
-  <p>Error logs from <code>/api/SuperAdmin/ErrorLogs/Search</code>.</p>
+  <p>Error logs from <code>/api/SuperAdmin/ErrorLogs/Search</code>. Use comma-separated values to filter by multiple severities, keywords, usernames, or dates.</p>
 
   <section class="filters-card">
     <div class="filters-grid">
       <label>
         <span>Severity</span>
-        <input type="text" [ngModel]="filters().severity" (ngModelChange)="updateSeverity($event)" placeholder="Enter severity" />
+        <input type="text" [ngModel]="filters().severity" (ngModelChange)="updateSeverity($event)" placeholder="Enter severity (e.g. Error,Warning)" />
       </label>
 
       <label>
         <span>Keyword</span>
-        <input type="text" [ngModel]="filters().keyword" (ngModelChange)="updateKeyword($event)" placeholder="Enter keyword" />
+        <input type="text" [ngModel]="filters().keyword" (ngModelChange)="updateKeyword($event)" placeholder="Enter keyword(s), comma separated" />
       </label>
 
       <label>
         <span>Username</span>
-        <input type="text" [ngModel]="filters().username" (ngModelChange)="updateUsername($event)" placeholder="Enter username" />
+        <input type="text" [ngModel]="filters().username" (ngModelChange)="updateUsername($event)" placeholder="Enter username(s), comma separated" />
       </label>
 
       <label>
         <span>Log Date</span>
-        <input type="datetime-local" [ngModel]="filters().logDate" (ngModelChange)="updateLogDate($event)" />
+        <input type="text" [ngModel]="filters().logDate" (ngModelChange)="updateLogDate($event)" placeholder="YYYY-MM-DDTHH:mm, comma separated" />
       </label>
     </div>
 
