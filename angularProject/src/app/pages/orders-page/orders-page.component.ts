@@ -12,12 +12,18 @@ import { PaginationOrderSchema } from '../../api/model/paginationOrderSchema';
 import { resolveApiBasePath } from '../../api-base-path';
 
 interface OrdersSearchPayload {
-  customerName?: string;
-  paymentType?: string;
-  amountPaid?: number | '';
-  status?: string;
-  createdOn?: string;
+  customerName: string | string[];
+  paymentType: string | string[];
+  amountPaid: string | string[];
+  status: string | string[];
+  createdOn?: string | string[];
 }
+
+type OrdersApiResponse = PaginationOrderSchema & {
+  orderDto?: OrderDto[];
+  orders?: OrderDto[];
+  order?: OrderDto[];
+};
 
 @Component({
   selector: 'app-orders-page',
@@ -126,9 +132,10 @@ export class OrdersPageComponent {
     this.orderService.apiOrderGetAllGet(pageIndex, this.pageSize()).subscribe({
       next: (response) => {
         const pageData = response.paginationOrder?.pagination;
+        const orderList = this.extractOrders(response);
 
-        this.orders.set(response.paginationOrder?.orderDto ?? []);
-        this.totalCount.set(pageData?.totalCount ?? 0);
+        this.orders.set(orderList);
+        this.totalCount.set(pageData?.totalCount ?? orderList.length);
         this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
         this.currentPage.set(pageData?.currentPage ?? pageIndex);
         this.totalPages.set(pageData?.totalPages ?? 0);
@@ -149,10 +156,10 @@ export class OrdersPageComponent {
     const payload = this.buildSearchPayload();
     this.isFilterActive.set(this.hasActiveFilters(payload));
 
-    this.httpClient.post<PaginationOrderSchema>(`${resolveApiBasePath()}/api/SuperAdmin/OrdersSearch`, payload).subscribe({
+    this.httpClient.post<OrdersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/OrdersSearch`, payload).subscribe({
       next: (response) => {
         const pageData = response.paginationOrder?.pagination;
-        const orderList = response.paginationOrder?.orderDto ?? [];
+        const orderList = this.extractOrders(response);
 
         this.orders.set(orderList);
         this.totalCount.set(pageData?.totalCount ?? orderList.length);
@@ -172,29 +179,31 @@ export class OrdersPageComponent {
   private buildSearchPayload(): OrdersSearchPayload {
     const raw = this.filterForm.getRawValue();
     const payload: OrdersSearchPayload = {
-      customerName: this.normalizeText(raw.customerName),
-      paymentType: this.normalizeText(raw.paymentType),
-      status: this.normalizeText(raw.status),
-      amountPaid: ''
+      customerName: this.toSingleOrMultiValue(raw.customerName) ?? '',
+      paymentType: this.toSingleOrMultiValue(raw.paymentType) ?? '',
+      amountPaid: this.toSingleOrMultiValue(raw.amountPaid) ?? '',
+      status: this.toSingleOrMultiValue(raw.status) ?? ''
     };
 
-    const amountPaidValue = this.normalizeText(raw.amountPaid);
-    if (amountPaidValue.length > 0) {
-      const parsedAmountPaid = Number(amountPaidValue);
-      if (!Number.isNaN(parsedAmountPaid)) {
-        payload.amountPaid = parsedAmountPaid;
-      }
-    }
-
-    const createdOn = this.normalizeText(raw.createdOn);
-    if (createdOn) {
-      const parsedDate = new Date(createdOn);
-      if (!Number.isNaN(parsedDate.getTime())) {
-        payload.createdOn = parsedDate.toISOString();
-      }
+    const createdOn = this.toSingleOrMultiValue(raw.createdOn, true);
+    if (createdOn !== undefined) {
+      payload.createdOn = createdOn;
     }
 
     return payload;
+  }
+
+  private toSingleOrMultiValue(value: unknown, omitWhenEmpty = false): string | string[] | undefined {
+    const normalized = this.normalizeText(value)
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+
+    if (normalized.length === 0) {
+      return omitWhenEmpty ? undefined : '';
+    }
+
+    return normalized.length === 1 ? normalized[0] : normalized;
   }
 
   private normalizeText(value: unknown): string {
@@ -211,12 +220,20 @@ export class OrdersPageComponent {
 
   private hasActiveFilters(payload: OrdersSearchPayload): boolean {
     return (
-      (payload.customerName ?? '').length > 0 ||
-      (payload.paymentType ?? '').length > 0 ||
-      (payload.status ?? '').length > 0 ||
-      typeof payload.amountPaid === 'number' ||
-      typeof payload.createdOn === 'string'
+      this.hasValue(payload.customerName) ||
+      this.hasValue(payload.paymentType) ||
+      this.hasValue(payload.status) ||
+      this.hasValue(payload.amountPaid) ||
+      this.hasValue(payload.createdOn)
     );
+  }
+
+  private hasValue(value: string | string[] | undefined): boolean {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return typeof value === 'string' && value.trim().length > 0;
   }
 
   protected getCustomerName(customerId: number | null | undefined): string {
@@ -291,5 +308,9 @@ export class OrdersPageComponent {
     }
 
     return 'Unable to load orders right now. Please try again.';
+  }
+
+  private extractOrders(response: OrdersApiResponse): OrderDto[] {
+    return response.paginationOrder?.orderDto ?? response.orderDto ?? response.orders ?? response.order ?? [];
   }
 }
