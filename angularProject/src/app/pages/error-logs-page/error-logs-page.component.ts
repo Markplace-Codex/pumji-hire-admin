@@ -176,9 +176,9 @@ export class ErrorLogsPageComponent {
     this.errorMessage.set(null);
 
     this.httpClient
-      .get<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/ErrorLogs`, {
+      .get<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/GetAllErrorLogs`, {
         params: {
-          pageNumber: pageIndex,
+          pageIndex,
           pageSize: this.pageSize()
         }
       })
