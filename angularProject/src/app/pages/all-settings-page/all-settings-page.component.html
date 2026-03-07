@@ -1,0 +1,57 @@
+<main class="all-settings-page">
+  <header>
+    <a routerLink="/configuration" class="back-link">← Back to configuration</a>
+    <h1>AllSettings</h1>
+    <p>Showing settings from <code>/api/Setting/GetAll</code> with 10 records per page.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && settings().length === 0) {
+    <section class="state">
+      <p>Loading settings...</p>
+    </section>
+  } @else {
+    <section class="list-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (settings().length === 0) {
+            <tr>
+              <td colspan="3" class="empty-cell">No settings found.</td>
+            </tr>
+          } @else {
+            @for (setting of settings(); track setting.id ?? $index) {
+              <tr>
+                <td>{{ setting.id ?? '-' }}</td>
+                <td>{{ setting.name ?? '-' }}</td>
+                <td>{{ setting.value ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Settings: {{ totalCount() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>
