@@ -27,7 +27,8 @@ export class ConfigurationPageComponent {
     },
     {
       title: 'Products',
-      description: 'Manage available products.'
+      description: 'Manage available products.',
+      route: '/configuration/products'
     },
     {
       title: 'Affiliate commision',

@@ -1,0 +1,61 @@
+<main class="products-page">
+  <header>
+    <a routerLink="/configuration" class="back-link">← Back to configuration</a>
+    <h1>Products</h1>
+    <p>Showing products from <code>/api/Product/GetAllProducts</code> with 10 records per page.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && products().length === 0) {
+    <section class="state">
+      <p>Loading products...</p>
+    </section>
+  } @else {
+    <section class="list-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Short Description</th>
+            <th>Full Description</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (products().length === 0) {
+            <tr>
+              <td colspan="5" class="empty-cell">No products found.</td>
+            </tr>
+          } @else {
+            @for (product of products(); track product.id ?? $index) {
+              <tr>
+                <td>{{ product.id ?? '-' }}</td>
+                <td>{{ product.name ?? '-' }}</td>
+                <td>{{ product.shortDescription ?? '-' }}</td>
+                <td>{{ product.fullDescription ?? '-' }}</td>
+                <td>{{ product.price ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Products: {{ totalCount() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>
