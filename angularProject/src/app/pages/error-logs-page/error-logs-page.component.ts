@@ -36,10 +36,12 @@ type ErrorLogsApiResponse = {
 };
 
 type ErrorLogSearchRequest = {
-  severity: string;
-  keyword: string;
-  username: string;
-  logDate?: string;
+  severity: string | string[];
+  keyword: string | string[];
+  username: string | string[];
+  logDate?: string | string[];
+  pageIndex: number;
+  pageSize: number;
 };
 
 @Component({
@@ -110,7 +112,12 @@ export class ErrorLogsPageComponent {
   }
 
   protected goToPreviousPage(): void {
-    if (!this.hasPreviousPage() || this.isLoading() || this.isFilterApplied()) {
+    if (!this.hasPreviousPage() || this.isLoading()) {
+      return;
+    }
+
+    if (this.isFilterApplied()) {
+      this.searchErrorLogs(this.currentPage() - 1);
       return;
     }
 
@@ -118,7 +125,12 @@ export class ErrorLogsPageComponent {
   }
 
   protected goToNextPage(): void {
-    if (!this.hasNextPage() || this.isLoading() || this.isFilterApplied()) {
+    if (!this.hasNextPage() || this.isLoading()) {
+      return;
+    }
+
+    if (this.isFilterApplied()) {
+      this.searchErrorLogs(this.currentPage() + 1);
       return;
     }
 
@@ -127,7 +139,7 @@ export class ErrorLogsPageComponent {
 
   protected retry(): void {
     if (this.isFilterApplied()) {
-      this.searchErrorLogs();
+      this.searchErrorLogs(this.currentPage());
       return;
     }
 
@@ -136,7 +148,7 @@ export class ErrorLogsPageComponent {
 
   protected applyFilters(): void {
     this.appliedFilters.set({ ...this.filters() });
-    this.searchErrorLogs();
+    this.searchErrorLogs(0);
   }
 
 
@@ -223,11 +235,11 @@ export class ErrorLogsPageComponent {
       });
   }
 
-  private searchErrorLogs(): void {
+  private searchErrorLogs(pageIndex: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const searchPayload = this.buildSearchPayload();
+    const searchPayload = this.buildSearchPayload(pageIndex);
 
     this.httpClient
       .post<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/ErrorLogs/Search`, searchPayload)
@@ -259,10 +271,10 @@ export class ErrorLogsPageComponent {
 
           this.errorLogs.set(resolvedLogs);
           this.totalCount.set(pageData?.totalCount ?? resolvedLogs.length);
-          this.pageSize.set(pageData?.pageSize ?? Math.max(resolvedLogs.length, this.defaultPageSize));
-          this.currentPage.set(pageData?.currentPage ?? 0);
+          this.pageSize.set(pageData?.pageSize ?? this.pageSize());
+          this.currentPage.set(pageData?.currentPage ?? pageIndex);
           this.totalPages.set(pageData?.totalPages ?? (resolvedLogs.length > 0 ? 1 : 0));
-          this.isFilterApplied.set(true);
+          this.isFilterApplied.set(this.hasActiveFilters());
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
@@ -272,21 +284,64 @@ export class ErrorLogsPageComponent {
       });
   }
 
-  private buildSearchPayload(): ErrorLogSearchRequest {
+  private buildSearchPayload(pageIndex: number): ErrorLogSearchRequest {
     const activeFilters = this.appliedFilters();
 
     const searchPayload: ErrorLogSearchRequest = {
-      severity: activeFilters.severity.trim(),
-      keyword: activeFilters.keyword.trim(),
-      username: activeFilters.username.trim()
+      severity: this.toSingleOrMultiValue(activeFilters.severity) ?? '',
+      keyword: this.toSingleOrMultiValue(activeFilters.keyword) ?? '',
+      username: this.toSingleOrMultiValue(activeFilters.username) ?? '',
+      pageIndex,
+      pageSize: this.pageSize()
     };
 
-    const logDateValue = activeFilters.logDate.trim();
-    if (logDateValue.length > 0) {
-      searchPayload.logDate = new Date(logDateValue).toISOString();
+    const logDateValue = this.toSingleOrMultiValue(activeFilters.logDate, true);
+    if (logDateValue !== undefined) {
+      searchPayload.logDate = this.toIsoDateOrDates(logDateValue);
     }
 
     return searchPayload;
+  }
+
+  private toSingleOrMultiValue(value: unknown, omitWhenEmpty = false): string | string[] | undefined {
+    const normalized = this.normalizeText(value)
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+
+    if (normalized.length === 0) {
+      return omitWhenEmpty ? undefined : '';
+    }
+
+    return normalized.length === 1 ? normalized[0] : normalized;
+  }
+
+  private normalizeText(value: unknown): string {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+
+    if (typeof value === 'number') {
+      return value.toString().trim();
+    }
+
+    return '';
+  }
+
+  private toIsoDateOrDates(value: string | string[]): string | string[] {
+    if (Array.isArray(value)) {
+      return value.map((dateValue) => new Date(dateValue).toISOString());
+    }
+
+    return new Date(value).toISOString();
+  }
+
+  private hasActiveFilters(): boolean {
+    const activeFilters = this.appliedFilters();
+
+    return [activeFilters.severity, activeFilters.keyword, activeFilters.username, activeFilters.logDate].some(
+      (value) => value.trim().length > 0
+    );
   }
 
   private resolveCustomerNames(logs: ErrorLogItem[]) {
