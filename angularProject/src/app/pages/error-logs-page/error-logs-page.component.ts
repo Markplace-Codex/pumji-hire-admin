@@ -97,7 +97,7 @@ export class ErrorLogsPageComponent {
     this.httpClient
       .get<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/GetAllErrorLogs`, {
         params: {
-          pageNumber: pageIndex,
+          pageIndex,
           pageSize: this.pageSize()
         }
       })
