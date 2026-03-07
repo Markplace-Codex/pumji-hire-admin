@@ -1,0 +1,45 @@
+<main class="affiliate-commission-form-page">
+  <a routerLink="/configuration/affiliate-commission" class="back-link">← Back to affiliate commission</a>
+  <h1>{{ isEditMode() ? 'Edit Affiliate Commission' : 'Add Affiliate Commission' }}</h1>
+  <p>
+    {{ isEditMode() ? 'Update data using' : 'Create data using' }}
+    <code>{{ isEditMode() ? '/api/AffiliateCommission/UpdateAffiliateCommission' : '/api/AffiliateCommission/CreateAffiliateCommission' }}</code>
+  </p>
+
+  @if (isLoading()) {
+    <section class="state">Loading affiliate commission data...</section>
+  } @else {
+    @if (submitError()) {
+      <section class="state state-error">{{ submitError() }}</section>
+    }
+
+    @if (submitSuccess()) {
+      <section class="state state-success">{{ submitSuccess() }}</section>
+    }
+
+    <form class="affiliate-commission-form" (ngSubmit)="submitForm()">
+      @if (isEditMode()) {
+        <label>
+          ID
+          <input type="number" name="id" [(ngModel)]="formModel.id" readonly required />
+        </label>
+      }
+
+      <label>
+        Name
+        <input type="text" name="name" [(ngModel)]="formModel.name" required />
+      </label>
+
+      <label>
+        Earning Amount
+        <input type="number" name="earningAmount" [(ngModel)]="formModel.earningAmount" min="0" step="0.01" required />
+      </label>
+
+      <div class="submit-row">
+        <button type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Saving...' : (isEditMode() ? 'Update Affiliate Commission' : 'Add Affiliate Commission') }}
+        </button>
+      </div>
+    </form>
+  }
+</main>
