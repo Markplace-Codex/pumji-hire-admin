@@ -1,0 +1,45 @@
+<main class="affiliate-commission-page">
+  <header>
+    <a routerLink="/configuration" class="back-link">← Back to configuration</a>
+    <h1>Affiliate commision</h1>
+    <p>Showing data from <code>/api/AffiliateCommission/GetAllAffiliateCommision</code>.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && commissions().length === 0) {
+    <section class="state">
+      <p>Loading affiliate commissions...</p>
+    </section>
+  } @else {
+    <section class="list-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Earning Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (commissions().length === 0) {
+            <tr>
+              <td colspan="3" class="empty-cell">No affiliate commissions found.</td>
+            </tr>
+          } @else {
+            @for (commission of commissions(); track commission.id ?? $index) {
+              <tr>
+                <td>{{ commission.id ?? '-' }}</td>
+                <td>{{ commission.name ?? '-' }}</td>
+                <td>{{ commission.earningAmount ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</main>

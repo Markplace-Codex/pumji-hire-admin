@@ -13,6 +13,7 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { DropdownDatasPageComponent } from './pages/dropdown-datas-page/dropdown-datas-page.component';
 import { AllSettingsPageComponent } from './pages/all-settings-page/all-settings-page.component';
 import { ProductsPageComponent } from './pages/products-page/products-page.component';
+import { AffiliateCommissionPageComponent } from './pages/affiliate-commission-page/affiliate-commission-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -55,5 +56,6 @@ export const routes: Routes = [
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
   { path: 'configuration/all-settings', component: AllSettingsPageComponent },
   { path: 'configuration/products', component: ProductsPageComponent },
+  { path: 'configuration/affiliate-commission', component: AffiliateCommissionPageComponent },
   { path: '**', redirectTo: 'login' }
 ];
