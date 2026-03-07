@@ -45,6 +45,12 @@ export class HomePageComponent {
       description: 'Respond to contact form submissions.',
       route: '/contact-us-requests'
     },
+
+    {
+      title: 'Error Logs',
+      description: 'Track system errors with paginated logs.',
+      route: '/error-logs'
+    },
     {
       title: 'Configuration',
       description: 'Manage dropdowns, settings, products, and commissions.',

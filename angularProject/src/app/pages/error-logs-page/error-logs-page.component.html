@@ -1,0 +1,65 @@
+<main class="error-logs-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Error Logs</h1>
+  <p>Error logs from <code>/api/SuperAdmin/GetAllErrorLogs</code>.</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && errorLogs().length === 0) {
+    <section class="state">
+      <p>Loading error logs...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Log Date</th>
+            <th>Level</th>
+            <th>Logger</th>
+            <th>Message</th>
+            <th>Exception</th>
+            <th>User ID</th>
+            <th>Request ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (errorLogs().length === 0) {
+            <tr>
+              <td colspan="8" class="empty-cell">No error logs found.</td>
+            </tr>
+          } @else {
+            @for (log of errorLogs(); track log.id ?? $index) {
+              <tr>
+                <td>{{ log.id ?? '-' }}</td>
+                <td>{{ log.logDate ?? '-' }}</td>
+                <td>{{ log.logLevel ?? '-' }}</td>
+                <td>{{ log.logger ?? '-' }}</td>
+                <td class="text-wrap">{{ log.message ?? '-' }}</td>
+                <td class="text-wrap">{{ log.exception ?? '-' }}</td>
+                <td>{{ log.userId ?? '-' }}</td>
+                <td>{{ log.requestId || '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Logs: {{ totalCount() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>
