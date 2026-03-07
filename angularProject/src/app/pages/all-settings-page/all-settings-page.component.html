@@ -1,8 +1,13 @@
 <main class="all-settings-page">
   <header>
     <a routerLink="/configuration" class="back-link">← Back to configuration</a>
-    <h1>AllSettings</h1>
-    <p>Showing settings from <code>/api/Setting/GetAll</code> with 10 records per page.</p>
+    <div class="title-row">
+      <div>
+        <h1>AllSettings</h1>
+        <p>Showing settings from <code>/api/Setting/GetAll</code> with 10 records per page.</p>
+      </div>
+      <button type="button" (click)="navigateToAdd()" [disabled]="isLoading()">Add AllSettings</button>
+    </div>
   </header>
 
   @if (errorMessage()) {
@@ -22,12 +27,13 @@
             <th>ID</th>
             <th>Name</th>
             <th>Value</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           @if (settings().length === 0) {
             <tr>
-              <td colspan="3" class="empty-cell">No settings found.</td>
+              <td colspan="4" class="empty-cell">No settings found.</td>
             </tr>
           } @else {
             @for (setting of settings(); track setting.id ?? $index) {
@@ -35,6 +41,9 @@
                 <td>{{ setting.id ?? '-' }}</td>
                 <td>{{ setting.name ?? '-' }}</td>
                 <td>{{ setting.value ?? '-' }}</td>
+                <td>
+                  <button type="button" (click)="navigateToEdit(setting.id)" [disabled]="isLoading() || !setting.id">Edit</button>
+                </td>
               </tr>
             }
           }

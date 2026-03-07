@@ -16,6 +16,14 @@
   font-weight: 600;
 }
 
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .state {
   margin-top: 16px;
 }
@@ -32,7 +40,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 640px;
+  min-width: 760px;
 }
 
 th,

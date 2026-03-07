@@ -1,0 +1,37 @@
+<main class="all-settings-form-page">
+  <a routerLink="/configuration/all-settings" class="back-link">← Back to all settings</a>
+  <h1>{{ isEditMode() ? 'Edit AllSettings' : 'Add AllSettings' }}</h1>
+  <p>
+    {{ isEditMode() ? 'Update setting using' : 'Create setting using' }}
+    <code>{{ isEditMode() ? '/api/Setting/Update' : '/api/Setting/Create' }}</code>
+  </p>
+
+  <section class="form-actions-top">
+    <button type="button" (click)="applySampleData()" [disabled]="isSubmitting() || isLoading()">Load sample data</button>
+  </section>
+
+  @if (isLoading()) {
+    <section class="state">Loading setting data...</section>
+  } @else {
+    @if (submitError()) {
+      <section class="state state-error">{{ submitError() }}</section>
+    }
+
+    @if (submitSuccess()) {
+      <section class="state state-success">{{ submitSuccess() }}</section>
+    }
+
+    <form class="all-settings-form" (ngSubmit)="submitForm()">
+      <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" [readonly]="isEditMode()" required /></label>
+      <label>Name <input type="text" name="name" [(ngModel)]="formModel.name" required /></label>
+      <label>Value <textarea name="value" [(ngModel)]="formModel.value" rows="4" required></textarea></label>
+      <label>Store Id <input type="number" name="storeId" [(ngModel)]="formModel.storeId" required /></label>
+
+      <div class="submit-row">
+        <button type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Saving...' : (isEditMode() ? 'Update AllSettings' : 'Add AllSettings') }}
+        </button>
+      </div>
+    </form>
+  }
+</main>

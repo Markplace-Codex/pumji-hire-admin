@@ -13,6 +13,7 @@ import { ConfigurationPageComponent } from './pages/configuration-page/configura
 import { DropdownDatasPageComponent } from './pages/dropdown-datas-page/dropdown-datas-page.component';
 import { DropdownDataFormPageComponent } from './pages/dropdown-data-form-page/dropdown-data-form-page.component';
 import { AllSettingsPageComponent } from './pages/all-settings-page/all-settings-page.component';
+import { AllSettingsFormPageComponent } from './pages/all-settings-form-page/all-settings-form-page.component';
 import { ProductsPageComponent } from './pages/products-page/products-page.component';
 import { AffiliateCommissionPageComponent } from './pages/affiliate-commission-page/affiliate-commission-page.component';
 
@@ -58,6 +59,8 @@ export const routes: Routes = [
   { path: 'configuration/dropdown-datas/add', component: DropdownDataFormPageComponent },
   { path: 'configuration/dropdown-datas/edit/:id', component: DropdownDataFormPageComponent },
   { path: 'configuration/all-settings', component: AllSettingsPageComponent },
+  { path: 'configuration/all-settings/add', component: AllSettingsFormPageComponent },
+  { path: 'configuration/all-settings/edit/:id', component: AllSettingsFormPageComponent },
   { path: 'configuration/products', component: ProductsPageComponent },
   { path: 'configuration/affiliate-commission', component: AffiliateCommissionPageComponent },
   { path: '**', redirectTo: 'login' }

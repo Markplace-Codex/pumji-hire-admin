@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { resolveApiBasePath } from '../../api-base-path';
 
@@ -34,6 +34,7 @@ type SettingsApiResponse = {
 })
 export class AllSettingsPageComponent {
   private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
 
   private readonly defaultPageSize = 10;
 
@@ -78,6 +79,18 @@ export class AllSettingsPageComponent {
 
   protected retry(): void {
     this.loadSettings(this.currentPage());
+  }
+
+  protected navigateToAdd(): void {
+    this.router.navigate(['/configuration/all-settings/add']);
+  }
+
+  protected navigateToEdit(settingId?: number): void {
+    if (!settingId || this.isLoading()) {
+      return;
+    }
+
+    this.router.navigate(['/configuration/all-settings/edit', settingId]);
   }
 
   private loadSettings(pageIndex: number): void {
