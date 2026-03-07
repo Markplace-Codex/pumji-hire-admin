@@ -1,0 +1,41 @@
+<main class="dropdown-data-form-page">
+  <a routerLink="/configuration/dropdown-datas" class="back-link">← Back to dropdown datas</a>
+  <h1>{{ isEditMode() ? 'Edit Dropdown Data' : 'Add Dropdown Data' }}</h1>
+  <p>
+    {{ isEditMode() ? 'Update dropdown data using' : 'Create dropdown data using' }}
+    <code>{{ isEditMode() ? '/api/DropDown/Update' : '/api/DropDown/Create' }}</code>
+  </p>
+
+  <section class="form-actions-top">
+    <button type="button" (click)="applySampleData()" [disabled]="isSubmitting() || isLoading()">Load sample data</button>
+  </section>
+
+  @if (isLoading()) {
+    <section class="state">Loading dropdown data...</section>
+  } @else {
+    @if (submitError()) {
+      <section class="state state-error">{{ submitError() }}</section>
+    }
+
+    @if (submitSuccess()) {
+      <section class="state state-success">{{ submitSuccess() }}</section>
+    }
+
+    <form class="dropdown-data-form" (ngSubmit)="submitForm()">
+      <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" [readonly]="isEditMode()" required /></label>
+      <label>Field Name <input type="text" name="fieldName" [(ngModel)]="formModel.fieldName" required /></label>
+      <label>Field Type <input type="text" name="fieldType" [(ngModel)]="formModel.fieldType" required /></label>
+      <label>Options <textarea name="options" [(ngModel)]="formModel.options" rows="4" required></textarea></label>
+      <label>Page Name <input type="text" name="pageName" [(ngModel)]="formModel.pageName" /></label>
+      <label>Cust Field 1 <input type="text" name="custField1" [(ngModel)]="formModel.custField1" /></label>
+      <label>Cust Field 2 <input type="text" name="custField2" [(ngModel)]="formModel.custField2" /></label>
+      <label>Cust Field 3 <input type="text" name="custField3" [(ngModel)]="formModel.custField3" /></label>
+
+      <div class="submit-row">
+        <button type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Saving...' : (isEditMode() ? 'Update Dropdown Data' : 'Add Dropdown Data') }}
+        </button>
+      </div>
+    </form>
+  }
+</main>
