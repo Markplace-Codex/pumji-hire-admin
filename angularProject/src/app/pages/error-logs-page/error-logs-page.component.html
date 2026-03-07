@@ -21,9 +21,9 @@
             <th>Log Date</th>
             <th>Level</th>
             <th>Logger</th>
+            <th>Customer Name</th>
             <th>Message</th>
             <th>Exception</th>
-            <th>Customer Name</th>
             <th>Request ID</th>
           </tr>
         </thead>
@@ -39,9 +39,9 @@
                 <td>{{ log.logDate ?? '-' }}</td>
                 <td>{{ log.logLevel ?? '-' }}</td>
                 <td>{{ log.logger ?? '-' }}</td>
+                <td>{{ log.customerName || '-' }}</td>
                 <td class="text-wrap">{{ log.message ?? '-' }}</td>
                 <td class="text-wrap">{{ log.exception ?? '-' }}</td>
-                <td>{{ log.customerName || '-' }}</td>
                 <td>{{ log.requestId || '-' }}</td>
               </tr>
             }
