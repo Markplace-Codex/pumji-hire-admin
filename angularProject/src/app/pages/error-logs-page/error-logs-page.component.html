@@ -24,13 +24,14 @@
             <th>Message</th>
             <th>Exception</th>
             <th>User ID</th>
+            <th>Customer Name</th>
             <th>Request ID</th>
           </tr>
         </thead>
         <tbody>
           @if (errorLogs().length === 0) {
             <tr>
-              <td colspan="8" class="empty-cell">No error logs found.</td>
+              <td colspan="9" class="empty-cell">No error logs found.</td>
             </tr>
           } @else {
             @for (log of errorLogs(); track log.id ?? $index) {
@@ -42,6 +43,7 @@
                 <td class="text-wrap">{{ log.message ?? '-' }}</td>
                 <td class="text-wrap">{{ log.exception ?? '-' }}</td>
                 <td>{{ log.userId ?? '-' }}</td>
+                <td>{{ log.customerName || '-' }}</td>
                 <td>{{ log.requestId || '-' }}</td>
               </tr>
             }
