@@ -1,7 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
+import { CustomerService } from '../../api/api/customer.service';
 import { resolveApiBasePath } from '../../api-base-path';
 
 type ErrorLogItem = {
@@ -40,8 +42,10 @@ type ErrorLogsApiResponse = {
 })
 export class ErrorLogsPageComponent {
   private readonly httpClient = inject(HttpClient);
+  private readonly customerService = inject(CustomerService);
 
-  private readonly defaultPageSize = 5;
+  private readonly defaultPageSize = 3;
+  private readonly customerNameByUserId = signal<Record<number, string>>({});
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -97,13 +101,34 @@ export class ErrorLogsPageComponent {
           pageSize: this.pageSize()
         }
       })
-      .subscribe({
-        next: (response) => {
-          const pageData = response.errorLogListResponses?.pagination;
+      .pipe(
+        switchMap((response) => {
           const logs = response.errorLogListResponses?.errorLogs ?? [];
 
-          this.errorLogs.set(logs);
-          this.totalCount.set(pageData?.totalCount ?? logs.length);
+          return this.resolveCustomerNames(logs).pipe(
+            map((customerNames) => ({ response, logs, customerNames }))
+          );
+        })
+      )
+      .subscribe({
+        next: ({ response, logs, customerNames }) => {
+          const pageData = response.errorLogListResponses?.pagination;
+
+          this.customerNameByUserId.update((currentNames) => ({
+            ...currentNames,
+            ...customerNames
+          }));
+
+          const resolvedLogs = logs.map((log) => ({
+            ...log,
+            customerName:
+              log.userId !== undefined && log.userId !== null
+                ? customerNames[log.userId] ?? log.customerName
+                : log.customerName
+          }));
+
+          this.errorLogs.set(resolvedLogs);
+          this.totalCount.set(pageData?.totalCount ?? resolvedLogs.length);
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
           this.totalPages.set(pageData?.totalPages ?? 0);
@@ -114,6 +139,37 @@ export class ErrorLogsPageComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  private resolveCustomerNames(logs: ErrorLogItem[]) {
+    const uniqueUserIds = [...new Set(logs.map((log) => log.userId).filter((id): id is number => typeof id === 'number'))];
+
+    if (uniqueUserIds.length === 0) {
+      return of({} as Record<number, string>);
+    }
+
+    const cachedNames = this.customerNameByUserId();
+    const missingUserIds = uniqueUserIds.filter((userId) => !(userId in cachedNames));
+
+    if (missingUserIds.length === 0) {
+      return of(cachedNames);
+    }
+
+    return forkJoin(
+      missingUserIds.map((userId) =>
+        this.customerService.apiCustomerGetCustomerInfoGet(userId).pipe(
+          map((response) => ({ userId, customerName: response.customerBasicInfo?.customerName?.trim() || '-' })),
+          catchError(() => of({ userId, customerName: '-' }))
+        )
+      )
+    ).pipe(
+      map((results) =>
+        results.reduce<Record<number, string>>((accumulator, result) => {
+          accumulator[result.userId] = result.customerName;
+          return accumulator;
+        }, { ...cachedNames })
+      )
+    );
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {
