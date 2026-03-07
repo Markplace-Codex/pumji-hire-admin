@@ -1,7 +1,36 @@
 <main class="error-logs-page">
   <a routerLink="/home" class="back-link">← Back to home</a>
   <h1>Error Logs</h1>
-  <p>Error logs from <code>/api/SuperAdmin/GetAllErrorLogs</code>.</p>
+  <p>Error logs from <code>/api/SuperAdmin/ErrorLogs/Search</code>.</p>
+
+  <section class="filters-card">
+    <div class="filters-grid">
+      <label>
+        <span>Severity</span>
+        <input type="text" [ngModel]="filters().severity" (ngModelChange)="updateSeverity($event)" placeholder="Enter severity" />
+      </label>
+
+      <label>
+        <span>Keyword</span>
+        <input type="text" [ngModel]="filters().keyword" (ngModelChange)="updateKeyword($event)" placeholder="Enter keyword" />
+      </label>
+
+      <label>
+        <span>Username</span>
+        <input type="text" [ngModel]="filters().username" (ngModelChange)="updateUsername($event)" placeholder="Enter username" />
+      </label>
+
+      <label>
+        <span>Log Date</span>
+        <input type="datetime-local" [ngModel]="filters().logDate" (ngModelChange)="updateLogDate($event)" />
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" (click)="applyFilters()" [disabled]="isLoading()">Apply Filters</button>
+      <button type="button" class="secondary" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
+    </div>
+  </section>
 
   @if (errorMessage()) {
     <section class="state state-error">

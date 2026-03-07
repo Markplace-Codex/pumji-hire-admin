@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
@@ -34,9 +35,18 @@ type ErrorLogsApiResponse = {
   message?: string | null;
 };
 
+type ErrorLogSearchRequest = {
+  severity: string;
+  keyword: string;
+  username: string;
+  logDate?: string;
+  pageIndex: number;
+  pageSize: number;
+};
+
 @Component({
   selector: 'app-error-logs-page',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './error-logs-page.component.html',
   styleUrl: './error-logs-page.component.scss'
 })
@@ -55,6 +65,13 @@ export class ErrorLogsPageComponent {
   protected readonly pageSize = signal(this.defaultPageSize);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
+
+  protected readonly filters = signal({
+    severity: '',
+    keyword: '',
+    username: '',
+    logDate: ''
+  });
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -90,17 +107,46 @@ export class ErrorLogsPageComponent {
     this.loadErrorLogs(this.currentPage());
   }
 
+  protected applyFilters(): void {
+    this.loadErrorLogs(0);
+  }
+
+
+  protected updateSeverity(value: string): void {
+    this.filters.update((currentFilters) => ({ ...currentFilters, severity: value }));
+  }
+
+  protected updateKeyword(value: string): void {
+    this.filters.update((currentFilters) => ({ ...currentFilters, keyword: value }));
+  }
+
+  protected updateUsername(value: string): void {
+    this.filters.update((currentFilters) => ({ ...currentFilters, username: value }));
+  }
+
+  protected updateLogDate(value: string): void {
+    this.filters.update((currentFilters) => ({ ...currentFilters, logDate: value }));
+  }
+
+  protected clearFilters(): void {
+    this.filters.set({
+      severity: '',
+      keyword: '',
+      username: '',
+      logDate: ''
+    });
+
+    this.loadErrorLogs(0);
+  }
+
   private loadErrorLogs(pageIndex: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
+    const searchPayload = this.buildSearchPayload(pageIndex);
+
     this.httpClient
-      .get<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/GetAllErrorLogs`, {
-        params: {
-          pageIndex,
-          pageSize: this.pageSize()
-        }
-      })
+      .post<ErrorLogsApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/ErrorLogs/Search`, searchPayload)
       .pipe(
         switchMap((response) => {
           const logs = response.errorLogListResponses?.errorLogs ?? [];
@@ -139,6 +185,25 @@ export class ErrorLogsPageComponent {
           this.isLoading.set(false);
         }
       });
+  }
+
+  private buildSearchPayload(pageIndex: number): ErrorLogSearchRequest {
+    const activeFilters = this.filters();
+
+    const searchPayload: ErrorLogSearchRequest = {
+      severity: activeFilters.severity.trim(),
+      keyword: activeFilters.keyword.trim(),
+      username: activeFilters.username.trim(),
+      pageIndex,
+      pageSize: this.pageSize() || 0
+    };
+
+    const logDateValue = activeFilters.logDate.trim();
+    if (logDateValue.length > 0) {
+      searchPayload.logDate = new Date(logDateValue).toISOString();
+    }
+
+    return searchPayload;
   }
 
   private resolveCustomerNames(logs: ErrorLogItem[]) {
