@@ -12,6 +12,7 @@ type ErrorLogItem = {
   message?: string;
   exception?: string;
   userId?: number;
+  customerName?: string | null;
   requestId?: string;
 };
 
