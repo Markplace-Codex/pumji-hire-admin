@@ -117,7 +117,7 @@ export class OrderFormPageComponent {
     return {
       id: model.id,
       keyUsage: model.keyUsage || null,
-      amountPaid: model.amountPaid,
+      amountPaid: this.toNumberOrZero(model.amountPaid),
       symbol: model.symbol || null,
       customerId: model.customerId,
       creditCount: model.creditCount,
