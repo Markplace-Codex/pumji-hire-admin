@@ -25,13 +25,14 @@
 
   <section class="form-card">
     <label>
-      Credits
-      <select [value]="selectedCreditId() ?? ''" (change)="updateSelectedCredit($any($event.target).value)" [disabled]="isLoadingCredits()">
-        <option value="">Select credits</option>
-        @for (credit of creditOptions(); track credit.id ?? $index) {
-          <option [value]="credit.id">{{ credit.creditCount ?? 0 }} credits (ID: {{ credit.id }})</option>
-        }
-      </select>
+      Credit Count
+      <input
+        type="number"
+        min="1"
+        step="1"
+        [value]="creditCount() ?? ''"
+        (input)="updateCreditCount($any($event.target).value)"
+        placeholder="Enter credit count" />
     </label>
 
     <label>
@@ -48,7 +49,7 @@
       <p class="file-name">Selected file: {{ selectedFile()?.name }}</p>
     }
 
-    <button type="button" class="submit" (click)="submitManualCredits()" [disabled]="isSubmitting() || isSearching() || isLoadingCredits()">
+    <button type="button" class="submit" (click)="submitManualCredits()" [disabled]="isSubmitting() || isSearching()">
       {{ isSubmitting() ? 'Submitting...' : 'Add Credits to Selected Customers' }}
     </button>
   </section>

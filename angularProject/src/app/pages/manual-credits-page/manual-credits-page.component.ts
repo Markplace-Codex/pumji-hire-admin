@@ -28,18 +28,6 @@ type CustomerSearchApiResponse = {
   message?: string | null;
 };
 
-type CreditsOption = {
-  id?: number;
-  creditCount?: number;
-  price?: number;
-};
-
-type CreditsApiResponse = {
-  creditsDtos?: CreditsOption[];
-  isSuccess?: boolean;
-  message?: string | null;
-};
-
 type ManualCreditResponse = {
   isSuccess?: boolean;
   message?: string | null;
@@ -64,23 +52,17 @@ export class ManualCreditsPageComponent {
   protected readonly selectedSearchField = signal<CustomerSearchField>('username');
   protected readonly searchValue = signal('');
   protected readonly isSearching = signal(false);
-  protected readonly isLoadingCredits = signal(false);
   protected readonly isSubmitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
   protected readonly customers = signal<CustomerListItem[]>([]);
   protected readonly selectedCustomerIds = signal<number[]>([]);
-  protected readonly creditOptions = signal<CreditsOption[]>([]);
-  protected readonly selectedCreditId = signal<number | null>(null);
+  protected readonly creditCount = signal<number | null>(null);
   protected readonly reason = signal('');
   protected readonly selectedFile = signal<File | null>(null);
 
   protected readonly hasSelection = computed(() => this.selectedCustomerIds().length > 0);
-
-  constructor() {
-    this.loadCreditOptions();
-  }
 
   protected updateSelectedSearchField(rawValue: string): void {
     const selectedOption = this.searchFieldOptions.find((option) => option.value === rawValue);
@@ -167,8 +149,14 @@ export class ManualCreditsPageComponent {
     return validIds.length > 0 && validIds.every((id) => this.selectedCustomerIds().includes(id));
   }
 
-  protected updateSelectedCredit(rawValue: string): void {
-    this.selectedCreditId.set(rawValue ? Number(rawValue) : null);
+  protected updateCreditCount(rawValue: string): void {
+    if (!rawValue.trim()) {
+      this.creditCount.set(null);
+      return;
+    }
+
+    const parsedValue = Number(rawValue);
+    this.creditCount.set(Number.isFinite(parsedValue) ? parsedValue : null);
   }
 
   protected updateReason(rawValue: string): void {
@@ -187,8 +175,9 @@ export class ManualCreditsPageComponent {
       return;
     }
 
-    if (this.selectedCreditId() == null) {
-      this.errorMessage.set('Please select a credits package.');
+    const creditCount = this.creditCount();
+    if (creditCount == null || creditCount <= 0) {
+      this.errorMessage.set('Please enter a valid credit count greater than 0.');
       return;
     }
 
@@ -215,7 +204,7 @@ export class ManualCreditsPageComponent {
         .post<ManualCreditResponse>(`${resolveApiBasePath()}/api/Payment/AddManualCredits`, formData, {
           params: {
             input: customerId,
-            CreditId: this.selectedCreditId()!,
+            creditCount,
             reason
           }
         })
@@ -235,6 +224,7 @@ export class ManualCreditsPageComponent {
       if (failures.length === 0) {
         this.successMessage.set(`Credits added successfully for ${results.length} customer(s).`);
         this.selectedCustomerIds.set([]);
+        this.creditCount.set(null);
         this.reason.set('');
         this.selectedFile.set(null);
       } else {
@@ -244,23 +234,6 @@ export class ManualCreditsPageComponent {
       this.isSubmitting.set(false);
     });
   }
-
-  private loadCreditOptions(): void {
-    this.isLoadingCredits.set(true);
-
-    this.httpClient.get<CreditsApiResponse>(`${resolveApiBasePath()}/api/v1/ShoppingCart/GetUserCredits`).subscribe({
-      next: (response) => {
-        this.creditOptions.set(response.creditsDtos ?? []);
-        this.selectedCreditId.set(response.creditsDtos?.[0]?.id ?? null);
-        this.isLoadingCredits.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage.set(this.resolveErrorMessage(error, 'credits options'));
-        this.isLoadingCredits.set(false);
-      }
-    });
-  }
-
   private resolveErrorMessage(error: HttpErrorResponse, resourceName: string): string {
     if (error.status === 401 || error.status === 403) {
       return `You are not authorized to access ${resourceName}. Please sign in again.`;
