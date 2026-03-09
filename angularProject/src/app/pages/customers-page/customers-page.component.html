@@ -110,7 +110,13 @@
                 <td>{{ customer.id ?? '-' }}</td>
                 <td>{{ customer.username ?? '-' }}</td>
                 <td>{{ ((customer.firstName ?? '') + ' ' + (customer.lastName ?? '')).trim() || '-' }}</td>
-                <td>{{ customer.email ?? '-' }}</td>
+                <td>
+                  @if (customer.email) {
+                    <a [href]="'mailto:' + customer.email">{{ customer.email }}</a>
+                  } @else {
+                    -
+                  }
+                </td>
                 <td>{{ customer.phone ?? '-' }}</td>
                 <td>{{ customer.gender ?? '-' }}</td>
                 <td>
