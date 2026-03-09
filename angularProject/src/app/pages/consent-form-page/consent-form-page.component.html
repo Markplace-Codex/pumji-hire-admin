@@ -1,0 +1,69 @@
+<main class="consent-form-page">
+  <a routerLink="/consent" class="back-link">← Back to consent list</a>
+  <h1>{{ isEditMode() ? 'Edit Consent' : 'Add Consent' }}</h1>
+
+  @if (isLoading()) {
+    <section class="state">
+      <p>Loading consent details...</p>
+    </section>
+  } @else {
+    <form class="form-card" (ngSubmit)="submitForm()">
+      <label>
+        Name
+        <input type="text" name="name" [(ngModel)]="formModel.name" />
+      </label>
+
+      <label>
+        Type
+        <input type="text" name="type" [(ngModel)]="formModel.type" />
+      </label>
+
+      <label>
+        Document Version
+        <input type="text" name="documentVersion" [(ngModel)]="formModel.documentVersion" />
+      </label>
+
+      <label>
+        Country
+        <input type="text" name="country" [(ngModel)]="formModel.country" />
+      </label>
+
+      <label>
+        Created By User Id
+        <input type="number" name="createdByUserId" [(ngModel)]="formModel.createdByUserId" />
+      </label>
+
+      <label class="full-width">
+        HTML Code
+        <textarea name="htmlCode" rows="12" [(ngModel)]="formModel.htmlCode"></textarea>
+      </label>
+
+      <div class="toggle-row full-width">
+        <label>
+          <input type="checkbox" name="isMandatory" [(ngModel)]="formModel.isMandatory" />
+          Is Mandatory
+        </label>
+        <label>
+          <input type="checkbox" name="isActive" [(ngModel)]="formModel.isActive" />
+          Is Active
+        </label>
+        <label>
+          <input type="checkbox" name="isMajorChange" [(ngModel)]="formModel.isMajorChange" />
+          Is Major Change
+        </label>
+      </div>
+
+      @if (submitError()) {
+        <p class="message error">{{ submitError() }}</p>
+      }
+
+      @if (submitSuccess()) {
+        <p class="message success">{{ submitSuccess() }}</p>
+      }
+
+      <div class="actions full-width">
+        <button type="submit" [disabled]="isSubmitting()">{{ isSubmitting() ? 'Saving...' : isEditMode() ? 'Update Consent' : 'Create Consent' }}</button>
+      </div>
+    </form>
+  }
+</main>
