@@ -34858,11 +34858,11 @@
             }
           },
           {
-            "name": "CreditId",
+            "name": "creditCount",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "number",
+              "format": "double"
             }
           },
           {
