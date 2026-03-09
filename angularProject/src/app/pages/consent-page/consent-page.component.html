@@ -3,6 +3,10 @@
   <h1>Consent</h1>
   <p>Compliance documents from API integration.</p>
 
+  <div class="page-actions">
+    <a routerLink="/consent/add" class="primary-link">+ Add Consent</a>
+  </div>
+
   @if (errorMessage()) {
     <section class="state state-error">
       <p>{{ errorMessage() }}</p>
@@ -22,12 +26,13 @@
             <th>Type</th>
             <th>Document Version</th>
             <th>Is Active</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (documents().length === 0) {
             <tr>
-              <td colspan="5" class="empty-cell">No consent documents found.</td>
+              <td colspan="6" class="empty-cell">No consent documents found.</td>
             </tr>
           } @else {
             @for (document of documents(); track document.id ?? $index) {
@@ -37,6 +42,13 @@
                 <td>{{ document.type ?? '-' }}</td>
                 <td>{{ document.documentVersion ?? '-' }}</td>
                 <td>{{ document.isActive === true ? 'Yes' : document.isActive === false ? 'No' : '-' }}</td>
+                <td>
+                  @if (document.id) {
+                    <a [routerLink]="['/consent/edit', document.id]">Edit</a>
+                  } @else {
+                    -
+                  }
+                </td>
               </tr>
             }
           }

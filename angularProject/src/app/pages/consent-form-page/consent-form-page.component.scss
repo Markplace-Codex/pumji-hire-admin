@@ -1,0 +1,18 @@
+:host { display:block; min-height:100vh; background:#f8fafc; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.consent-form-page { max-width:960px; margin:0 auto; padding:2rem 1.5rem; }
+.back-link { text-decoration:none; color:#1d4ed8; font-weight:600; }
+h1 { margin:1rem 0 1.25rem; }
+.state,.form-card { border:1px solid #cbd5e1; border-radius:12px; background:#fff; padding:1rem; }
+.form-card { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+label { display:flex; flex-direction:column; gap:.35rem; font-size:.9rem; color:#1e293b; }
+input,textarea,button { font:inherit; }
+input,textarea { border:1px solid #cbd5e1; border-radius:8px; padding:.55rem .65rem; }
+.toggle-row { display:flex; gap:1rem; flex-wrap:wrap; }
+.toggle-row label { flex-direction:row; align-items:center; }
+.full-width { grid-column:1 / -1; }
+.actions { display:flex; justify-content:flex-end; }
+button { border:1px solid #1d4ed8; background:#1d4ed8; color:#fff; border-radius:8px; padding:.55rem .9rem; font-weight:600; cursor:pointer; }
+button:disabled { opacity:.6; cursor:not-allowed; }
+.message { margin:0; padding:.6rem; border-radius:8px; }
+.error { background:#fee2e2; color:#991b1b; }
+.success { background:#dcfce7; color:#166534; }
