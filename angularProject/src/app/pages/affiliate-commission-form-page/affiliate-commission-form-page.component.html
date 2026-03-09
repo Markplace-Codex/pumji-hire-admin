@@ -1,9 +1,6 @@
 <main class="affiliate-commission-form-page">
   <a routerLink="/configuration/affiliate-commission" class="back-link">← Back to affiliate commission</a>
   <h1>{{ isEditMode() ? 'Edit Affiliate Commission' : 'Add Affiliate Commission' }}</h1>
-  <p>
-    {{ isEditMode() ? 'Update affiliate commission details.' : 'Create affiliate commission details.' }}
-  </p>
 
   @if (isLoading()) {
     <section class="state">Loading affiliate commission data...</section>

@@ -1,9 +1,6 @@
 <main class="all-settings-form-page">
   <a routerLink="/configuration/all-settings" class="back-link">← Back to all settings</a>
   <h1>{{ isEditMode() ? 'Edit AllSettings' : 'Add AllSettings' }}</h1>
-  <p>
-    {{ isEditMode() ? 'Update setting details.' : 'Create a new setting.' }}
-  </p>
 
   <section class="form-actions-top">
     <button type="button" (click)="applySampleData()" [disabled]="isSubmitting() || isLoading()">Load sample data</button>
