@@ -1,0 +1,60 @@
+<main class="consent-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Consent</h1>
+  <p>Compliance documents from API integration.</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && documents().length === 0) {
+    <section class="state">
+      <p>Loading consent documents...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Document Version</th>
+            <th>Is Active</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (documents().length === 0) {
+            <tr>
+              <td colspan="5" class="empty-cell">No consent documents found.</td>
+            </tr>
+          } @else {
+            @for (document of documents(); track document.id ?? $index) {
+              <tr>
+                <td>{{ document.id ?? '-' }}</td>
+                <td>{{ document.name ?? '-' }}</td>
+                <td>{{ document.type ?? '-' }}</td>
+                <td>{{ document.documentVersion ?? '-' }}</td>
+                <td>{{ document.isActive === true ? 'Yes' : document.isActive === false ? 'No' : '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Records: {{ totalCount() }}</span>
+        <span>Page Size: {{ pageSize() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>
