@@ -1,9 +1,6 @@
 <main class="product-form-page">
   <a routerLink="/configuration/products" class="back-link">← Back to products</a>
   <h1>{{ isEditMode() ? 'Edit Product' : 'Add Product' }}</h1>
-  <p>
-    {{ isEditMode() ? 'Update product details.' : 'Create product details.' }}
-  </p>
 
   @if (isLoading()) {
     <section class="state">Loading product data...</section>

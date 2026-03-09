@@ -2,9 +2,6 @@
   <a routerLink="/interview-schedules" class="back-link">← Back to interview schedules</a>
 
   <h1>{{ isEditMode() ? 'Edit Interview Schedule' : 'Add Interview Schedule' }}</h1>
-  <p>
-    {{ isEditMode() ? 'Update interview schedule details.' : 'Create an interview schedule.' }}
-  </p>
 
   @if (submitError()) {
     <div class="alert alert-error">{{ submitError() }}</div>

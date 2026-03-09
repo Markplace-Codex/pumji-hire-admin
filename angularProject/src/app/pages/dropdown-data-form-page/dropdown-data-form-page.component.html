@@ -1,9 +1,6 @@
 <main class="dropdown-data-form-page">
   <a routerLink="/configuration/dropdown-datas" class="back-link">← Back to dropdown datas</a>
   <h1>{{ isEditMode() ? 'Edit Dropdown Data' : 'Add Dropdown Data' }}</h1>
-  <p>
-    {{ isEditMode() ? 'Update dropdown data details.' : 'Create dropdown data.' }}
-  </p>
 
   <section class="form-actions-top">
     <button type="button" (click)="applySampleData()" [disabled]="isSubmitting() || isLoading()">Load sample data</button>

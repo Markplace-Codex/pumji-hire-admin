@@ -1,9 +1,6 @@
 <main class="order-form-page">
   <a routerLink="/orders" class="back-link">← Back to orders</a>
   <h1>{{ isEditMode() ? 'Edit Order' : 'Add Order' }}</h1>
-  <p>
-    {{ isEditMode() ? 'Update order details.' : 'Create a new order.' }}
-  </p>
 
   <section class="form-actions-top">
     <button type="button" (click)="applySampleData()" [disabled]="isSubmitting()">Load sample data</button>
