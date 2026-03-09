@@ -70,6 +70,7 @@ export class CustomersPageComponent {
   protected readonly editingCustomerId = signal<number | null>(null);
   protected readonly editingActiveValue = signal<boolean | null>(null);
   protected readonly savingCustomerId = signal<number | null>(null);
+  protected readonly selectedCustomerIds = signal<Set<number>>(new Set());
 
   protected readonly searchFieldOptions: Array<{ value: CustomerSearchField; label: string }> = [
     { value: 'username', label: 'Username' },
@@ -92,6 +93,19 @@ export class CustomersPageComponent {
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
+  protected readonly selectedCustomersCount = computed(() => this.selectedCustomerIds().size);
+  protected readonly allVisibleCustomersSelected = computed(() => {
+    const selectableIds = this.customers()
+      .map((customer) => customer.id)
+      .filter((id): id is number => id != null);
+
+    if (selectableIds.length === 0) {
+      return false;
+    }
+
+    const selectedIds = this.selectedCustomerIds();
+    return selectableIds.every((id) => selectedIds.has(id));
+  });
   protected readonly pageLabel = computed(() => {
     if (this.totalPages() === 0) {
       return 'Page 0 of 0';
@@ -141,6 +155,86 @@ export class CustomersPageComponent {
   protected clearSearchFilter(): void {
     this.searchValue.set('');
     this.loadCustomers(0);
+  }
+
+  protected toggleCustomerSelection(customerId: number | undefined, isChecked: boolean): void {
+    if (customerId == null) {
+      return;
+    }
+
+    this.selectedCustomerIds.update((currentSelection) => {
+      const nextSelection = new Set(currentSelection);
+      if (isChecked) {
+        nextSelection.add(customerId);
+      } else {
+        nextSelection.delete(customerId);
+      }
+
+      return nextSelection;
+    });
+  }
+
+  protected isCustomerSelected(customerId: number | undefined): boolean {
+    if (customerId == null) {
+      return false;
+    }
+
+    return this.selectedCustomerIds().has(customerId);
+  }
+
+  protected toggleSelectAllVisible(isChecked: boolean): void {
+    const visibleCustomerIds = this.customers()
+      .map((customer) => customer.id)
+      .filter((id): id is number => id != null);
+
+    this.selectedCustomerIds.update((currentSelection) => {
+      const nextSelection = new Set(currentSelection);
+
+      if (isChecked) {
+        visibleCustomerIds.forEach((id) => nextSelection.add(id));
+      } else {
+        visibleCustomerIds.forEach((id) => nextSelection.delete(id));
+      }
+
+      return nextSelection;
+    });
+  }
+
+  protected downloadSelectedCustomersCsv(): void {
+    const selectedCustomers = this.customers().filter((customer) =>
+      customer.id != null ? this.selectedCustomerIds().has(customer.id) : false
+    );
+
+    if (selectedCustomers.length === 0) {
+      this.errorMessage.set('Please select at least one customer to download CSV.');
+      return;
+    }
+
+    this.errorMessage.set(null);
+
+    const headers = ['id', 'username', 'name', 'email', 'phone', 'gender', 'active', 'createdOn', 'modifiedOn'];
+    const rows = selectedCustomers.map((customer) => [
+      this.csvValue(customer.id),
+      this.csvValue(customer.username),
+      this.csvValue(this.getCustomerDisplayName(customer)),
+      this.csvValue(customer.email),
+      this.csvValue(customer.phone),
+      this.csvValue(customer.gender),
+      this.csvValue(customer.active == null ? '' : customer.active ? 'true' : 'false'),
+      this.csvValue(customer.createdOn),
+      this.csvValue(customer.modifiedOn)
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const fileName = `customers-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    const url = URL.createObjectURL(blob);
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = fileName;
+    anchorElement.click();
+    URL.revokeObjectURL(url);
   }
 
   protected editCustomer(customer: CustomerListItem): void {
@@ -237,6 +331,7 @@ export class CustomersPageComponent {
           this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
           this.currentPage.set(pageData?.currentPage ?? pageIndex);
           this.totalPages.set(pageData?.totalPages ?? 0);
+          this.selectedCustomerIds.set(new Set());
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
@@ -263,6 +358,7 @@ export class CustomersPageComponent {
           this.pageSize.set(this.defaultPageSize);
           this.currentPage.set(0);
           this.totalPages.set(customerList.length > 0 ? 1 : 0);
+          this.selectedCustomerIds.set(new Set());
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
@@ -299,5 +395,15 @@ export class CustomersPageComponent {
     }
 
     return 'Unable to load customers right now. Please try again.';
+  }
+
+  private getCustomerDisplayName(customer: CustomerListItem): string {
+    return `${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim();
+  }
+
+  private csvValue(value: string | number | boolean | undefined): string {
+    const normalizedValue = `${value ?? ''}`;
+    const escapedValue = normalizedValue.replace(/"/g, '""');
+    return `"${escapedValue}"`;
   }
 }
