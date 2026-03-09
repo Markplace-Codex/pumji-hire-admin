@@ -57,6 +57,11 @@ export class HomePageComponent {
       route: '/configuration'
     },
     {
+      title: 'Consent',
+      description: 'View compliance consent documents with pagination.',
+      route: '/consent'
+    },
+    {
       title: 'Acceptance history',
       description: 'View consent acceptance history with pagination.',
       route: '/consent-versioning'

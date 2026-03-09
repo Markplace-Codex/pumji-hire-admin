@@ -21,6 +21,7 @@ import { ProductFormPageComponent } from './pages/product-form-page/product-form
 import { ErrorLogsPageComponent } from './pages/error-logs-page/error-logs-page.component';
 import { ConsentVersioningPageComponent } from './pages/consent-versioning-page/consent-versioning-page.component';
 import { ManualCreditsPageComponent } from './pages/manual-credits-page/manual-credits-page.component';
+import { ConsentPageComponent } from './pages/consent-page/consent-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -62,6 +63,7 @@ export const routes: Routes = [
   },
   { path: 'error-logs', component: ErrorLogsPageComponent },
   { path: 'consent-versioning', component: ConsentVersioningPageComponent },
+  { path: 'consent', component: ConsentPageComponent },
   { path: 'configuration', component: ConfigurationPageComponent },
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
   { path: 'configuration/dropdown-datas/add', component: DropdownDataFormPageComponent },

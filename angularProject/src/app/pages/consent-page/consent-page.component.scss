@@ -1,0 +1,110 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.consent-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+h1 {
+  margin: 1rem 0 0.5rem;
+  color: #0f172a;
+}
+
+p {
+  color: #334155;
+}
+
+.table-wrapper {
+  margin-top: 1.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: auto;
+  background: #ffffff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+th,
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+th {
+  background: #f1f5f9;
+  font-weight: 700;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #64748b;
+  padding: 1rem;
+}
+
+.state {
+  margin-top: 1.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.state-error {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.pagination-row {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pagination-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #334155;
+}
+
+.pagination-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
