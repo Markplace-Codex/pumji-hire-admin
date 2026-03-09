@@ -26,7 +26,7 @@ export class HomePageComponent {
       route: '/orders'
     },
     {
-      title: 'Credits (Add/Edit)',
+      title: 'Credits',
       description: 'Add and edit credit balances.',
       route: '/credits'
     },
