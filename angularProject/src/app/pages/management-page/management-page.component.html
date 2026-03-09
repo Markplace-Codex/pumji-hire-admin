@@ -54,7 +54,10 @@
 
   @if (isCreditsPage()) {
     <section class="customers-section">
-      <h2>User Credits</h2>
+      <div class="section-header">
+        <h2>User Credits</h2>
+        <a routerLink="/credits/manual-add" class="action-link">+ Add manual credits</a>
+      </div>
 
       @if (isLoadingCredits()) {
         <p class="status-message">Loading credits...</p>

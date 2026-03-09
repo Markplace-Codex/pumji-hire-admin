@@ -1,0 +1,104 @@
+<main class="manual-credits-page">
+  <a routerLink="/credits" class="back-link">← Back to credits list</a>
+  <h1>Add Manual Credits</h1>
+  <p>Search customers, choose credit package, provide reason and image, then submit.</p>
+
+  <section class="search-card">
+    <label>
+      Search By
+      <select [value]="selectedSearchField()" (change)="updateSelectedSearchField($any($event.target).value)">
+        @for (option of searchFieldOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Search Value
+      <input type="text" [value]="searchValue()" (input)="updateSearchValue($any($event.target).value)" placeholder="Enter search value" />
+    </label>
+
+    <div class="actions">
+      <button type="button" (click)="searchCustomers()" [disabled]="isSearching()">Search</button>
+      <button type="button" class="secondary" (click)="clearSearch()" [disabled]="isSearching() || isSubmitting()">Clear</button>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <label>
+      Credits
+      <select [value]="selectedCreditId() ?? ''" (change)="updateSelectedCredit($any($event.target).value)" [disabled]="isLoadingCredits()">
+        <option value="">Select credits</option>
+        @for (credit of creditOptions(); track credit.id ?? $index) {
+          <option [value]="credit.id">{{ credit.creditCount ?? 0 }} credits (ID: {{ credit.id }})</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Reason
+      <textarea [value]="reason()" (input)="updateReason($any($event.target).value)" rows="3" placeholder="Enter reason"></textarea>
+    </label>
+
+    <label>
+      Image Upload
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+    </label>
+
+    @if (selectedFile()) {
+      <p class="file-name">Selected file: {{ selectedFile()?.name }}</p>
+    }
+
+    <button type="button" class="submit" (click)="submitManualCredits()" [disabled]="isSubmitting() || isSearching() || isLoadingCredits()">
+      {{ isSubmitting() ? 'Submitting...' : 'Add Credits to Selected Customers' }}
+    </button>
+  </section>
+
+  @if (errorMessage()) {
+    <section class="state error">{{ errorMessage() }}</section>
+  }
+
+  @if (successMessage()) {
+    <section class="state success">{{ successMessage() }}</section>
+  }
+
+  <section class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox" [checked]="areAllCustomersSelected()" (change)="toggleSelectAll($any($event.target).checked)" />
+          </th>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (customers().length === 0) {
+          <tr>
+            <td colspan="6" class="empty">{{ isSearching() ? 'Searching customers...' : 'No customers found.' }}</td>
+          </tr>
+        } @else {
+          @for (customer of customers(); track customer.id ?? $index) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  [checked]="isCustomerSelected(customer.id)"
+                  (change)="toggleCustomerSelection(customer.id, $any($event.target).checked)" />
+              </td>
+              <td>{{ customer.id ?? '-' }}</td>
+              <td>{{ customer.username ?? '-' }}</td>
+              <td>{{ ((customer.firstName ?? '') + ' ' + (customer.lastName ?? '')).trim() || '-' }}</td>
+              <td>{{ customer.email ?? '-' }}</td>
+              <td>{{ customer.phone ?? '-' }}</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </section>
+</main>
