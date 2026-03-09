@@ -20,6 +20,7 @@ import { AffiliateCommissionFormPageComponent } from './pages/affiliate-commissi
 import { ProductFormPageComponent } from './pages/product-form-page/product-form-page.component';
 import { ErrorLogsPageComponent } from './pages/error-logs-page/error-logs-page.component';
 import { ConsentVersioningPageComponent } from './pages/consent-versioning-page/consent-versioning-page.component';
+import { ManualCreditsPageComponent } from './pages/manual-credits-page/manual-credits-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -39,6 +40,7 @@ export const routes: Routes = [
       description: 'This page is ready for adding and editing credits.'
     }
   },
+  { path: 'credits/manual-add', component: ManualCreditsPageComponent },
   { path: 'interview-schedules', component: InterviewSchedulesPageComponent },
   { path: 'interview-schedules/add', component: InterviewScheduleFormPageComponent },
   { path: 'interview-schedules/edit', component: InterviewScheduleFormPageComponent },

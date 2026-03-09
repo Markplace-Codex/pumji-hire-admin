@@ -132,3 +132,23 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+  text-decoration: none;
+}
