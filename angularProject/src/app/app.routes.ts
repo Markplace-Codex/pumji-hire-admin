@@ -36,7 +36,7 @@ export const routes: Routes = [
     path: 'credits',
     component: ManagementPageComponent,
     data: {
-      title: 'Credits - Add/Edit',
+      title: 'Credits',
       description: 'This page is ready for adding and editing credits.'
     }
   },
