@@ -89,7 +89,7 @@ export class InterviewScheduleFormPageComponent {
       this.orderService.apiOrderUpdatePut(payload).subscribe({
         next: (response) => {
           if (response.isSuccess === false) {
-            this.submitError.set(response.message?.trim() || 'Unable to update interview schedule right now.');
+            this.submitError.set(this.sanitizeMessage(response.message) || 'Unable to update interview schedule right now.');
             this.isSubmitting.set(false);
             return;
           }
@@ -234,14 +234,33 @@ export class InterviewScheduleFormPageComponent {
   private resolveErrorMessage(error: HttpErrorResponse): string {
     if (typeof error.error === 'object' && error.error !== null && 'message' in error.error) {
       const message = (error.error as { message?: unknown }).message;
-      if (typeof message === 'string' && message.trim().length > 0) {
-        return message;
+      const sanitizedMessage = this.sanitizeMessage(message);
+      if (sanitizedMessage) {
+        return sanitizedMessage;
       }
     }
 
     return this.isEditMode()
       ? 'Unable to update interview schedule right now.'
       : 'Unable to create interview schedule right now.';
+  }
+
+  private sanitizeMessage(message: unknown): string | null {
+    if (typeof message !== 'string') {
+      return null;
+    }
+
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      return null;
+    }
+
+    const normalizedMessage = trimmedMessage.toLowerCase();
+    if (normalizedMessage.includes('/api/') || normalizedMessage.includes('endpoint')) {
+      return null;
+    }
+
+    return trimmedMessage;
   }
 
   private isoToLocalInput(value: unknown): string {
