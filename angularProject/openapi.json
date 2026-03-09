@@ -8403,6 +8403,95 @@
         }
       }
     },
+    "/api/ComplianceDocument/GetAll": {
+      "get": {
+        "tags": [
+          "ComplianceDocument"
+        ],
+        "parameters": [
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationComplianceDocumentVersionSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ComplianceDocument/GetActiveDocuments": {
       "get": {
         "tags": [
@@ -14033,6 +14122,13 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "isScoreVisibleToRecruiter",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -15123,6 +15219,13 @@
           },
           {
             "name": "isPopupClosed",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isScoreVisibleToRecruiter",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -52504,6 +52607,9 @@
           "processedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "isScoreVisibleToRecruiter": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -56683,7 +56789,8 @@
           5,
           6,
           7,
-          8
+          8,
+          9
         ],
         "type": "integer",
         "format": "int32"
@@ -59956,6 +60063,9 @@
           "videoduration": {
             "type": "string",
             "nullable": true
+          },
+          "isScoreVisibleToRecruiter": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -64603,6 +64713,38 @@
             "items": {
               "$ref": "#/components/schemas/CandidateList"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationComplianceDocumentVersion": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "complianceDocumentVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplianceDocumentVersionDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationComplianceDocumentVersionSchema": {
+        "type": "object",
+        "properties": {
+          "paginationComplianceDocumentVersion": {
+            "$ref": "#/components/schemas/PaginationComplianceDocumentVersion"
+          },
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -70019,6 +70161,10 @@
             "nullable": true
           },
           "searchValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerRole": {
             "type": "string",
             "nullable": true
           }
