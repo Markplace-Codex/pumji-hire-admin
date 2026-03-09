@@ -23,6 +23,7 @@ import { ConsentVersioningPageComponent } from './pages/consent-versioning-page/
 import { ManualCreditsPageComponent } from './pages/manual-credits-page/manual-credits-page.component';
 import { ConsentPageComponent } from './pages/consent-page/consent-page.component';
 import { ConsentFormPageComponent } from './pages/consent-form-page/consent-form-page.component';
+import { AssigningRolesPageComponent } from './pages/assigning-roles-page/assigning-roles-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -66,6 +67,7 @@ export const routes: Routes = [
   { path: 'consent-versioning', component: ConsentVersioningPageComponent },
   { path: 'consent', component: ConsentPageComponent },
   { path: 'consent/add', component: ConsentFormPageComponent },
+  { path: 'assigning-roles', component: AssigningRolesPageComponent },
   { path: 'consent/edit/:id', component: ConsentFormPageComponent },
   { path: 'configuration', component: ConfigurationPageComponent },
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },

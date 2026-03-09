@@ -31,6 +31,11 @@ export class HomePageComponent {
       route: '/credits'
     },
     {
+      title: 'Assigning Roles',
+      description: 'Search customers and assign a role.',
+      route: '/assigning-roles'
+    },
+    {
       title: 'Interview Schedules',
       description: 'View upcoming interview plans.',
       route: '/interview-schedules'

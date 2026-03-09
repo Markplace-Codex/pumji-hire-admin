@@ -1,0 +1,87 @@
+<main class="assigning-roles-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Assigning Roles</h1>
+
+  <section class="search-card">
+    <label>
+      Search By
+      <select [value]="selectedSearchField()" (change)="updateSelectedSearchField($any($event.target).value)">
+        @for (option of searchFieldOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Search Value
+      <input type="text" [value]="searchValue()" (input)="updateSearchValue($any($event.target).value)" placeholder="Enter search value" />
+    </label>
+
+    <div class="actions">
+      <button type="button" (click)="searchCustomers()" [disabled]="isSearching()">Search</button>
+      <button type="button" class="secondary" (click)="clearSearch()" [disabled]="isSearching() || isSubmitting()">Clear</button>
+    </div>
+  </section>
+
+  <section class="assign-card">
+    <label>
+      Customer Role
+      <select [value]="selectedRoleId() ?? ''" (change)="updateSelectedRole($any($event.target).value)">
+        <option value="">Select role</option>
+        @for (role of roleOptions; track role.id) {
+          <option [value]="role.id">{{ role.label }}</option>
+        }
+      </select>
+    </label>
+
+    <button type="button" class="submit" (click)="assignRole()" [disabled]="!canAssignRole()">
+      {{ isSubmitting() ? 'Assigning...' : 'Assign Role to Selected Customer' }}
+    </button>
+  </section>
+
+  @if (errorMessage()) {
+    <section class="state error">{{ errorMessage() }}</section>
+  }
+
+  @if (successMessage()) {
+    <section class="state success">{{ successMessage() }}</section>
+  }
+
+  <section class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (customers().length === 0) {
+          <tr>
+            <td colspan="6" class="empty">{{ isSearching() ? 'Searching customers...' : 'No customers found.' }}</td>
+          </tr>
+        } @else {
+          @for (customer of customers(); track customer.id ?? $index) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  [checked]="isCustomerSelected(customer.id)"
+                  (change)="toggleCustomerSelection(customer.id, $any($event.target).checked)" />
+              </td>
+              <td>{{ customer.id ?? '-' }}</td>
+              <td>{{ customer.username ?? '-' }}</td>
+              <td>{{ ((customer.firstName ?? '') + ' ' + (customer.lastName ?? '')).trim() || '-' }}</td>
+              <td>{{ customer.email ?? '-' }}</td>
+              <td>{{ customer.phone ?? '-' }}</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </section>
+</main>
