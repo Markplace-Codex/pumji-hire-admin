@@ -44,6 +44,7 @@ type CustomerSearchField = 'username' | 'name' | 'email' | 'phone' | 'active' | 
 type CustomerSearchRequest = {
   searchBy: string;
   searchValue: string;
+  customerRole: string;
 };
 
 @Component({
@@ -67,6 +68,7 @@ export class CustomersPageComponent {
   protected readonly totalPages = signal(0);
   protected readonly selectedSearchField = signal<CustomerSearchField>('username');
   protected readonly searchValue = signal('');
+  protected readonly selectedCustomerRole = signal('');
   protected readonly editingCustomerId = signal<number | null>(null);
   protected readonly editingActiveValue = signal<boolean | null>(null);
   protected readonly savingCustomerId = signal<number | null>(null);
@@ -81,6 +83,18 @@ export class CustomersPageComponent {
     { value: 'createdOn', label: 'Created On' }
   ];
 
+  protected readonly customerRoleOptions: string[] = [
+    'Registered',
+    'Guests',
+    'Employee',
+    'Recruiter',
+    'Administrators',
+    'CorporateAdmin',
+    'HR',
+    'SupportAdmin',
+    'SuperAdmin'
+  ];
+
   protected readonly isActiveSearch = computed(() => this.selectedSearchField() === 'active');
   protected readonly isCreatedOnSearch = computed(() => this.selectedSearchField() === 'createdOn');
   protected readonly hasActiveFilter = computed(
@@ -89,7 +103,8 @@ export class CustomersPageComponent {
   protected readonly hasTextFilter = computed(
     () => this.selectedSearchField() !== 'active' && this.searchValue().trim().length > 0
   );
-  protected readonly hasSearchFilter = computed(() => this.hasTextFilter() || this.hasActiveFilter());
+  protected readonly hasRoleFilter = computed(() => this.selectedCustomerRole().trim().length > 0);
+  protected readonly hasSearchFilter = computed(() => this.hasTextFilter() || this.hasActiveFilter() || this.hasRoleFilter());
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -148,12 +163,17 @@ export class CustomersPageComponent {
     this.searchValue.set(rawValue);
   }
 
+  protected updateSelectedCustomerRole(rawValue: string): void {
+    this.selectedCustomerRole.set(rawValue);
+  }
+
   protected applySearchFilter(): void {
     this.loadCustomers(0);
   }
 
   protected clearSearchFilter(): void {
     this.searchValue.set('');
+    this.selectedCustomerRole.set('');
     this.loadCustomers(0);
   }
 
@@ -344,7 +364,8 @@ export class CustomersPageComponent {
   private searchCustomers(): void {
     const payload: CustomerSearchRequest = {
       searchBy: this.selectedSearchField(),
-      searchValue: this.searchValue().trim()
+      searchValue: this.searchValue().trim(),
+      customerRole: this.selectedCustomerRole().trim()
     };
 
     this.httpClient
