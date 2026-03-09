@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { CustomerService } from '../../api/api/customer.service';
+import { CustomerRoles } from '../../api/model/customerRoles';
 import { getAuthorizationHeaderCandidates, normalizeTokenValue } from '../../auth-token';
 
 @Component({
@@ -56,6 +57,11 @@ export class LoginPageComponent {
         next: (response) => {
           if (!response.isSuccess || !response.authenticateResponse) {
             this.errorMessage.set(response.message ?? 'Sign in failed. Please check your credentials.');
+            return;
+          }
+
+          if (response.authenticateResponse.customerRole !== CustomerRoles.NUMBER_9) {
+            this.errorMessage.set('Only super admin users can log in to this portal.');
             return;
           }
 
