@@ -19,7 +19,6 @@
   }
 
   <form class="order-form" (ngSubmit)="submitForm()">
-    <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" required /></label>
     <label>Key Usage <input type="text" name="keyUsage" [(ngModel)]="formModel.keyUsage" /></label>
     <label>Amount Paid <input type="number" name="amountPaid" [(ngModel)]="formModel.amountPaid" required /></label>
     <label>Symbol <input type="text" name="symbol" [(ngModel)]="formModel.symbol" /></label>

@@ -22,7 +22,6 @@
     }
 
     <form class="dropdown-data-form" (ngSubmit)="submitForm()">
-      <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" [readonly]="isEditMode()" required /></label>
       <label>Field Name <input type="text" name="fieldName" [(ngModel)]="formModel.fieldName" required /></label>
       <label>Field Type <input type="text" name="fieldType" [(ngModel)]="formModel.fieldType" required /></label>
       <label>Options <textarea name="options" [(ngModel)]="formModel.options" rows="4" required></textarea></label>
