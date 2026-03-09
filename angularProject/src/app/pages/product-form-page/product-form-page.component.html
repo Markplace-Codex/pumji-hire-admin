@@ -19,10 +19,6 @@
 
     <form class="product-form" (ngSubmit)="submitForm()">
       <label>
-        ID
-        <input type="number" name="id" [(ngModel)]="formModel.id" [readonly]="isEditMode()" required />
-      </label>
-      <label>
         Name
         <input type="text" name="name" [(ngModel)]="formModel.name" required />
       </label>

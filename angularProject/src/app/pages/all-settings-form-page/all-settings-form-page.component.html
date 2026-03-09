@@ -22,7 +22,6 @@
     }
 
     <form class="all-settings-form" (ngSubmit)="submitForm()">
-      <label>ID <input type="number" name="id" [(ngModel)]="formModel.id" [readonly]="isEditMode()" required /></label>
       <label>Name <input type="text" name="name" [(ngModel)]="formModel.name" required /></label>
       <label>Value <textarea name="value" [(ngModel)]="formModel.value" rows="4" required></textarea></label>
       <label>Store Id <input type="number" name="storeId" [(ngModel)]="formModel.storeId" required /></label>
