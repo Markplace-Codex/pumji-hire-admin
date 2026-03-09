@@ -97,10 +97,10 @@ export class AllSettingsFormPageComponent implements OnInit {
     this.submitSuccess.set(null);
 
     const payload: SettingPayload = {
-      id: this.formModel.id,
-      name: this.toNullableString(this.formModel.name),
-      value: this.toNullableString(this.formModel.value),
-      storeId: this.formModel.storeId
+      id: this.toSafeNumber(this.formModel.id),
+      name: this.toSafeString(this.formModel.name),
+      value: this.toSafeString(this.formModel.value),
+      storeId: this.toSafeNumber(this.formModel.storeId)
     };
 
     const request$ = this.isEditMode()
@@ -153,8 +153,11 @@ export class AllSettingsFormPageComponent implements OnInit {
     return this.isEditMode() ? 'Unable to update setting right now.' : 'Unable to create setting right now.';
   }
 
-  private toNullableString(value: string): string | null {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : null;
+  private toSafeString(value: string | null | undefined): string {
+    return typeof value === 'string' ? value.trim() : '';
+  }
+
+  private toSafeNumber(value: number | null | undefined): number {
+    return typeof value === 'number' && Number.isFinite(value) ? value : 0;
   }
 }

@@ -128,12 +128,12 @@ export class ProductFormPageComponent implements OnInit {
   private buildPayload(): ProductDto {
     return {
       ...this.defaultPayloadValues(),
-      id: this.formModel.id,
-      name: this.toNullableString(this.formModel.name),
-      shortDescription: this.toNullableString(this.formModel.shortDescription),
-      fullDescription: this.toNullableString(this.formModel.fullDescription),
-      productTypeId: this.formModel.productTypeId,
-      price: this.formModel.price,
+      id: this.toSafeNumber(this.formModel.id),
+      name: this.toSafeString(this.formModel.name),
+      shortDescription: this.toSafeString(this.formModel.shortDescription),
+      fullDescription: this.toSafeString(this.formModel.fullDescription),
+      productTypeId: this.toSafeNumber(this.formModel.productTypeId),
+      price: this.toSafeNumber(this.formModel.price),
       published: this.formModel.published,
       deleted: this.formModel.deleted
     };
@@ -271,8 +271,11 @@ export class ProductFormPageComponent implements OnInit {
     return this.isEditMode() ? 'Unable to update product right now.' : 'Unable to create product right now.';
   }
 
-  private toNullableString(value: string): string | null {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : null;
+  private toSafeString(value: string | null | undefined): string {
+    return typeof value === 'string' ? value.trim() : '';
+  }
+
+  private toSafeNumber(value: number | null | undefined): number {
+    return typeof value === 'number' && Number.isFinite(value) ? value : 0;
   }
 }
