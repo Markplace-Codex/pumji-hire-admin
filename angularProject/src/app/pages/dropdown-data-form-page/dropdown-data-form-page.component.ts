@@ -142,20 +142,23 @@ export class DropdownDataFormPageComponent implements OnInit {
 
   private buildPayload(): DropDown {
     return {
-      id: this.formModel.id,
-      fieldName: this.toNullableString(this.formModel.fieldName),
-      fieldType: this.toNullableString(this.formModel.fieldType),
-      options: this.toNullableString(this.formModel.options),
-      pageName: this.toNullableString(this.formModel.pageName),
-      custField1: this.toNullableString(this.formModel.custField1),
-      custField2: this.toNullableString(this.formModel.custField2),
-      custField3: this.toNullableString(this.formModel.custField3)
+      id: this.toSafeNumber(this.formModel.id),
+      fieldName: this.toSafeString(this.formModel.fieldName),
+      fieldType: this.toSafeString(this.formModel.fieldType),
+      options: this.toSafeString(this.formModel.options),
+      pageName: this.toSafeString(this.formModel.pageName),
+      custField1: this.toSafeString(this.formModel.custField1),
+      custField2: this.toSafeString(this.formModel.custField2),
+      custField3: this.toSafeString(this.formModel.custField3)
     };
   }
 
-  private toNullableString(value: string): string | null {
-    const trimmedValue = value.trim();
-    return trimmedValue.length > 0 ? trimmedValue : null;
+  private toSafeString(value: string | null | undefined): string {
+    return typeof value === 'string' ? value.trim() : '';
+  }
+
+  private toSafeNumber(value: number | null | undefined): number {
+    return typeof value === 'number' && Number.isFinite(value) ? value : 0;
   }
 
   private resolveErrorMessage(error: HttpErrorResponse, fallbackMessage: string): string {
