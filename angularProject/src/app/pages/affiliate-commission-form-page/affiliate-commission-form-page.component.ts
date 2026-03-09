@@ -74,7 +74,7 @@ export class AffiliateCommissionFormPageComponent implements OnInit {
           const affiliateCommission = response.affiliateCommission;
 
           if (!affiliateCommission) {
-            this.submitError.set(response.message?.trim() || 'Unable to load affiliate commission details.');
+            this.submitError.set(this.sanitizeMessage(response.message) || 'Unable to load affiliate commission details.');
             this.isLoading.set(false);
             return;
           }
@@ -117,7 +117,7 @@ export class AffiliateCommissionFormPageComponent implements OnInit {
     request$.subscribe({
       next: (response) => {
         if (response.isSuccess === false) {
-          this.submitError.set(response.message?.trim() || this.defaultErrorMessage());
+          this.submitError.set(this.sanitizeMessage(response.message) || this.defaultErrorMessage());
           this.isSubmitting.set(false);
           return;
         }
@@ -143,12 +143,31 @@ export class AffiliateCommissionFormPageComponent implements OnInit {
   private resolveErrorMessage(error: HttpErrorResponse, fallbackMessage: string): string {
     if (typeof error.error === 'object' && error.error !== null && 'message' in error.error) {
       const message = (error.error as { message?: unknown }).message;
-      if (typeof message === 'string' && message.trim().length > 0) {
-        return message;
+      const sanitizedMessage = this.sanitizeMessage(message);
+      if (sanitizedMessage) {
+        return sanitizedMessage;
       }
     }
 
     return fallbackMessage;
+  }
+
+  private sanitizeMessage(message: unknown): string | null {
+    if (typeof message !== 'string') {
+      return null;
+    }
+
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      return null;
+    }
+
+    const normalizedMessage = trimmedMessage.toLowerCase();
+    if (normalizedMessage.includes('/api/') || normalizedMessage.includes('endpoint')) {
+      return null;
+    }
+
+    return trimmedMessage;
   }
 
   private defaultErrorMessage(): string {
