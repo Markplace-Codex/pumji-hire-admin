@@ -2,8 +2,7 @@
   <a routerLink="/configuration/all-settings" class="back-link">← Back to all settings</a>
   <h1>{{ isEditMode() ? 'Edit AllSettings' : 'Add AllSettings' }}</h1>
   <p>
-    {{ isEditMode() ? 'Update setting using' : 'Create setting using' }}
-    <code>{{ isEditMode() ? '/api/Setting/Update' : '/api/Setting/Create' }}</code>
+    {{ isEditMode() ? 'Update setting details.' : 'Create a new setting.' }}
   </p>
 
   <section class="form-actions-top">

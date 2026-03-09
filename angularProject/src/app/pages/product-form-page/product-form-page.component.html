@@ -2,8 +2,7 @@
   <a routerLink="/configuration/products" class="back-link">← Back to products</a>
   <h1>{{ isEditMode() ? 'Edit Product' : 'Add Product' }}</h1>
   <p>
-    {{ isEditMode() ? 'Update product using' : 'Create product using' }}
-    <code>{{ isEditMode() ? '/api/Product/Update' : '/api/Product/Create' }}</code>
+    {{ isEditMode() ? 'Update product details.' : 'Create product details.' }}
   </p>
 
   @if (isLoading()) {

@@ -2,8 +2,7 @@
   <a routerLink="/configuration/affiliate-commission" class="back-link">← Back to affiliate commission</a>
   <h1>{{ isEditMode() ? 'Edit Affiliate Commission' : 'Add Affiliate Commission' }}</h1>
   <p>
-    {{ isEditMode() ? 'Update data using' : 'Create data using' }}
-    <code>{{ isEditMode() ? '/api/AffiliateCommission/UpdateAffiliateCommission' : '/api/AffiliateCommission/CreateAffiliateCommission' }}</code>
+    {{ isEditMode() ? 'Update affiliate commission details.' : 'Create affiliate commission details.' }}
   </p>
 
   @if (isLoading()) {

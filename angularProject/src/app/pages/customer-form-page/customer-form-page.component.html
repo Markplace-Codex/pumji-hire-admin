@@ -2,7 +2,7 @@
   <a routerLink="/customers" class="back-link">← Back to customers</a>
 
   <h1>{{ isEditMode() ? 'Edit Customer' : 'Add Customer' }}</h1>
-  <p>Submit customer data using <code>/api/Customer/Register</code>.</p>
+  <p>Submit customer data.</p>
 
   @if (submitError()) {
     <div class="alert alert-error">{{ submitError() }}</div>
