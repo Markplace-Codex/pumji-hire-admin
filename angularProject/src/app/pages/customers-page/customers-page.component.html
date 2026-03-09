@@ -4,6 +4,10 @@
 
   <section class="toolbar">
     <a routerLink="/customers/add" class="action-link">+ Add customer</a>
+    <button type="button" (click)="downloadSelectedCustomersCsv()" [disabled]="selectedCustomersCount() === 0 || isLoading()">
+      Download selected CSV
+    </button>
+    <span class="selection-count">Selected: {{ selectedCustomersCount() }}</span>
   </section>
 
   <section class="filter-row">
@@ -59,6 +63,13 @@
       <table>
         <thead>
           <tr>
+            <th>
+              <input
+                type="checkbox"
+                [checked]="allVisibleCustomersSelected()"
+                (change)="toggleSelectAllVisible($any($event.target).checked)"
+                [disabled]="customers().length === 0" />
+            </th>
             <th>ID</th>
             <th>Username</th>
             <th>Name</th>
@@ -74,11 +85,18 @@
         <tbody>
           @if (customers().length === 0) {
             <tr>
-              <td colspan="10" class="empty-cell">No customers found.</td>
+              <td colspan="11" class="empty-cell">No customers found.</td>
             </tr>
           } @else {
             @for (customer of customers(); track customer.id ?? $index) {
               <tr>
+                <td>
+                  <input
+                    type="checkbox"
+                    [checked]="isCustomerSelected(customer.id)"
+                    (change)="toggleCustomerSelection(customer.id, $any($event.target).checked)"
+                    [disabled]="customer.id == null" />
+                </td>
                 <td>{{ customer.id ?? '-' }}</td>
                 <td>{{ customer.username ?? '-' }}</td>
                 <td>{{ ((customer.firstName ?? '') + ' ' + (customer.lastName ?? '')).trim() || '-' }}</td>
