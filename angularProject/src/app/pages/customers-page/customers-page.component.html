@@ -21,6 +21,16 @@
     </label>
 
     <label>
+      Role
+      <select [value]="selectedCustomerRole()" (change)="updateSelectedCustomerRole($any($event.target).value)">
+        <option value="">All Roles</option>
+        @for (role of customerRoleOptions; track role) {
+          <option [value]="role">{{ role }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
       Search Value
       @if (isActiveSearch()) {
         <select [value]="searchValue()" (change)="updateSearchValue($any($event.target).value)">
