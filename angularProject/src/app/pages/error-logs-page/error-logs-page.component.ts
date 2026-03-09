@@ -55,6 +55,7 @@ export class ErrorLogsPageComponent {
   private readonly customerService = inject(CustomerService);
 
   private readonly defaultPageSize = 3;
+  private searchApiPageIndexOffset = 0;
   private readonly customerNameByUserId = signal<Record<number, string>>({});
 
   protected readonly isLoading = signal(false);
@@ -148,6 +149,7 @@ export class ErrorLogsPageComponent {
 
   protected applyFilters(): void {
     this.appliedFilters.set({ ...this.filters() });
+    this.searchApiPageIndexOffset = 0;
     this.searchErrorLogs(0);
   }
 
@@ -179,6 +181,7 @@ export class ErrorLogsPageComponent {
     this.filters.set(resetFilters);
     this.appliedFilters.set(resetFilters);
     this.isFilterApplied.set(false);
+    this.searchApiPageIndexOffset = 0;
 
     this.loadErrorLogs(0);
   }
@@ -269,11 +272,16 @@ export class ErrorLogsPageComponent {
                 : log.customerName
           }));
 
+          const totalPages = pageData?.totalPages ?? (resolvedLogs.length > 0 ? 1 : 0);
+
+          this.updateSearchApiPageIndexOffset(pageData?.currentPage, pageIndex);
+          const currentPage = this.resolveCurrentPage(pageData?.currentPage, pageIndex, totalPages);
+
           this.errorLogs.set(resolvedLogs);
           this.totalCount.set(pageData?.totalCount ?? resolvedLogs.length);
           this.pageSize.set(pageData?.pageSize ?? this.pageSize());
-          this.currentPage.set(pageData?.currentPage ?? pageIndex);
-          this.totalPages.set(pageData?.totalPages ?? (resolvedLogs.length > 0 ? 1 : 0));
+          this.currentPage.set(currentPage);
+          this.totalPages.set(totalPages);
           this.isFilterApplied.set(this.hasActiveFilters());
           this.isLoading.set(false);
         },
@@ -291,7 +299,7 @@ export class ErrorLogsPageComponent {
       severity: this.toSingleOrMultiValue(activeFilters.severity) ?? '',
       keyword: this.toSingleOrMultiValue(activeFilters.keyword) ?? '',
       username: this.toSingleOrMultiValue(activeFilters.username) ?? '',
-      pageIndex,
+      pageIndex: pageIndex + this.searchApiPageIndexOffset,
       pageSize: this.pageSize()
     };
 
@@ -342,6 +350,39 @@ export class ErrorLogsPageComponent {
     return [activeFilters.severity, activeFilters.keyword, activeFilters.username, activeFilters.logDate].some(
       (value) => value.trim().length > 0
     );
+  }
+
+  private updateSearchApiPageIndexOffset(currentPage: number | undefined, requestedPageIndex: number): void {
+    if (typeof currentPage !== 'number') {
+      return;
+    }
+
+    if (currentPage === requestedPageIndex + 1) {
+      this.searchApiPageIndexOffset = 1;
+      return;
+    }
+
+    if (currentPage === requestedPageIndex) {
+      this.searchApiPageIndexOffset = 0;
+    }
+  }
+
+  private resolveCurrentPage(currentPageFromApi: number | undefined, requestedPageIndex: number, totalPages: number): number {
+    if (typeof currentPageFromApi !== 'number') {
+      return requestedPageIndex;
+    }
+
+    const normalizedPage = currentPageFromApi - this.searchApiPageIndexOffset;
+
+    if (!Number.isFinite(normalizedPage)) {
+      return requestedPageIndex;
+    }
+
+    if (totalPages <= 0) {
+      return 0;
+    }
+
+    return Math.min(Math.max(Math.trunc(normalizedPage), 0), totalPages - 1);
   }
 
   private resolveCustomerNames(logs: ErrorLogItem[]) {
