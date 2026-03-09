@@ -2,8 +2,7 @@
   <a routerLink="/orders" class="back-link">← Back to orders</a>
   <h1>{{ isEditMode() ? 'Edit Order' : 'Add Order' }}</h1>
   <p>
-    {{ isEditMode() ? 'Update order details using' : 'Create an order using' }}
-    <code>{{ isEditMode() ? '/api/Order/Update' : '/api/Order/Create' }}</code>
+    {{ isEditMode() ? 'Update order details.' : 'Create a new order.' }}
   </p>
 
   <section class="form-actions-top">

@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { CustomerService } from '../../api/api/customer.service';
-import { resolveApiBasePath } from '../../api-base-path';
 import { getAuthorizationHeaderCandidates, normalizeTokenValue } from '../../auth-token';
 
 @Component({
@@ -18,8 +17,6 @@ export class LoginPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly customerService = inject(CustomerService);
   private readonly router = inject(Router);
-
-  protected readonly apiBasePath = resolveApiBasePath();
 
   protected readonly isSubmitting = signal(false);
   protected readonly showPassword = signal(false);
@@ -80,7 +77,7 @@ export class LoginPageComponent {
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.errorMessage.set('Login API endpoint was not found on the configured server. Please contact support.');
+            this.errorMessage.set('Login service was not found on the configured server. Please contact support.');
             return;
           }
 
