@@ -233,7 +233,8 @@ export class ManualCreditsPageComponent {
         this.selectedCustomerIds().forEach((customerId) => {
           this.sendCustomerUpdateEmail({
             customerId,
-            creditsCount: creditCount
+            creditsCount: creditCount,
+            role: ''
           });
         });
 
