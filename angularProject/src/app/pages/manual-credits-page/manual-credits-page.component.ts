@@ -33,6 +33,13 @@ type ManualCreditResponse = {
   message?: string | null;
 };
 
+type CustomerUpdateEmailRequest = {
+  customerId: number;
+  active?: boolean;
+  role?: string;
+  creditsCount?: number;
+};
+
 @Component({
   selector: 'app-manual-credits-page',
   imports: [RouterLink],
@@ -212,7 +219,8 @@ export class ManualCreditsPageComponent {
           catchError((error: HttpErrorResponse) =>
             of({
               isSuccess: false,
-              message: this.resolveErrorMessage(error, `manual credits for customer ${customerId}`)
+              message: this.resolveErrorMessage(error, `manual credits for customer ${customerId}`),
+              customerId
             })
           )
         );
@@ -222,6 +230,14 @@ export class ManualCreditsPageComponent {
       const failures = results.filter((result) => !result.isSuccess);
 
       if (failures.length === 0) {
+        this.selectedCustomerIds().forEach((customerId) => {
+          this.sendCustomerUpdateEmail({
+            customerId,
+            creditsCount: creditCount,
+            role: ''
+          });
+        });
+
         this.successMessage.set(`Credits added successfully for ${results.length} customer(s).`);
         this.selectedCustomerIds.set([]);
         this.creditCount.set(null);
@@ -233,6 +249,10 @@ export class ManualCreditsPageComponent {
 
       this.isSubmitting.set(false);
     });
+  }
+
+  private sendCustomerUpdateEmail(payload: CustomerUpdateEmailRequest): void {
+    this.httpClient.post<void>(`${resolveApiBasePath()}/api/SuperAdmin/SendCustomerUpdateEmail`, payload).subscribe();
   }
   private resolveErrorMessage(error: HttpErrorResponse, resourceName: string): string {
     if (error.status === 401 || error.status === 403) {

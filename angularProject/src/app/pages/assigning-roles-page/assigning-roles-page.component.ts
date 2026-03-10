@@ -36,6 +36,13 @@ type RoleOption = {
   label: string;
 };
 
+type CustomerUpdateEmailRequest = {
+  customerId: number;
+  active?: boolean;
+  role?: string;
+  creditsCount?: number;
+};
+
 @Component({
   selector: 'app-assigning-roles-page',
   imports: [RouterLink],
@@ -185,6 +192,11 @@ export class AssigningRolesPageComponent {
           if (response?.isSuccess === false) {
             this.errorMessage.set(response.message?.trim() || 'Unable to assign customer role.');
           } else {
+            const selectedRoleLabel = this.roleOptions.find((role) => role.id === selectedRoleId)?.label ?? '';
+            this.sendCustomerUpdateEmail({
+              customerId: selectedCustomerId,
+              role: selectedRoleLabel
+            });
             this.successMessage.set(response?.message?.trim() || 'Customer role assigned successfully.');
           }
           this.isSubmitting.set(false);
@@ -194,6 +206,10 @@ export class AssigningRolesPageComponent {
           this.isSubmitting.set(false);
         }
       });
+  }
+
+  private sendCustomerUpdateEmail(payload: CustomerUpdateEmailRequest): void {
+    this.httpClient.post<void>(`${resolveApiBasePath()}/api/SuperAdmin/SendCustomerUpdateEmail`, payload).subscribe();
   }
 
   private resolveErrorMessage(error: HttpErrorResponse, resourceName: string): string {
