@@ -23,7 +23,14 @@
     <label>Order Guid <input type="text" name="orderGuid" [(ngModel)]="formModel.orderGuid" required /></label>
     <label>Store Id <input type="number" name="storeId" [(ngModel)]="formModel.storeId" required /></label>
     <label>Billing Address Id <input type="number" name="billingAddressId" [(ngModel)]="formModel.billingAddressId" required /></label>
-    <label>Order Status Id <input type="number" name="orderStatusId" [(ngModel)]="formModel.orderStatusId" required /></label>
+    <label>
+      Order Status Id
+      <select name="orderStatusId" [(ngModel)]="formModel.orderStatusId" required>
+        @for (status of orderStatusOptions; track status.value) {
+          <option [ngValue]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </label>
     <label>Payment Status Id <input type="number" name="paymentStatusId" [(ngModel)]="formModel.paymentStatusId" required /></label>
     <label>Payment Method System Name <input type="text" name="paymentMethodSystemName" [(ngModel)]="formModel.paymentMethodSystemName" /></label>
     <label>Customer Currency Code <input type="text" name="customerCurrencyCode" [(ngModel)]="formModel.customerCurrencyCode" /></label>
@@ -56,7 +63,14 @@
     <label>Product Attribute Id <input type="number" name="productAttributeId" [(ngModel)]="formModel.productAttributeId" required /></label>
     <label>Advisor Id <input type="number" name="advisorId" [(ngModel)]="formModel.advisorId" required /></label>
     <label>Order Tax <input type="number" name="orderTax" [(ngModel)]="formModel.orderTax" required /></label>
-    <label>Order Status <input type="number" name="orderStatus" [(ngModel)]="formModel.orderStatus" required /></label>
+    <label>
+      Order Status
+      <select name="orderStatus" [(ngModel)]="formModel.orderStatus" required>
+        @for (status of orderStatusOptions; track status.value) {
+          <option [ngValue]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </label>
     <label>Payment Status <input type="number" name="paymentStatus" [(ngModel)]="formModel.paymentStatus" required /></label>
 
     <div class="submit-row">

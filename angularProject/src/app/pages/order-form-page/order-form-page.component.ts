@@ -6,6 +6,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OrderService } from '../../api/api/order.service';
 import { Order } from '../../api/model/order';
 
+
+
+type OrderStatusOption = {
+  value: number;
+  label: string;
+};
+
 type OrderFormModel = {
   id: number;
   keyUsage: string;
@@ -57,6 +64,15 @@ export class OrderFormPageComponent {
 
   protected readonly includePaidDateUtc = signal(true);
   protected readonly includeCreatedOnUtc = signal(true);
+
+  protected readonly orderStatusOptions: OrderStatusOption[] = [
+    { value: 10, label: 'Pending' },
+    { value: 20, label: 'Processing' },
+    { value: 30, label: 'Complete' },
+    { value: 40, label: 'Cancelled' },
+    { value: 50, label: 'Out For Delivery' },
+    { value: 60, label: 'Attempt Failed' }
+  ];
 
   protected formModel: OrderFormModel = this.createDefaultFormModel();
 

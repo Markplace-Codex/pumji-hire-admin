@@ -11,6 +11,11 @@ import { CustomerBasicInfoSchema } from '../../api/model/customerBasicInfoSchema
 import { PaginationOrderSchema } from '../../api/model/paginationOrderSchema';
 import { resolveApiBasePath } from '../../api-base-path';
 
+type OrderStatusOption = {
+  value: number;
+  label: string;
+};
+
 interface OrdersSearchPayload {
   customerName: string | string[];
   paymentType: string | string[];
@@ -61,6 +66,14 @@ export class OrdersPageComponent {
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
+  protected readonly orderStatusOptions: OrderStatusOption[] = [
+    { value: 10, label: 'Pending' },
+    { value: 20, label: 'Processing' },
+    { value: 30, label: 'Complete' },
+    { value: 40, label: 'Cancelled' },
+    { value: 50, label: 'Out For Delivery' },
+    { value: 60, label: 'Attempt Failed' }
+  ];
   protected readonly pageLabel = computed(() => {
     const totalPages = this.totalPages();
     if (totalPages === 0) {
@@ -244,6 +257,14 @@ export class OrdersPageComponent {
     }
 
     return this.customerNameById()[customerId] ?? '';
+  }
+
+  protected getOrderStatusText(status: number | null | undefined): string {
+    if (typeof status !== 'number') {
+      return '-';
+    }
+
+    return this.orderStatusOptions.find((option) => option.value === status)?.label ?? status.toString();
   }
 
   private loadCustomerNamesForOrders(orders: OrderDto[]): void {
