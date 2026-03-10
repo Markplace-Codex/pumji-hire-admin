@@ -47,6 +47,13 @@ type CustomerSearchRequest = {
   customerRole: string;
 };
 
+type CustomerUpdateEmailRequest = {
+  customerId: number;
+  active?: boolean;
+  role?: string;
+  creditsCount?: number;
+};
+
 @Component({
   selector: 'app-customers-page',
   imports: [RouterLink],
@@ -292,30 +299,40 @@ export class CustomersPageComponent {
       return;
     }
 
+    const customerId = customer.id;
+
     this.errorMessage.set(null);
-    this.savingCustomerId.set(customer.id);
+    this.savingCustomerId.set(customerId);
 
     this.httpClient
       .put<void>(`${resolveApiBasePath()}/api/SuperAdmin/CustomerActiveStatus`, null, {
         params: {
-          CustomerId: customer.id,
+          CustomerId: customerId,
           Active: this.editingActiveValue()!
         }
       })
       .subscribe({
         next: () => {
+          const updatedActiveStatus = this.editingActiveValue()!;
+
           this.customers.update((customers) =>
             customers.map((item) => {
-              if (item.id !== customer.id) {
+              if (item.id !== customerId) {
                 return item;
               }
 
               return {
                 ...item,
-                active: this.editingActiveValue()!
+                active: updatedActiveStatus
               };
             })
           );
+
+          this.sendCustomerUpdateEmail({
+            customerId,
+            active: updatedActiveStatus,
+            role: ''
+          });
 
           this.cancelEdit();
         },
@@ -324,6 +341,10 @@ export class CustomersPageComponent {
           this.savingCustomerId.set(null);
         }
       });
+  }
+
+  private sendCustomerUpdateEmail(payload: CustomerUpdateEmailRequest): void {
+    this.httpClient.post<void>(`${resolveApiBasePath()}/api/SuperAdmin/SendCustomerUpdateEmail`, payload).subscribe();
   }
 
   private loadCustomers(pageIndex: number): void {
