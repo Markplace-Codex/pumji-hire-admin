@@ -22,7 +22,12 @@
 
       <label>
         Status
-        <input type="text" formControlName="status" placeholder="e.g. Completed" />
+        <select formControlName="status">
+          <option value="">All statuses</option>
+          @for (status of orderStatusOptions; track status.value) {
+            <option [value]="status.value">{{ status.label }}</option>
+          }
+        </select>
       </label>
 
       <label>
@@ -76,7 +81,7 @@
                 <td>{{ order.paymentType ?? '-' }}</td>
                 <td>{{ order.amountPaid ?? 0 }}</td>
                 <td>{{ order.orderTotal ?? 0 }}</td>
-                <td>{{ order.orderStatusId ?? '-' }}</td>
+                <td>{{ getOrderStatusText(order.orderStatusId) }}</td>
                 <td>{{ order.createdOnUtc ?? '-' }}</td>
                 <td>
                   <button type="button" (click)="navigateToEditOrder(order)">Edit</button>
