@@ -65,6 +65,7 @@ type OrderFormModel = {
   styleUrl: './order-form-page.component.scss'
 })
 export class OrderFormPageComponent {
+  private readonly defaultAdvisorId = 0;
   private readonly orderService = inject(OrderService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -166,13 +167,14 @@ export class OrderFormPageComponent {
 
   private buildPayload(): Order {
     const model = this.formModel;
+    const customerIdFromLogin = this.getLoggedInCustomerId();
 
     return {
       id: model.id,
       keyUsage: model.keyUsage || null,
       amountPaid: this.toNumberOrZero(model.amountPaid),
       symbol: model.symbol || null,
-      customerId: model.customerId,
+      customerId: customerIdFromLogin ?? model.customerId,
       creditCount: model.creditCount,
       orderGuid: model.orderGuid,
       storeId: model.storeId,
@@ -193,7 +195,7 @@ export class OrderFormPageComponent {
       productType: this.getShoppingCartItemTypeLabel(model.productType),
       paymentType: this.getPaymentTypeLabel(model.paymentType),
       productAttributeId: model.productAttributeId,
-      advisorId: model.advisorId,
+      advisorId: this.defaultAdvisorId,
       orderTax: model.orderTax,
       orderStatus: model.orderStatus as any,
       paymentStatus: model.paymentStatus as any
@@ -225,7 +227,7 @@ export class OrderFormPageComponent {
       productType: 1,
       paymentType: 1,
       productAttributeId: 0,
-      advisorId: 0,
+      advisorId: this.defaultAdvisorId,
       orderTax: 0,
       orderStatus: 10,
       paymentStatus: 10
@@ -357,5 +359,21 @@ export class OrderFormPageComponent {
 
   private defaultErrorMessage(): string {
     return this.isEditMode() ? 'Unable to update order right now.' : 'Unable to create order right now.';
+  }
+
+  private getLoggedInCustomerId(): number | null {
+    const loginResponseRaw = localStorage.getItem('loginResponse');
+    if (!loginResponseRaw) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(loginResponseRaw) as { authenticateResponse?: { customerId?: unknown } };
+      const customerId = parsed.authenticateResponse?.customerId;
+
+      return typeof customerId === 'number' && Number.isFinite(customerId) ? customerId : null;
+    } catch {
+      return null;
+    }
   }
 }

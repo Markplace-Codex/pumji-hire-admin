@@ -16,7 +16,6 @@
 
   <form class="order-form" (ngSubmit)="submitForm()">
     <label>Amount Paid <input type="number" name="amountPaid" [(ngModel)]="formModel.amountPaid" required /></label>
-    <label>Customer Id <input type="number" name="customerId" [(ngModel)]="formModel.customerId" required /></label>
     <label>Credit Count <input type="number" name="creditCount" [(ngModel)]="formModel.creditCount" required /></label>
     <label>Order Guid <input type="text" name="orderGuid" [(ngModel)]="formModel.orderGuid" required /></label>
     <label>Billing Address Id <input type="number" name="billingAddressId" [(ngModel)]="formModel.billingAddressId" required /></label>
@@ -63,7 +62,6 @@
       </select>
     </label>
     <label>Product Attribute Id <input type="number" name="productAttributeId" [(ngModel)]="formModel.productAttributeId" required /></label>
-    <label>Advisor Id <input type="number" name="advisorId" [(ngModel)]="formModel.advisorId" required /></label>
     <label>Order Tax <input type="number" name="orderTax" [(ngModel)]="formModel.orderTax" required /></label>
     <label>
       Order Status
