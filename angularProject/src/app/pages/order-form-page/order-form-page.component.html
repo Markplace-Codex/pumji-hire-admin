@@ -20,15 +20,6 @@
     <label>Credit Count <input type="number" name="creditCount" [(ngModel)]="formModel.creditCount" required /></label>
     <label>Order Guid <input type="text" name="orderGuid" [(ngModel)]="formModel.orderGuid" required /></label>
     <label>Billing Address Id <input type="number" name="billingAddressId" [(ngModel)]="formModel.billingAddressId" required /></label>
-    <label>
-      Order Status Id
-      <select name="orderStatusId" [(ngModel)]="formModel.orderStatusId" required>
-        @for (status of orderStatusOptions; track status.value) {
-          <option [ngValue]="status.value">{{ status.label }}</option>
-        }
-      </select>
-    </label>
-    <label>Payment Status Id <input type="number" name="paymentStatusId" [(ngModel)]="formModel.paymentStatusId" required /></label>
     <label>Payment Method System Name <input type="text" name="paymentMethodSystemName" [(ngModel)]="formModel.paymentMethodSystemName" /></label>
     <label>Customer Currency Code <input type="text" name="customerCurrencyCode" [(ngModel)]="formModel.customerCurrencyCode" /></label>
     <label>Currency Rate <input type="number" name="currencyRate" [(ngModel)]="formModel.currencyRate" required /></label>
@@ -68,7 +59,14 @@
         }
       </select>
     </label>
-    <label>Payment Status <input type="number" name="paymentStatus" [(ngModel)]="formModel.paymentStatus" required /></label>
+    <label>
+      Payment Status
+      <select name="paymentStatus" [(ngModel)]="formModel.paymentStatus" required>
+        @for (status of paymentStatusOptions; track status.value) {
+          <option [ngValue]="status.value">{{ status.label }}</option>
+        }
+      </select>
+    </label>
 
     <div class="submit-row">
       <button type="submit" [disabled]="isSubmitting()">
