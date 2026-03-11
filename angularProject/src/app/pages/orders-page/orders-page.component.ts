@@ -16,6 +16,11 @@ type OrderStatusOption = {
   label: string;
 };
 
+type PaymentTypeOption = {
+  value: number;
+  label: string;
+};
+
 interface OrdersSearchPayload {
   customerName: string | string[];
   paymentType: string | string[];
@@ -73,6 +78,11 @@ export class OrdersPageComponent {
     { value: 40, label: 'Cancelled' },
     { value: 50, label: 'Out For Delivery' },
     { value: 60, label: 'Attempt Failed' }
+  ];
+  protected readonly paymentTypeOptions: PaymentTypeOption[] = [
+    { value: 1, label: 'UPI' },
+    { value: 2, label: 'COD' },
+    { value: 3, label: 'Credits' }
   ];
   protected readonly pageLabel = computed(() => {
     const totalPages = this.totalPages();
@@ -265,6 +275,24 @@ export class OrdersPageComponent {
     }
 
     return this.orderStatusOptions.find((option) => option.value === status)?.label ?? status.toString();
+  }
+
+  protected getPaymentTypeText(paymentType: string | null | undefined): string {
+    if (!paymentType) {
+      return '-';
+    }
+
+    const fromLabel = this.paymentTypeOptions.find((option) => option.label.toLowerCase() === paymentType.toLowerCase());
+    if (fromLabel) {
+      return fromLabel.label;
+    }
+
+    const parsed = Number(paymentType);
+    if (!Number.isFinite(parsed)) {
+      return paymentType;
+    }
+
+    return this.paymentTypeOptions.find((option) => option.value === parsed)?.label ?? paymentType;
   }
 
   private loadCustomerNamesForOrders(orders: OrderDto[]): void {
