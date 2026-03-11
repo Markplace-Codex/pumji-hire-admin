@@ -12,7 +12,18 @@
   }
 
   <form (ngSubmit)="submitForm()" class="form-grid">
-    <label>User ID <input type="number" name="userId" [(ngModel)]="formModel.userId" /></label>
+    <label>User
+      <select name="userId" [(ngModel)]="formModel.userId" [disabled]="isLoadingUsers()">
+        <option [ngValue]="0">Select user</option>
+        @for (user of users(); track user.id) {
+          <option [ngValue]="user.id">{{ user.displayName }}</option>
+        }
+      </select>
+    </label>
+
+    @if (usersLoadError()) {
+      <div class="alert alert-error full-width">{{ usersLoadError() }}</div>
+    }
     <label>Schedule Date <input type="datetime-local" name="scheduleDate" [(ngModel)]="formModel.scheduleDate" /></label>
     <label>Schedule Time <input type="text" name="scheduleTime" [(ngModel)]="formModel.scheduleTime" /></label>
     <label>Status
