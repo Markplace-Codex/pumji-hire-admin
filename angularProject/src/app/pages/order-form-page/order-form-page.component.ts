@@ -13,6 +13,11 @@ type OrderStatusOption = {
   label: string;
 };
 
+type PaymentStatusOption = {
+  value: number;
+  label: string;
+};
+
 type OrderFormModel = {
   id: number;
   keyUsage: string;
@@ -23,8 +28,6 @@ type OrderFormModel = {
   orderGuid: string;
   storeId: number;
   billingAddressId: number;
-  orderStatusId: number;
-  paymentStatusId: number;
   paymentMethodSystemName: string;
   customerCurrencyCode: string;
   currencyRate: number;
@@ -72,6 +75,17 @@ export class OrderFormPageComponent {
     { value: 40, label: 'Cancelled' },
     { value: 50, label: 'Out For Delivery' },
     { value: 60, label: 'Attempt Failed' }
+  ];
+
+  protected readonly paymentStatusOptions: PaymentStatusOption[] = [
+    { value: 10, label: 'Pending' },
+    { value: 20, label: 'Authorized' },
+    { value: 30, label: 'Paid' },
+    { value: 35, label: 'Partially Refunded' },
+    { value: 40, label: 'Refunded' },
+    { value: 50, label: 'Voided' },
+    { value: 60, label: 'Failed' },
+    { value: 70, label: 'Cancelled' }
   ];
 
   protected formModel: OrderFormModel = this.createDefaultFormModel();
@@ -140,8 +154,8 @@ export class OrderFormPageComponent {
       orderGuid: model.orderGuid,
       storeId: model.storeId,
       billingAddressId: model.billingAddressId,
-      orderStatusId: model.orderStatusId,
-      paymentStatusId: model.paymentStatusId,
+      orderStatusId: model.orderStatus,
+      paymentStatusId: model.paymentStatus,
       paymentMethodSystemName: model.paymentMethodSystemName || null,
       customerCurrencyCode: model.customerCurrencyCode || null,
       currencyRate: model.currencyRate,
@@ -174,8 +188,6 @@ export class OrderFormPageComponent {
       orderGuid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
       storeId: 0,
       billingAddressId: 0,
-      orderStatusId: 0,
-      paymentStatusId: 0,
       paymentMethodSystemName: 'string',
       customerCurrencyCode: 'string',
       currencyRate: 0,
@@ -211,8 +223,6 @@ export class OrderFormPageComponent {
       orderGuid: order.orderGuid ?? defaults.orderGuid,
       storeId: order.storeId ?? defaults.storeId,
       billingAddressId: order.billingAddressId ?? defaults.billingAddressId,
-      orderStatusId: order.orderStatusId ?? defaults.orderStatusId,
-      paymentStatusId: order.paymentStatusId ?? defaults.paymentStatusId,
       paymentMethodSystemName: order.paymentMethodSystemName ?? '',
       customerCurrencyCode: order.customerCurrencyCode ?? '',
       currencyRate: order.currencyRate ?? defaults.currencyRate,
@@ -229,8 +239,8 @@ export class OrderFormPageComponent {
       productAttributeId: order.productAttributeId ?? defaults.productAttributeId,
       advisorId: order.advisorId ?? defaults.advisorId,
       orderTax: order.orderTax ?? defaults.orderTax,
-      orderStatus: (order.orderStatus as unknown as number) ?? defaults.orderStatus,
-      paymentStatus: (order.paymentStatus as unknown as number) ?? defaults.paymentStatus
+      orderStatus: (order.orderStatus as unknown as number) ?? order.orderStatusId ?? defaults.orderStatus,
+      paymentStatus: (order.paymentStatus as unknown as number) ?? order.paymentStatusId ?? defaults.paymentStatus
     };
   }
 
