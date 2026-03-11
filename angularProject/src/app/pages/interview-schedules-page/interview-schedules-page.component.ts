@@ -61,7 +61,12 @@ type SearchInterviewSchedulesRequest = {
   customerName: string | string[];
   scheduleDate?: string | string[];
   scheduleTime?: string | string[];
-  status: string | string[];
+  status: number | '';
+};
+
+type InterviewStatusOption = {
+  value: number;
+  label: string;
 };
 
 @Component({
@@ -90,8 +95,22 @@ export class InterviewSchedulesPageComponent {
   protected customerNameFilter = '';
   protected scheduleDateFilter = '';
   protected scheduleTimeFilter = '';
-  protected statusFilter = '';
+  protected statusFilter: number | '' = '';
   protected isFilterApplied = false;
+
+  protected readonly statusOptions: InterviewStatusOption[] = [
+    { value: 1, label: 'Scheduled' },
+    { value: 2, label: 'Completed' },
+    { value: 3, label: 'Canceled' },
+    { value: 4, label: 'Rescheduled' },
+    { value: 5, label: 'Pending' },
+    { value: 6, label: 'NoShow' },
+    { value: 7, label: 'InCompleteInterview' },
+    { value: 8, label: 'UnProcessedProfile' },
+    { value: 9, label: 'ClosedInterview' },
+    { value: 10, label: 'IsInprogress' },
+    { value: 11, label: 'PartiallyCompleted' }
+  ];
 
   protected readonly hasPreviousPage = computed(() => this.currentPage() > 0);
   protected readonly hasNextPage = computed(() => this.currentPage() + 1 < this.totalPages());
@@ -180,6 +199,14 @@ export class InterviewSchedulesPageComponent {
     return this.customerNameByUserId()[userId] ?? '';
   }
 
+  protected getStatusLabel(status: number | undefined): string {
+    if (typeof status !== 'number') {
+      return '-';
+    }
+
+    return this.statusOptions.find((option) => option.value === status)?.label ?? status.toString();
+  }
+
   private loadInterviewSchedules(pageIndex: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -215,7 +242,7 @@ export class InterviewSchedulesPageComponent {
   private buildSearchPayload(): SearchInterviewSchedulesRequest {
     const payload: SearchInterviewSchedulesRequest = {
       customerName: this.toSingleOrMultiValue(this.customerNameFilter) ?? '',
-      status: this.toSingleOrMultiValue(this.statusFilter) ?? ''
+      status: this.statusFilter
     };
 
     const scheduleDateValues = this.toSingleOrMultiValue(this.scheduleDateFilter, true);
