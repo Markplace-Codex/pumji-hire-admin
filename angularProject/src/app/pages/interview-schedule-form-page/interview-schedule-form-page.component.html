@@ -15,18 +15,36 @@
     <label>User ID <input type="number" name="userId" [(ngModel)]="formModel.userId" /></label>
     <label>Schedule Date <input type="datetime-local" name="scheduleDate" [(ngModel)]="formModel.scheduleDate" /></label>
     <label>Schedule Time <input type="text" name="scheduleTime" [(ngModel)]="formModel.scheduleTime" /></label>
-    <label>Status <input type="number" name="status" [(ngModel)]="formModel.status" /></label>
+    <label>Status
+      <select name="status" [(ngModel)]="formModel.status">
+        @for (option of statusOptions; track option.value) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
     <label>Created At <input type="datetime-local" name="createdAt" [(ngModel)]="formModel.createdAt" /></label>
     <label>Updated At <input type="datetime-local" name="updatedAt" [(ngModel)]="formModel.updatedAt" /></label>
     <label>Feedback ID <input type="number" name="feedbackId" [(ngModel)]="formModel.feedbackId" /></label>
     <label>Job ID <input type="number" name="jobId" [(ngModel)]="formModel.jobId" /></label>
     <label>Recruiter ID <input type="number" name="recruiterId" [(ngModel)]="formModel.recruiterId" /></label>
     <label>Interview Round <input type="number" name="interviewRound" [(ngModel)]="formModel.interviewRound" /></label>
-    <label>Candidate Accept <input type="text" name="candidateAccept" [(ngModel)]="formModel.candidateAccept" /></label>
+    <label>Candidate Accept
+      <select name="candidateAccept" [(ngModel)]="formModel.candidateAccept">
+        @for (option of candidateAcceptOptions; track option.value) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
     <label>Order ID <input type="number" name="orderId" [(ngModel)]="formModel.orderId" /></label>
     <label>Support Admin ID <input type="number" name="supportAdminId" [(ngModel)]="formModel.supportAdminId" /></label>
     <label>Schedule Time Slot <input type="text" name="scheduleTimeSlot" [(ngModel)]="formModel.scheduleTimeSlot" /></label>
-    <label>Schedule Type <input type="number" name="scheduleType" [(ngModel)]="formModel.scheduleType" /></label>
+    <label>Schedule Type
+      <select name="scheduleType" [(ngModel)]="formModel.scheduleType">
+        @for (option of scheduleTypeOptions; track option.value) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
     <label>Product ID <input type="number" name="productId" [(ngModel)]="formModel.productId" /></label>
     <label>Keyskills <input type="text" name="keyskills" [(ngModel)]="formModel.keyskills" /></label>
     <label>Server Extension <input type="text" name="serverExtension" [(ngModel)]="formModel.serverExtension" /></label>
