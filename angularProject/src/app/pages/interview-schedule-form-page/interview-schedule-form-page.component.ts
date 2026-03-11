@@ -150,36 +150,6 @@ export class InterviewScheduleFormPageComponent {
       .subscribe({
         next: (response) => {
           const userOptions = (response.customerListResponses?.customerList ?? [])
-            .filter((customer): customer is { id: number; username?: string } => customer.id != null)
-            .map((customer) => ({
-              id: customer.id,
-              username: customer.username?.trim() || `User #${customer.id}`
-            }));
-
-          this.users.set(userOptions);
-          this.isLoadingUsers.set(false);
-        },
-        error: () => {
-          this.usersLoadError.set('Unable to load users right now. Please try again.');
-          this.isLoadingUsers.set(false);
-        }
-      });
-  }
-
-  private loadUsers(): void {
-    this.isLoadingUsers.set(true);
-    this.usersLoadError.set(null);
-
-    this.httpClient
-      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
-        params: {
-          pageIndex: 0,
-          pageSize: 2147483647
-        }
-      })
-      .subscribe({
-        next: (response) => {
-          const userOptions = (response.customerListResponses?.customerList ?? [])
             .filter((customer): customer is { id: number; username?: string; firstName?: string; lastName?: string } =>
               customer.id != null
             )
@@ -243,6 +213,8 @@ export class InterviewScheduleFormPageComponent {
     }
 
     const payload = this.buildCreatePayload();
+    console.log('[InterviewScheduleFormPage] Create interview payload:', payload);
+
     this.interviewService.apiInterviewCreateInterviewSchedulePost(payload).subscribe({
       next: () => {
         this.submitSuccess.set('Interview schedule created successfully.');
