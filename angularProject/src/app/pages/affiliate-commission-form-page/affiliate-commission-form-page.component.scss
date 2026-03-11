@@ -1,30 +1,47 @@
 :host {
   display: block;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .affiliate-commission-form-page {
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 32px 24px 48px;
+  padding: 2rem 1.5rem;
 }
 
 .back-link {
   display: inline-block;
   margin-bottom: 12px;
-  color: #164fa3;
+  color: #1d4ed8;
   text-decoration: none;
   font-weight: 600;
 }
 
+h1 {
+  margin: 0.4rem 0;
+  color: #0f172a;
+}
+
 .state {
   margin: 12px 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 1rem;
+  color: #334155;
 }
 
 .state-error {
+  border-color: #fca5a5;
+  background: #fef2f2;
   color: #b3261e;
 }
 
 .state-success {
+  border-color: #86efac;
+  background: #f0fdf4;
   color: #116329;
 }
 
@@ -39,13 +56,15 @@ label {
   display: grid;
   gap: 6px;
   font-weight: 600;
+  color: #1e293b;
 }
 
 input {
   font: inherit;
   padding: 10px;
-  border: 1px solid #c8d2e1;
-  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  color: #1e293b;
 }
 
 .submit-row {
@@ -53,5 +72,15 @@ input {
 }
 
 button {
-  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #1e293b;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
