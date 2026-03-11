@@ -20,7 +20,7 @@ type InterviewScheduleFormModel = {
   jobId: number;
   recruiterId: number;
   interviewRound: number;
-  candidateAccept: string;
+  candidateAccept: number;
   orderId: number;
   supportAdminId: number;
   scheduleTimeSlot: string;
@@ -58,6 +58,32 @@ export class InterviewScheduleFormPageComponent {
 
   protected formModel: InterviewScheduleFormModel = this.createDefaultFormModel();
 
+  protected readonly statusOptions = [
+    { value: 1, label: 'Scheduled' },
+    { value: 2, label: 'Completed' },
+    { value: 3, label: 'Canceled' },
+    { value: 4, label: 'Rescheduled' },
+    { value: 5, label: 'Pending' },
+    { value: 6, label: 'NoShow' },
+    { value: 7, label: 'InCompleteInterview' },
+    { value: 8, label: 'UnProcessedProfile' },
+    { value: 9, label: 'ClosedInterview' },
+    { value: 10, label: 'IsInprogress' },
+    { value: 11, label: 'PartiallyCompleted' }
+  ];
+
+  protected readonly candidateAcceptOptions = [
+    { value: 0, label: 'None' },
+    { value: 2, label: 'Accept' },
+    { value: 3, label: 'Ignore' }
+  ];
+
+  protected readonly scheduleTypeOptions = [
+    { value: 0, label: 'None' },
+    { value: 1, label: 'CandidateSchedule' },
+    { value: 2, label: 'RecruiterSchedule' }
+  ];
+
   constructor() {
     if (this.isEditMode()) {
       const stateSchedule = this.router.getCurrentNavigation()?.extras.state?.['schedule'] as
@@ -70,6 +96,9 @@ export class InterviewScheduleFormPageComponent {
         this.formModel = {
           ...this.formModel,
           ...stateSchedule,
+          status: this.normalizeNumber(stateSchedule.status, 1),
+          candidateAccept: this.normalizeNumber(stateSchedule.candidateAccept, 0),
+          scheduleType: this.normalizeNumber(stateSchedule.scheduleType, 0),
           scheduleDate: this.isoToLocalInput(stateSchedule.scheduleDate),
           createdAt: this.isoToLocalInput(stateSchedule.createdAt),
           updatedAt: this.isoToLocalInput(stateSchedule.updatedAt),
@@ -144,7 +173,7 @@ export class InterviewScheduleFormPageComponent {
       jobId: 0,
       recruiterId: 0,
       interviewRound: 0,
-      candidateAccept: 'string',
+      candidateAccept: 0,
       orderId: 0,
       supportAdminId: 0,
       scheduleTimeSlot: 'string',
@@ -177,7 +206,7 @@ export class InterviewScheduleFormPageComponent {
         jobId: this.formModel.jobId,
         recruiterId: this.formModel.recruiterId,
         interviewRound: this.formModel.interviewRound,
-        candidateAccept: this.formModel.candidateAccept,
+        candidateAccept: this.formModel.candidateAccept as any,
         orderId: this.formModel.orderId,
         supportAdminId: this.formModel.supportAdminId,
         scheduleTimeSlot: this.formModel.scheduleTimeSlot,
@@ -213,7 +242,7 @@ export class InterviewScheduleFormPageComponent {
       jobId: this.formModel.jobId,
       recruiterId: this.formModel.recruiterId,
       interviewRound: this.formModel.interviewRound,
-      candidateAccept: this.formModel.candidateAccept,
+      candidateAccept: this.formModel.candidateAccept as any,
       orderId: this.formModel.orderId,
       supportAdminId: this.formModel.supportAdminId,
       scheduleTimeSlot: this.formModel.scheduleTimeSlot,
@@ -279,5 +308,10 @@ export class InterviewScheduleFormPageComponent {
 
   private localToIsoString(value: string): string {
     return value ? new Date(value).toISOString() : '';
+  }
+
+  private normalizeNumber(value: unknown, fallback: number): number {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : fallback;
   }
 }
