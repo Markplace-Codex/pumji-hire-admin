@@ -34,7 +34,7 @@ type InterviewScheduleFormModel = {
   jobId: number;
   recruiterId: number;
   interviewRound: number;
-  candidateAccept: number;
+  candidateAccept: string;
   orderId: number;
   supportAdminId: number;
   scheduleTimeSlot: string;
@@ -91,9 +91,9 @@ export class InterviewScheduleFormPageComponent {
   ];
 
   protected readonly candidateAcceptOptions = [
-    { value: 0, label: 'None' },
-    { value: 2, label: 'Accept' },
-    { value: 3, label: 'Ignore' }
+    { value: '', label: 'None' },
+    { value: 'Accept', label: 'Accept' },
+    { value: 'Ignore', label: 'Ignore' }
   ];
 
   protected readonly scheduleTypeOptions = [
@@ -117,7 +117,7 @@ export class InterviewScheduleFormPageComponent {
           ...this.formModel,
           ...stateSchedule,
           status: this.normalizeNumber(stateSchedule.status, 1),
-          candidateAccept: this.normalizeNumber(stateSchedule.candidateAccept, 0),
+          candidateAccept: this.normalizeString(stateSchedule.candidateAccept),
           scheduleType: this.normalizeNumber(stateSchedule.scheduleType, 0),
           scheduleDate: this.isoToLocalInput(stateSchedule.scheduleDate),
           createdAt: this.isoToLocalInput(stateSchedule.createdAt),
@@ -134,36 +134,6 @@ export class InterviewScheduleFormPageComponent {
         recruiterId: loggedInCustomerId
       };
     }
-  }
-
-  private loadUsers(): void {
-    this.isLoadingUsers.set(true);
-    this.usersLoadError.set(null);
-
-    this.httpClient
-      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
-        params: {
-          pageIndex: 0,
-          pageSize: 2147483647
-        }
-      })
-      .subscribe({
-        next: (response) => {
-          const userOptions = (response.customerListResponses?.customerList ?? [])
-            .filter((customer): customer is { id: number; username?: string } => customer.id != null)
-            .map((customer) => ({
-              id: customer.id,
-              username: customer.username?.trim() || `User #${customer.id}`
-            }));
-
-          this.users.set(userOptions);
-          this.isLoadingUsers.set(false);
-        },
-        error: () => {
-          this.usersLoadError.set('Unable to load users right now. Please try again.');
-          this.isLoadingUsers.set(false);
-        }
-      });
   }
 
   private loadUsers(): void {
@@ -280,7 +250,7 @@ export class InterviewScheduleFormPageComponent {
       jobId: 0,
       recruiterId: 0,
       interviewRound: 0,
-      candidateAccept: 0,
+      candidateAccept: '',
       orderId: 0,
       supportAdminId: 0,
       scheduleTimeSlot: 'string',
@@ -313,7 +283,7 @@ export class InterviewScheduleFormPageComponent {
         jobId: this.formModel.jobId,
         recruiterId: this.getLoggedInCustomerId() ?? this.formModel.recruiterId,
         interviewRound: this.formModel.interviewRound,
-        candidateAccept: this.formModel.candidateAccept as any,
+        candidateAccept: this.formModel.candidateAccept,
         orderId: this.formModel.orderId,
         supportAdminId: this.formModel.supportAdminId,
         scheduleTimeSlot: this.formModel.scheduleTimeSlot,
@@ -349,7 +319,7 @@ export class InterviewScheduleFormPageComponent {
       jobId: this.formModel.jobId,
       recruiterId: this.getLoggedInCustomerId() ?? this.formModel.recruiterId,
       interviewRound: this.formModel.interviewRound,
-      candidateAccept: this.formModel.candidateAccept as any,
+      candidateAccept: this.formModel.candidateAccept,
       orderId: this.formModel.orderId,
       supportAdminId: this.formModel.supportAdminId,
       scheduleTimeSlot: this.formModel.scheduleTimeSlot,
@@ -420,6 +390,10 @@ export class InterviewScheduleFormPageComponent {
   private normalizeNumber(value: unknown, fallback: number): number {
     const parsedValue = Number(value);
     return Number.isFinite(parsedValue) ? parsedValue : fallback;
+  }
+
+  private normalizeString(value: unknown): string {
+    return typeof value === 'string' ? value : '';
   }
 
   private getLoggedInCustomerId(): number | null {
