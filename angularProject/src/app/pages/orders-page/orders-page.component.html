@@ -78,7 +78,7 @@
               <tr>
                 <td>{{ order.id ?? '-' }}</td>
                 <td>{{ getCustomerName(order.customerId) }}</td>
-                <td>{{ order.paymentType ?? '-' }}</td>
+                <td>{{ getPaymentTypeText(order.paymentType) }}</td>
                 <td>{{ order.amountPaid ?? 0 }}</td>
                 <td>{{ order.orderTotal ?? 0 }}</td>
                 <td>{{ getOrderStatusText(order.orderStatusId) }}</td>

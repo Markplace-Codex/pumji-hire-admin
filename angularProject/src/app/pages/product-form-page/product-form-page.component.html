@@ -27,8 +27,12 @@
         <textarea name="fullDescription" [(ngModel)]="formModel.fullDescription" rows="5" required></textarea>
       </label>
       <label>
-        Product Type Id
-        <input type="number" name="productTypeId" [(ngModel)]="formModel.productTypeId" required />
+        Product Type
+        <select name="productTypeId" [(ngModel)]="formModel.productTypeId" required>
+          @for (productType of shoppingCartItemTypeOptions; track productType.value) {
+            <option [ngValue]="productType.value">{{ productType.label }}</option>
+          }
+        </select>
       </label>
       <label>
         Price

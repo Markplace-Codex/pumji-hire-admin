@@ -18,6 +18,16 @@ type PaymentStatusOption = {
   label: string;
 };
 
+type ShoppingCartItemTypeOption = {
+  value: number;
+  label: string;
+};
+
+type PaymentTypeOption = {
+  value: number;
+  label: string;
+};
+
 type OrderFormModel = {
   id: number;
   keyUsage: string;
@@ -39,8 +49,8 @@ type OrderFormModel = {
   createdOnUtc: string;
   customOrderNumber: string;
   redeemedCoinsEntryId: number;
-  productType: string;
-  paymentType: string;
+  productType: number;
+  paymentType: number;
   productAttributeId: number;
   advisorId: number;
   orderTax: number;
@@ -86,6 +96,19 @@ export class OrderFormPageComponent {
     { value: 50, label: 'Voided' },
     { value: 60, label: 'Failed' },
     { value: 70, label: 'Cancelled' }
+  ];
+
+  protected readonly shoppingCartItemTypeOptions: ShoppingCartItemTypeOption[] = [
+    { value: 1, label: 'Credits' },
+    { value: 2, label: 'Resume' },
+    { value: 3, label: 'InterviewPackage' },
+    { value: 4, label: 'SubAdminAccess' }
+  ];
+
+  protected readonly paymentTypeOptions: PaymentTypeOption[] = [
+    { value: 1, label: 'UPI' },
+    { value: 2, label: 'COD' },
+    { value: 3, label: 'Credits' }
   ];
 
   protected formModel: OrderFormModel = this.createDefaultFormModel();
@@ -167,8 +190,8 @@ export class OrderFormPageComponent {
       createdOnUtc: this.includeCreatedOnUtc() ? this.localToIsoString(model.createdOnUtc) : undefined,
       customOrderNumber: model.customOrderNumber || null,
       redeemedCoinsEntryId: model.redeemedCoinsEntryId,
-      productType: model.productType || null,
-      paymentType: model.paymentType || null,
+      productType: this.getShoppingCartItemTypeLabel(model.productType),
+      paymentType: this.getPaymentTypeLabel(model.paymentType),
       productAttributeId: model.productAttributeId,
       advisorId: model.advisorId,
       orderTax: model.orderTax,
@@ -199,8 +222,8 @@ export class OrderFormPageComponent {
       createdOnUtc: this.isoToLocalInput('2026-03-05T18:38:40.404Z'),
       customOrderNumber: 'string',
       redeemedCoinsEntryId: 0,
-      productType: 'string',
-      paymentType: 'string',
+      productType: 1,
+      paymentType: 1,
       productAttributeId: 0,
       advisorId: 0,
       orderTax: 0,
@@ -234,8 +257,8 @@ export class OrderFormPageComponent {
       createdOnUtc: this.isoToLocalInput(order.createdOnUtc),
       customOrderNumber: order.customOrderNumber ?? '',
       redeemedCoinsEntryId: order.redeemedCoinsEntryId ?? defaults.redeemedCoinsEntryId,
-      productType: order.productType ?? '',
-      paymentType: order.paymentType ?? '',
+      productType: this.parseShoppingCartItemTypeValue(order.productType, defaults.productType),
+      paymentType: this.parsePaymentTypeValue(order.paymentType, defaults.paymentType),
       productAttributeId: order.productAttributeId ?? defaults.productAttributeId,
       advisorId: order.advisorId ?? defaults.advisorId,
       orderTax: order.orderTax ?? defaults.orderTax,
@@ -264,6 +287,42 @@ export class OrderFormPageComponent {
 
   private toNumberOrZero(value: number | null | undefined): number {
     return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+  }
+
+  private parseShoppingCartItemTypeValue(value: string | null | undefined, fallback: number): number {
+    if (!value) {
+      return fallback;
+    }
+
+    const fromLabel = this.shoppingCartItemTypeOptions.find((option) => option.label.toLowerCase() === value.toLowerCase());
+    if (fromLabel) {
+      return fromLabel.value;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  }
+
+  private parsePaymentTypeValue(value: string | null | undefined, fallback: number): number {
+    if (!value) {
+      return fallback;
+    }
+
+    const fromLabel = this.paymentTypeOptions.find((option) => option.label.toLowerCase() === value.toLowerCase());
+    if (fromLabel) {
+      return fromLabel.value;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  }
+
+  private getShoppingCartItemTypeLabel(value: number): string | null {
+    return this.shoppingCartItemTypeOptions.find((option) => option.value === value)?.label ?? null;
+  }
+
+  private getPaymentTypeLabel(value: number): string | null {
+    return this.paymentTypeOptions.find((option) => option.value === value)?.label ?? null;
   }
 
   private resolveErrorMessage(error: HttpErrorResponse): string {

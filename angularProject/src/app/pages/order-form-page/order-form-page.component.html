@@ -46,8 +46,22 @@
 
     <label>Custom Order Number <input type="text" name="customOrderNumber" [(ngModel)]="formModel.customOrderNumber" /></label>
     <label>Redeemed Coins Entry Id <input type="number" name="redeemedCoinsEntryId" [(ngModel)]="formModel.redeemedCoinsEntryId" required /></label>
-    <label>Product Type <input type="text" name="productType" [(ngModel)]="formModel.productType" /></label>
-    <label>Payment Type <input type="text" name="paymentType" [(ngModel)]="formModel.paymentType" /></label>
+    <label>
+      Product Type
+      <select name="productType" [(ngModel)]="formModel.productType" required>
+        @for (productType of shoppingCartItemTypeOptions; track productType.value) {
+          <option [ngValue]="productType.value">{{ productType.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Payment Type
+      <select name="paymentType" [(ngModel)]="formModel.paymentType" required>
+        @for (paymentType of paymentTypeOptions; track paymentType.value) {
+          <option [ngValue]="paymentType.value">{{ paymentType.label }}</option>
+        }
+      </select>
+    </label>
     <label>Product Attribute Id <input type="number" name="productAttributeId" [(ngModel)]="formModel.productAttributeId" required /></label>
     <label>Advisor Id <input type="number" name="advisorId" [(ngModel)]="formModel.advisorId" required /></label>
     <label>Order Tax <input type="number" name="orderTax" [(ngModel)]="formModel.orderTax" required /></label>

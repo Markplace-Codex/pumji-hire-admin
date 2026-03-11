@@ -23,6 +23,11 @@ type ProductFormModel = {
   deleted: boolean;
 };
 
+type ShoppingCartItemTypeOption = {
+  value: number;
+  label: string;
+};
+
 @Component({
   selector: 'app-product-form-page',
   imports: [RouterLink, FormsModule],
@@ -40,6 +45,12 @@ export class ProductFormPageComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly submitSuccess = signal<string | null>(null);
+  protected readonly shoppingCartItemTypeOptions: ShoppingCartItemTypeOption[] = [
+    { value: 1, label: 'Credits' },
+    { value: 2, label: 'Resume' },
+    { value: 3, label: 'InterviewPackage' },
+    { value: 4, label: 'SubAdminAccess' }
+  ];
 
   protected formModel: ProductFormModel = {
     id: 0,
