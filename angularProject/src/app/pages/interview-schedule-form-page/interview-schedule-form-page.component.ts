@@ -1,12 +1,24 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { InterviewService } from '../../api/api/interview.service';
 import { OrderService } from '../../api/api/order.service';
+import { resolveApiBasePath } from '../../api-base-path';
 import { CreateInterviewScheduleRequest } from '../../api/model/createInterviewScheduleRequest';
 import { Order } from '../../api/model/order';
+
+type CustomerOption = {
+  id?: number;
+  username?: string;
+};
+
+type CustomersApiResponse = {
+  customerListResponses?: {
+    customerList?: CustomerOption[];
+  };
+};
 
 type InterviewScheduleFormModel = {
   id: number;
@@ -45,6 +57,7 @@ type InterviewScheduleFormModel = {
   styleUrl: './interview-schedule-form-page.component.scss'
 })
 export class InterviewScheduleFormPageComponent {
+  private readonly httpClient = inject(HttpClient);
   private readonly interviewService = inject(InterviewService);
   private readonly orderService = inject(OrderService);
   private readonly router = inject(Router);
@@ -53,8 +66,11 @@ export class InterviewScheduleFormPageComponent {
   protected readonly isEditMode = computed(() => this.route.snapshot.routeConfig?.path === 'interview-schedules/edit');
 
   protected readonly isSubmitting = signal(false);
+  protected readonly isLoadingUsers = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly submitSuccess = signal<string | null>(null);
+  protected readonly usersLoadError = signal<string | null>(null);
+  protected readonly users = signal<Array<{ id: number; username: string }>>([]);
 
   protected formModel: InterviewScheduleFormModel = this.createDefaultFormModel();
 
@@ -85,6 +101,8 @@ export class InterviewScheduleFormPageComponent {
   ];
 
   constructor() {
+    this.loadUsers();
+
     if (this.isEditMode()) {
       const stateSchedule = this.router.getCurrentNavigation()?.extras.state?.['schedule'] as
         | Partial<InterviewScheduleFormModel>
@@ -106,6 +124,36 @@ export class InterviewScheduleFormPageComponent {
         };
       }
     }
+  }
+
+  private loadUsers(): void {
+    this.isLoadingUsers.set(true);
+    this.usersLoadError.set(null);
+
+    this.httpClient
+      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
+        params: {
+          pageIndex: 0,
+          pageSize: 2147483647
+        }
+      })
+      .subscribe({
+        next: (response) => {
+          const userOptions = (response.customerListResponses?.customerList ?? [])
+            .filter((customer): customer is { id: number; username?: string } => customer.id != null)
+            .map((customer) => ({
+              id: customer.id,
+              username: customer.username?.trim() || `User #${customer.id}`
+            }));
+
+          this.users.set(userOptions);
+          this.isLoadingUsers.set(false);
+        },
+        error: () => {
+          this.usersLoadError.set('Unable to load users right now. Please try again.');
+          this.isLoadingUsers.set(false);
+        }
+      });
   }
 
   protected submitForm(): void {
