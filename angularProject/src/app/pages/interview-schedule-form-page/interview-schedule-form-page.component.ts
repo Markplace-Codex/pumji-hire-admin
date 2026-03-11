@@ -11,7 +11,7 @@ import { Order } from '../../api/model/order';
 
 type CustomerOption = {
   id?: number;
-  username?: string;
+  customerName?: string;
   firstName?: string;
   lastName?: string;
 };
@@ -150,7 +150,7 @@ export class InterviewScheduleFormPageComponent {
       .subscribe({
         next: (response) => {
           const userOptions = (response.customerListResponses?.customerList ?? [])
-            .filter((customer): customer is { id: number; username?: string; firstName?: string; lastName?: string } =>
+            .filter((customer): customer is { id: number; customerName?: string; firstName?: string; lastName?: string } =>
               customer.id != null
             )
             .map((customer) => ({
@@ -170,13 +170,18 @@ export class InterviewScheduleFormPageComponent {
   }
 
 
-  private getUserDisplayName(customer: { id: number; username?: string; firstName?: string; lastName?: string }): string {
-    const fullName = `${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim();
-    if (fullName.length > 0) {
-      return customer.username?.trim() ? `${fullName} (${customer.username.trim()})` : fullName;
+  private getUserDisplayName(customer: { id: number; customerName?: string; firstName?: string; lastName?: string }): string {
+    const customerName = customer.customerName?.trim();
+    if (customerName) {
+      return customerName;
     }
 
-    return customer.username?.trim() || `User #${customer.id}`;
+    const fullName = `${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim();
+    if (fullName.length > 0) {
+      return fullName;
+    }
+
+    return `User #${customer.id}`;
   }
 
   protected submitForm(): void {
