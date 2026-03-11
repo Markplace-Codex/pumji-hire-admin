@@ -106,6 +106,14 @@ export class InterviewScheduleFormPageComponent {
         };
       }
     }
+
+    const loggedInCustomerId = this.getLoggedInCustomerId();
+    if (loggedInCustomerId !== null) {
+      this.formModel = {
+        ...this.formModel,
+        recruiterId: loggedInCustomerId
+      };
+    }
   }
 
   protected submitForm(): void {
@@ -204,7 +212,7 @@ export class InterviewScheduleFormPageComponent {
         updatedAt: this.localToIsoString(this.formModel.updatedAt),
         feedbackId: this.formModel.feedbackId,
         jobId: this.formModel.jobId,
-        recruiterId: this.formModel.recruiterId,
+        recruiterId: this.getLoggedInCustomerId() ?? this.formModel.recruiterId,
         interviewRound: this.formModel.interviewRound,
         candidateAccept: this.formModel.candidateAccept as any,
         orderId: this.formModel.orderId,
@@ -240,7 +248,7 @@ export class InterviewScheduleFormPageComponent {
       updatedAt: this.localToIsoString(this.formModel.updatedAt),
       feedbackId: this.formModel.feedbackId,
       jobId: this.formModel.jobId,
-      recruiterId: this.formModel.recruiterId,
+      recruiterId: this.getLoggedInCustomerId() ?? this.formModel.recruiterId,
       interviewRound: this.formModel.interviewRound,
       candidateAccept: this.formModel.candidateAccept as any,
       orderId: this.formModel.orderId,
@@ -313,5 +321,25 @@ export class InterviewScheduleFormPageComponent {
   private normalizeNumber(value: unknown, fallback: number): number {
     const parsedValue = Number(value);
     return Number.isFinite(parsedValue) ? parsedValue : fallback;
+  }
+
+  private getLoggedInCustomerId(): number | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    const loginResponseRaw = localStorage.getItem('loginResponse');
+    if (!loginResponseRaw) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(loginResponseRaw) as { authenticateResponse?: { customerId?: unknown } };
+      const customerId = parsed.authenticateResponse?.customerId;
+
+      return typeof customerId === 'number' && Number.isFinite(customerId) ? customerId : null;
+    } catch {
+      return null;
+    }
   }
 }
