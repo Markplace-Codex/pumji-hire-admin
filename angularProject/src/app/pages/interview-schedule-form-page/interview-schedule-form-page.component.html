@@ -16,7 +16,7 @@
       <select name="userId" [(ngModel)]="formModel.userId" [disabled]="isLoadingUsers()">
         <option [ngValue]="0">Select user</option>
         @for (user of users(); track user.id) {
-          <option [ngValue]="user.id">{{ user.username }}</option>
+          <option [ngValue]="user.id">{{ user.displayName }}</option>
         }
       </select>
     </label>

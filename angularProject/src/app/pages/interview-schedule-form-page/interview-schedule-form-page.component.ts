@@ -12,6 +12,8 @@ import { Order } from '../../api/model/order';
 type CustomerOption = {
   id?: number;
   username?: string;
+  firstName?: string;
+  lastName?: string;
 };
 
 type CustomersApiResponse = {
@@ -70,7 +72,7 @@ export class InterviewScheduleFormPageComponent {
   protected readonly submitError = signal<string | null>(null);
   protected readonly submitSuccess = signal<string | null>(null);
   protected readonly usersLoadError = signal<string | null>(null);
-  protected readonly users = signal<Array<{ id: number; username: string }>>([]);
+  protected readonly users = signal<Array<{ id: number; displayName: string }>>([]);
 
   protected formModel: InterviewScheduleFormModel = this.createDefaultFormModel();
 
@@ -164,10 +166,59 @@ export class InterviewScheduleFormPageComponent {
       });
   }
 
+  private loadUsers(): void {
+    this.isLoadingUsers.set(true);
+    this.usersLoadError.set(null);
+
+    this.httpClient
+      .get<CustomersApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers`, {
+        params: {
+          pageIndex: 0,
+          pageSize: 2147483647
+        }
+      })
+      .subscribe({
+        next: (response) => {
+          const userOptions = (response.customerListResponses?.customerList ?? [])
+            .filter((customer): customer is { id: number; username?: string; firstName?: string; lastName?: string } =>
+              customer.id != null
+            )
+            .map((customer) => ({
+              id: customer.id,
+              displayName: this.getUserDisplayName(customer)
+            }))
+            .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+          this.users.set(userOptions);
+          this.isLoadingUsers.set(false);
+        },
+        error: () => {
+          this.usersLoadError.set('Unable to load users right now. Please try again.');
+          this.isLoadingUsers.set(false);
+        }
+      });
+  }
+
+
+  private getUserDisplayName(customer: { id: number; username?: string; firstName?: string; lastName?: string }): string {
+    const fullName = `${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim();
+    if (fullName.length > 0) {
+      return customer.username?.trim() ? `${fullName} (${customer.username.trim()})` : fullName;
+    }
+
+    return customer.username?.trim() || `User #${customer.id}`;
+  }
+
   protected submitForm(): void {
     this.isSubmitting.set(true);
     this.submitError.set(null);
     this.submitSuccess.set(null);
+
+    if (!Number.isFinite(this.formModel.userId) || this.formModel.userId <= 0) {
+      this.submitError.set('Please select a valid user.');
+      this.isSubmitting.set(false);
+      return;
+    }
 
     if (this.isEditMode()) {
       const payload = this.buildUpdatePayload();
