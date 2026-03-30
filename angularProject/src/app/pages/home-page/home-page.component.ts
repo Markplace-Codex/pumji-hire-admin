@@ -36,6 +36,11 @@ export class HomePageComponent {
       route: '/assigning-roles'
     },
     {
+      title: 'Recruiter Actions',
+      description: 'View recruiter actions list.',
+      route: '/recruiter-actions'
+    },
+    {
       title: 'Interview Schedules',
       description: 'View upcoming interview plans.',
       route: '/interview-schedules'

@@ -24,6 +24,7 @@ import { ManualCreditsPageComponent } from './pages/manual-credits-page/manual-c
 import { ConsentPageComponent } from './pages/consent-page/consent-page.component';
 import { ConsentFormPageComponent } from './pages/consent-form-page/consent-form-page.component';
 import { AssigningRolesPageComponent } from './pages/assigning-roles-page/assigning-roles-page.component';
+import { RecruiterActionsPageComponent } from './pages/recruiter-actions-page/recruiter-actions-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -68,6 +69,7 @@ export const routes: Routes = [
   { path: 'consent', component: ConsentPageComponent },
   { path: 'consent/add', component: ConsentFormPageComponent },
   { path: 'assigning-roles', component: AssigningRolesPageComponent },
+  { path: 'recruiter-actions', component: RecruiterActionsPageComponent },
   { path: 'consent/edit/:id', component: ConsentFormPageComponent },
   { path: 'configuration', component: ConfigurationPageComponent },
   { path: 'configuration/dropdown-datas', component: DropdownDatasPageComponent },
