@@ -7666,6 +7666,172 @@
         }
       }
     },
+    "/api/Candidate/Create": {
+      "post": {
+        "tags": [
+          "Candidate"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateCreateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Candidate/GetLatestTemplateByNameAsync": {
+      "get": {
+        "tags": [
+          "Candidate"
+        ],
+        "parameters": [
+          {
+            "name": "templateName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateTemplateJsonResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/CandidateScore/CreateScore": {
       "post": {
         "tags": [
@@ -14121,13 +14287,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "isScoreVisibleToRecruiter",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
             }
           }
         ],
@@ -41512,6 +41671,603 @@
         }
       }
     },
+    "/api/RecruiterAction/Create": {
+      "post": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecruiterActionCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecruiterActionCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecruiterActionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecruiterAction/StartAction": {
+      "post": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "parameters": [
+          {
+            "name": "actionType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RecruiterActionType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecruiterAction/CompleteAction": {
+      "post": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "parameters": [
+          {
+            "name": "recruiterActionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "actionType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RecruiterActionType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecruiterAction/GetById": {
+      "get": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecruiterAction/GetAll": {
+      "get": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "parameters": [
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionListResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionListResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecruiterAction/Update": {
+      "put": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecruiterActionUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecruiterActionUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecruiterActionUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecruiterAction/Delete": {
+      "delete": {
+        "tags": [
+          "RecruiterAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/RecruiterContractor/CreateContractorJob": {
       "post": {
         "tags": [
@@ -42992,6 +43748,26 @@
         "tags": [
           "RecruiterContractor"
         ],
+        "parameters": [
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -44202,6 +44978,84 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginationSettingsSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Setting/GetBeforeLoginJson": {
+      "get": {
+        "tags": [
+          "Setting"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
                 }
               }
             }
@@ -52694,10 +53548,8 @@
           },
           "processedAt": {
             "type": "string",
-            "format": "date-time"
-          },
-          "isScoreVisibleToRecruiter": {
-            "type": "boolean"
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -52772,6 +53624,22 @@
         "properties": {
           "answersDto": {
             "$ref": "#/components/schemas/AnswersDto"
+          },
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "nullable": true
           },
           "isSuccess": {
             "type": "boolean"
@@ -53349,6 +54217,124 @@
         },
         "additionalProperties": false
       },
+      "CandidateCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPrime": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "candidateType": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "altContacts": {
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "transcript": {
+            "type": "string",
+            "nullable": true
+          },
+          "callPriority": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "callCounts": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "notResponds": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "declines": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "templateTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "skills": {
+            "nullable": true
+          },
+          "designation": {
+            "type": "string",
+            "nullable": true
+          },
+          "experience": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAiDialer": {
+            "type": "boolean"
+          },
+          "whatToSpeakId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "managedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateJsonId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "templateVersion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CandidateCreateResponse": {
+        "type": "object",
+        "properties": {
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "candidateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CandidateList": {
         "type": "object",
         "properties": {
@@ -53655,6 +54641,42 @@
           },
           "message": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CandidateTemplateJsonResponse": {
+        "type": "object",
+        "properties": {
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         },
@@ -60151,9 +61173,6 @@
           "videoduration": {
             "type": "string",
             "nullable": true
-          },
-          "isScoreVisibleToRecruiter": {
-            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -60586,6 +61605,9 @@
       "HireContractDashBoardPaginationSchema": {
         "type": "object",
         "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
           "committedProjects": {
             "type": "integer",
             "format": "int32"
@@ -67927,6 +68949,109 @@
         },
         "additionalProperties": false
       },
+      "RecruiterActionCreateRequest": {
+        "type": "object",
+        "properties": {
+          "actionType": {
+            "$ref": "#/components/schemas/RecruiterActionType"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecruiterActionListResponse": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "recruiterActions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecruiterActionTrackResponse"
+            },
+            "nullable": true
+          },
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecruiterActionTrackResponse": {
+        "type": "object",
+        "properties": {
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "recruiterActionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actionType": {
+            "$ref": "#/components/schemas/RecruiterActionType"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "durationInSeconds": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecruiterActionType": {
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "RecruiterActionUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "actionType": {
+            "$ref": "#/components/schemas/RecruiterActionType"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "RecruiterFolderDto": {
         "type": "object",
         "properties": {
@@ -69721,6 +70846,9 @@
           },
           "isLanguage": {
             "type": "boolean"
+          },
+          "isScoreVisibleToRecruiter": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -69738,6 +70866,13 @@
           "overAllScore": {
             "type": "number",
             "format": "double"
+          },
+          "interviewScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "isPrivate": {
+            "type": "boolean"
           },
           "isSuccess": {
             "type": "boolean"
@@ -70677,7 +71812,15 @@
             "type": "integer",
             "format": "int32"
           },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
             "type": "string",
             "nullable": true
           },
