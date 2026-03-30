@@ -1,0 +1,60 @@
+<main class="recruiter-actions-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Recruiter Actions</h1>
+  <p>Recruiter action list from API integration.</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && recruiterActions().length === 0) {
+    <section class="state">
+      <p>Loading recruiter actions...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Action ID</th>
+            <th>Action Type</th>
+            <th>Started At</th>
+            <th>Completed At</th>
+            <th>Duration (seconds)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (recruiterActions().length === 0) {
+            <tr>
+              <td colspan="5" class="empty-cell">No recruiter actions found.</td>
+            </tr>
+          } @else {
+            @for (action of recruiterActions(); track action.recruiterActionId ?? $index) {
+              <tr>
+                <td>{{ action.recruiterActionId ?? '-' }}</td>
+                <td>{{ resolveActionTypeLabel(action.actionType) }}</td>
+                <td>{{ action.startedAt ?? '-' }}</td>
+                <td>{{ action.completedAt ?? '-' }}</td>
+                <td>{{ action.durationInSeconds ?? '-' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Records: {{ totalCount() }}</span>
+        <span>Page Size: {{ pageSize() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>
