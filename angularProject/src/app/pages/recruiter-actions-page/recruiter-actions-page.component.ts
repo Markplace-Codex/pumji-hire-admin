@@ -4,9 +4,15 @@ import { RouterLink } from '@angular/router';
 
 import { resolveApiBasePath } from '../../api-base-path';
 
+enum RecruiterActionType {
+  BulkHire = 1,
+  PostJob = 2,
+  ViewCandidates = 3
+}
+
 type RecruiterActionItem = {
   recruiterActionId?: number;
-  actionType?: number;
+  actionType?: RecruiterActionType;
   startedAt?: string;
   completedAt?: string | null;
   durationInSeconds?: number | null;
@@ -75,14 +81,14 @@ export class RecruiterActionsPageComponent {
     this.loadRecruiterActions(this.currentPage());
   }
 
-  protected resolveActionTypeLabel(actionType: number | undefined): string {
+  protected resolveActionTypeLabel(actionType: RecruiterActionType | undefined): string {
     switch (actionType) {
-      case 1:
-        return 'Start';
-      case 2:
-        return 'Follow Up';
-      case 3:
-        return 'Complete';
+      case RecruiterActionType.BulkHire:
+        return 'BulkHire';
+      case RecruiterActionType.PostJob:
+        return 'PostJob';
+      case RecruiterActionType.ViewCandidates:
+        return 'ViewCandidates';
       default:
         return '-';
     }
