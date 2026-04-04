@@ -40,6 +40,11 @@ type CustomerUpdateEmailRequest = {
   creditsCount?: number;
 };
 
+enum CreditsType {
+  ResumePurchase = 1,
+  InterviewPackage = 2
+}
+
 @Component({
   selector: 'app-manual-credits-page',
   imports: [RouterLink],
@@ -68,6 +73,12 @@ export class ManualCreditsPageComponent {
   protected readonly creditCount = signal<number | null>(null);
   protected readonly reason = signal('');
   protected readonly selectedFile = signal<File | null>(null);
+  protected readonly isSpecialCredits = signal(false);
+  protected readonly selectedCreditsType = signal<CreditsType>(CreditsType.ResumePurchase);
+  protected readonly creditsTypeOptions: Array<{ value: CreditsType; label: string }> = [
+    { value: CreditsType.ResumePurchase, label: 'Resume Purchase' },
+    { value: CreditsType.InterviewPackage, label: 'Interview Package' }
+  ];
 
   protected readonly hasSelection = computed(() => this.selectedCustomerIds().length > 0);
 
@@ -170,6 +181,20 @@ export class ManualCreditsPageComponent {
     this.reason.set(rawValue);
   }
 
+  protected updateIsSpecialCredits(rawValue: string): void {
+    const isSpecial = rawValue === 'true';
+    this.isSpecialCredits.set(isSpecial);
+    if (!isSpecial) {
+      this.selectedCreditsType.set(CreditsType.ResumePurchase);
+    }
+  }
+
+  protected updateSelectedCreditsType(rawValue: string): void {
+    const parsedValue = Number(rawValue);
+    const option = this.creditsTypeOptions.find((item) => item.value === parsedValue);
+    this.selectedCreditsType.set(option?.value ?? CreditsType.ResumePurchase);
+  }
+
   protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
@@ -206,13 +231,16 @@ export class ManualCreditsPageComponent {
     const requests = this.selectedCustomerIds().map((customerId) => {
       const formData = new FormData();
       formData.append('file', this.selectedFile()!);
+      const isSpecialCredits = this.isSpecialCredits();
 
       return this.httpClient
         .post<ManualCreditResponse>(`${resolveApiBasePath()}/api/Payment/AddManualCredits`, formData, {
           params: {
             input: customerId,
             creditCount,
-            reason
+            reason,
+            isSpecialCredits,
+            ...(isSpecialCredits ? { creditsType: this.selectedCreditsType() } : {})
           }
         })
         .pipe(
@@ -243,6 +271,8 @@ export class ManualCreditsPageComponent {
         this.creditCount.set(null);
         this.reason.set('');
         this.selectedFile.set(null);
+        this.isSpecialCredits.set(false);
+        this.selectedCreditsType.set(CreditsType.ResumePurchase);
       } else {
         this.errorMessage.set(failures.map((item) => item.message || 'Failed to add credits.').join(' | '));
       }

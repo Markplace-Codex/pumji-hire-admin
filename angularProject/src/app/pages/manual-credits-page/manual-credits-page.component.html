@@ -41,6 +41,25 @@
     </label>
 
     <label>
+      Is Special
+      <select [value]="isSpecialCredits() ? 'true' : 'false'" (change)="updateIsSpecialCredits($any($event.target).value)">
+        <option value="false">False</option>
+        <option value="true">True</option>
+      </select>
+    </label>
+
+    @if (isSpecialCredits()) {
+      <label>
+        Credits Type
+        <select [value]="selectedCreditsType()" (change)="updateSelectedCreditsType($any($event.target).value)">
+          @for (option of creditsTypeOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <label>
       Image Upload
       <input type="file" accept="image/*" (change)="onFileSelected($event)" />
     </label>
