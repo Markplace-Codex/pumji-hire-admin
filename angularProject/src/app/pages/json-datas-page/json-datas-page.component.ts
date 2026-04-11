@@ -2,7 +2,6 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { forkJoin, map, of, switchMap } from 'rxjs';
 
 import { resolveApiBasePath } from '../../api-base-path';
 
@@ -30,6 +29,12 @@ type JsonDataApiResponse = {
   message?: string | null;
 };
 
+type JsonDataFilters = {
+  fromDate: string;
+  toDate: string;
+  purpose: string;
+};
+
 @Component({
   selector: 'app-json-datas-page',
   imports: [RouterLink, FormsModule],
@@ -39,80 +44,31 @@ type JsonDataApiResponse = {
 export class JsonDatasPageComponent {
   private readonly httpClient = inject(HttpClient);
   private readonly defaultPageSize = 10;
-  private readonly apiPageSize = 100;
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly allJsonDatas = signal<JsonDataItem[]>([]);
+  protected readonly jsonDatas = signal<JsonDataItem[]>([]);
 
-  protected readonly filters = signal({
-    id: '',
-    purpose: '',
-    createdTime: '',
-    keyword: ''
+  protected readonly filters = signal<JsonDataFilters>({
+    fromDate: '',
+    toDate: '',
+    purpose: ''
   });
 
-  protected readonly appliedFilters = signal({
-    id: '',
-    purpose: '',
-    createdTime: '',
-    keyword: ''
+  protected readonly appliedFilters = signal<JsonDataFilters>({
+    fromDate: '',
+    toDate: '',
+    purpose: ''
   });
 
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(this.defaultPageSize);
+  protected readonly totalCount = signal(0);
+  protected readonly totalPages = signal(0);
 
   protected readonly isFilterApplied = computed(() => {
     const activeFilters = this.appliedFilters();
     return Object.values(activeFilters).some((value) => value.trim().length > 0);
-  });
-
-  protected readonly filteredJsonDatas = computed(() => {
-    const activeFilters = this.appliedFilters();
-    const idFilter = activeFilters.id.trim();
-    const purposeFilter = activeFilters.purpose.trim().toLowerCase();
-    const createdTimeFilter = activeFilters.createdTime.trim().toLowerCase();
-    const keywordFilter = activeFilters.keyword.trim().toLowerCase();
-
-    return this.allJsonDatas().filter((item) => {
-      if (idFilter.length > 0 && String(item.id ?? '').trim() !== idFilter) {
-        return false;
-      }
-
-      if (purposeFilter.length > 0 && !(item.purpose ?? '').toLowerCase().includes(purposeFilter)) {
-        return false;
-      }
-
-      if (createdTimeFilter.length > 0 && !(item.createdTime ?? '').toLowerCase().includes(createdTimeFilter)) {
-        return false;
-      }
-
-      if (keywordFilter.length > 0) {
-        const jsonContent = (item.jsonContent ?? '').toLowerCase();
-        const formattedJsonContent = (item.formattedJsonContent ?? '').toLowerCase();
-
-        if (!jsonContent.includes(keywordFilter) && !formattedJsonContent.includes(keywordFilter)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  });
-
-  protected readonly totalCount = computed(() => this.filteredJsonDatas().length);
-  protected readonly totalPages = computed(() => {
-    const totalCount = this.totalCount();
-    if (totalCount === 0) {
-      return 0;
-    }
-
-    return Math.ceil(totalCount / this.pageSize());
-  });
-
-  protected readonly jsonDatas = computed(() => {
-    const startIndex = this.currentPage() * this.pageSize();
-    return this.filteredJsonDatas().slice(startIndex, startIndex + this.pageSize());
   });
 
   protected readonly pageLabel = computed(() =>
@@ -132,6 +88,7 @@ export class JsonDatasPageComponent {
     }
 
     this.currentPage.set(this.currentPage() - 1);
+    this.loadJsonDatas();
   }
 
   protected goToNextPage(): void {
@@ -140,6 +97,7 @@ export class JsonDatasPageComponent {
     }
 
     this.currentPage.set(this.currentPage() + 1);
+    this.loadJsonDatas();
   }
 
   protected retry(): void {
@@ -149,102 +107,93 @@ export class JsonDatasPageComponent {
   protected applyFilters(): void {
     this.appliedFilters.set({ ...this.filters() });
     this.currentPage.set(0);
+    this.loadJsonDatas();
   }
 
   protected clearFilters(): void {
-    const emptyFilters = {
-      id: '',
-      purpose: '',
-      createdTime: '',
-      keyword: ''
+    const emptyFilters: JsonDataFilters = {
+      fromDate: '',
+      toDate: '',
+      purpose: ''
     };
 
     this.filters.set(emptyFilters);
     this.appliedFilters.set(emptyFilters);
     this.currentPage.set(0);
+    this.loadJsonDatas();
   }
 
-  protected updateId(value: string): void {
-    this.filters.update((current) => ({ ...current, id: value }));
+  protected updateFromDate(value: string): void {
+    this.filters.update((current) => ({ ...current, fromDate: value }));
+  }
+
+  protected updateToDate(value: string): void {
+    this.filters.update((current) => ({ ...current, toDate: value }));
   }
 
   protected updatePurpose(value: string): void {
     this.filters.update((current) => ({ ...current, purpose: value }));
   }
 
-  protected updateCreatedTime(value: string): void {
-    this.filters.update((current) => ({ ...current, createdTime: value }));
-  }
+  protected resolveJsonContent(item: JsonDataItem): string {
+    const value = item.jsonContent ?? item.formattedJsonContent ?? '';
 
-  protected updateKeyword(value: string): void {
-    this.filters.update((current) => ({ ...current, keyword: value }));
-  }
-
-  protected resolveFormattedJson(item: JsonDataItem): string {
-    const candidates = [item.formattedJsonContent, item.jsonContent];
-
-    for (const value of candidates) {
-      if (!value || value.trim().length === 0) {
-        continue;
-      }
-
-      try {
-        return JSON.stringify(JSON.parse(value), null, 2);
-      } catch {
-        return value;
-      }
+    if (value.trim().length === 0) {
+      return '-';
     }
 
-    return '-';
+    try {
+      return JSON.stringify(JSON.parse(value), null, 2);
+    } catch {
+      return value;
+    }
   }
 
   private loadJsonDatas(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.fetchJsonDataPage(0)
-      .pipe(
-        switchMap((firstResponse) => {
-          if (firstResponse.isSuccess === false) {
-            throw new Error(firstResponse.message?.trim() || 'Failed to load json data list.');
-          }
-
-          const firstPageItems = firstResponse.paginationJsonData?.jsonDataList ?? [];
-          const totalPages = firstResponse.paginationJsonData?.pagination?.totalPages ?? 0;
-
-          if (totalPages <= 1) {
-            return of(firstPageItems);
-          }
-
-          const remainingRequests = Array.from({ length: totalPages - 1 }, (_, index) =>
-            this.fetchJsonDataPage(index + 1)
-          );
-
-          return forkJoin(remainingRequests).pipe(
-            map((remainingResponses) => {
-              const remainingItems = remainingResponses.flatMap((response) => response.paginationJsonData?.jsonDataList ?? []);
-              return [...firstPageItems, ...remainingItems];
-            })
-          );
-        })
-      )
-      .subscribe({
-        next: (items) => {
-          this.allJsonDatas.set(items);
-          this.currentPage.set(0);
+    this.fetchJsonDataPage(this.currentPage()).subscribe({
+      next: (response) => {
+        if (response.isSuccess === false) {
+          this.errorMessage.set(response.message?.trim() || 'Failed to load json data list.');
+          this.jsonDatas.set([]);
+          this.totalCount.set(0);
+          this.totalPages.set(0);
           this.isLoading.set(false);
-        },
-        error: (error: HttpErrorResponse | Error) => {
-          this.errorMessage.set(this.resolveErrorMessage(error));
-          this.allJsonDatas.set([]);
-          this.currentPage.set(0);
-          this.isLoading.set(false);
+          return;
         }
-      });
+
+        this.jsonDatas.set(response.paginationJsonData?.jsonDataList ?? []);
+        this.totalCount.set(response.paginationJsonData?.pagination?.totalCount ?? 0);
+        this.totalPages.set(response.paginationJsonData?.pagination?.totalPages ?? 0);
+        this.isLoading.set(false);
+      },
+      error: (error: HttpErrorResponse | Error) => {
+        this.errorMessage.set(this.resolveErrorMessage(error));
+        this.jsonDatas.set([]);
+        this.totalCount.set(0);
+        this.totalPages.set(0);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   private fetchJsonDataPage(pageIndex: number) {
-    const params = new HttpParams().set('pageIndex', pageIndex).set('pageSize', this.apiPageSize);
+    const activeFilters = this.appliedFilters();
+    let params = new HttpParams().set('pageIndex', pageIndex).set('pageSize', this.pageSize());
+
+    if (activeFilters.purpose.trim().length > 0) {
+      params = params.set('purpose', activeFilters.purpose.trim());
+    }
+
+    if (activeFilters.fromDate.trim().length > 0) {
+      params = params.set('fromDate', new Date(activeFilters.fromDate).toISOString());
+    }
+
+    if (activeFilters.toDate.trim().length > 0) {
+      params = params.set('toDate', new Date(activeFilters.toDate).toISOString());
+    }
 
     return this.httpClient.get<JsonDataApiResponse>(`${resolveApiBasePath()}/api/JsonData/JsonDataList`, { params });
   }
