@@ -1,0 +1,90 @@
+<main class="json-datas-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Json Datas</h1>
+  <p>View JsonData records and apply filters.</p>
+
+  <section class="filters-card">
+    <div class="filters-grid filters-grid--three">
+      <label>
+        <span>From Date</span>
+        <input type="datetime-local" [ngModel]="filters().fromDate" (ngModelChange)="updateFromDate($event)" />
+      </label>
+
+      <label>
+        <span>To Date</span>
+        <input type="datetime-local" [ngModel]="filters().toDate" (ngModelChange)="updateToDate($event)" />
+      </label>
+
+      <label>
+        <span>Purpose</span>
+        <input type="text" [ngModel]="filters().purpose" (ngModelChange)="updatePurpose($event)" placeholder="Enter purpose" />
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" (click)="applyFilters()" [disabled]="isLoading()">Apply Filters</button>
+      <button type="button" class="secondary" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
+    </div>
+
+    <p class="filter-results-label">
+      @if (isFilterApplied()) {
+        Showing filtered results.
+      } @else {
+        Showing all records.
+      }
+    </p>
+  </section>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && jsonDatas().length === 0) {
+    <section class="state">
+      <p>Loading json data...</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Created Time</th>
+            <th>Purpose</th>
+            <th>Json Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (jsonDatas().length === 0) {
+            <tr>
+              <td colspan="4" class="empty-cell">No records found.</td>
+            </tr>
+          } @else {
+            @for (item of jsonDatas(); track item.id ?? $index) {
+              <tr>
+                <td>{{ item.id ?? '-' }}</td>
+                <td>{{ item.createdTime ?? '-' }}</td>
+                <td>{{ item.purpose ?? '-' }}</td>
+                <td><pre>{{ resolveFormattedJson(item) }}</pre></td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total Records: {{ totalCount() }}</span>
+        <span>Page Size: {{ pageSize() }}</span>
+      </div>
+
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>
