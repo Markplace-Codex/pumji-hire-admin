@@ -13351,6 +13351,55 @@
         }
       }
     },
+    "/api/Customer/CancelLifetimeToken": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnMessageDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnMessageDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnMessageDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnMessageDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnMessageDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnMessageDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Customer/Register": {
       "post": {
         "tags": [
@@ -29346,6 +29395,129 @@
         }
       }
     },
+    "/api/JsonData/create": {
+      "post": {
+        "tags": [
+          "JsonData"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJsonRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJsonRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJsonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/JsonData/JsonDataList": {
+      "get": {
+        "tags": [
+          "JsonData"
+        ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationJsonDataSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationJsonDataSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationJsonDataSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationJsonDataSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationJsonDataSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationJsonDataSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Languages/Create": {
       "post": {
         "tags": [
@@ -37345,6 +37517,75 @@
         }
       }
     },
+    "/api/Recruiter/GenerateRestrictedApiLifetimeToken": {
+      "post": {
+        "tags": [
+          "Recruiter"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticateResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Recruiter/Create": {
       "post": {
         "tags": [
@@ -39777,7 +40018,188 @@
         }
       }
     },
+    "/api/Recruiter/GetCandidatesActivityByFolderId": {
+      "post": {
+        "tags": [
+          "Recruiter"
+        ],
+        "parameters": [
+          {
+            "name": "folderId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateLiveActivitySchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Recruiter/UploadResumes": {
+      "post": {
+        "tags": [
+          "Recruiter"
+        ],
+        "parameters": [
+          {
+            "name": "folderId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "files": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeMatchedCandidatesSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Recruiter/UploadResumesWithValidation": {
       "post": {
         "tags": [
           "Recruiter"
@@ -54525,6 +54947,78 @@
         },
         "additionalProperties": false
       },
+      "CandidateLiveActivity": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentCity": {
+            "type": "string",
+            "nullable": true
+          },
+          "interviewId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "interviewStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "isInterviewCompleted": {
+            "type": "boolean"
+          },
+          "interviewScore": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "interviewLink": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "isInterviewVideoAvailable": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CandidateLiveActivitySchema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CandidateLiveActivity"
+            },
+            "nullable": true
+          },
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CandidateQ_A": {
         "type": "object",
         "properties": {
@@ -57257,6 +57751,20 @@
             "items": {
               "type": "string"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateJsonRequest": {
+        "type": "object",
+        "properties": {
+          "jsonContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "purpose": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -63922,6 +64430,32 @@
         },
         "additionalProperties": false
       },
+      "JsonDataListDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "jsonContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "formattedJsonContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "purpose": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "KeySkillDtoSchema": {
         "type": "object",
         "properties": {
@@ -66117,6 +66651,38 @@
             "items": {
               "$ref": "#/components/schemas/JobVacancyModel"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationJsonData": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "jsonDataList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JsonDataListDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationJsonDataSchema": {
+        "type": "object",
+        "properties": {
+          "paginationJsonData": {
+            "$ref": "#/components/schemas/PaginationJsonData"
+          },
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
             "nullable": true
           }
         },
