@@ -72,6 +72,11 @@ export class HomePageComponent {
       route: '/consent'
     },
     {
+      title: 'Json Datas',
+      description: 'View and filter JsonData list records.',
+      route: '/json-datas'
+    },
+    {
       title: 'Acceptance history',
       description: 'View consent acceptance history with pagination.',
       route: '/consent-versioning'
