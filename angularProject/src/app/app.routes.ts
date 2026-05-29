@@ -33,6 +33,10 @@ import { InterviewCompletedPageComponent } from './pages/interview-completed-pag
 import { InterviewPendingPageComponent } from './pages/interview-pending-page/interview-pending-page.component';
 import { InterviewRecruiterPageComponent } from './pages/interview-recruiter-page/interview-recruiter-page.component';
 import { InterviewHistoryPageComponent } from './pages/interview-history-page/interview-history-page.component';
+import { EarnMorePageComponent } from './pages/earn-more-page/earn-more-page.component';
+import { EarnMoreFreelancingPageComponent } from './pages/earn-more-freelancing-page/earn-more-freelancing-page.component';
+import { EarnMoreInterviewersPageComponent } from './pages/earn-more-interviewers-page/earn-more-interviewers-page.component';
+import { EarnMoreAffiliatesPageComponent } from './pages/earn-more-affiliates-page/earn-more-affiliates-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -101,5 +105,10 @@ export const routes: Routes = [
   { path: 'interview-management/pending',          component: InterviewPendingPageComponent },
   { path: 'interview-management/recruiter-stats',  component: InterviewRecruiterPageComponent },
   { path: 'interview-management/history/:id',      component: InterviewHistoryPageComponent },
+  // Earn More module
+  { path: 'earn-more',              component: EarnMorePageComponent },
+  { path: 'earn-more/freelancing',  component: EarnMoreFreelancingPageComponent },
+  { path: 'earn-more/interviewers', component: EarnMoreInterviewersPageComponent },
+  { path: 'earn-more/affiliates',   component: EarnMoreAffiliatesPageComponent },
   { path: '**', redirectTo: 'login' }
 ];
