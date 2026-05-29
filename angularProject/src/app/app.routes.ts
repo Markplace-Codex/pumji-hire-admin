@@ -36,6 +36,10 @@ import { InterviewHistoryPageComponent } from './pages/interview-history-page/in
 import { UserAnalyticsDashboardPageComponent } from './pages/user-analytics-dashboard-page/user-analytics-dashboard-page.component';
 import { UsersListPageComponent } from './pages/users-list-page/users-list-page.component';
 import { UserDetailPageComponent } from './pages/user-detail-page/user-detail-page.component';
+import { EarnMorePageComponent } from './pages/earn-more-page/earn-more-page.component';
+import { EarnMoreFreelancingPageComponent } from './pages/earn-more-freelancing-page/earn-more-freelancing-page.component';
+import { EarnMoreInterviewersPageComponent } from './pages/earn-more-interviewers-page/earn-more-interviewers-page.component';
+import { EarnMoreAffiliatesPageComponent } from './pages/earn-more-affiliates-page/earn-more-affiliates-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -108,5 +112,10 @@ export const routes: Routes = [
   { path: 'users/dashboard', component: UserAnalyticsDashboardPageComponent },
   { path: 'users',           component: UsersListPageComponent },
   { path: 'users/:id',       component: UserDetailPageComponent },
+  // Earn More module
+  { path: 'earn-more',              component: EarnMorePageComponent },
+  { path: 'earn-more/freelancing',  component: EarnMoreFreelancingPageComponent },
+  { path: 'earn-more/interviewers', component: EarnMoreInterviewersPageComponent },
+  { path: 'earn-more/affiliates',   component: EarnMoreAffiliatesPageComponent },
   { path: '**', redirectTo: 'login' }
 ];

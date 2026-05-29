@@ -46,11 +46,6 @@ export class HomePageComponent {
       route: '/interview-schedules'
     },
     {
-      title: 'Contract Requests',
-      description: 'Handle customer contract requests.',
-      route: '/contract-requests'
-    },
-    {
       title: 'Contact Us Requests',
       description: 'Respond to contact form submissions.',
       route: '/contact-us-requests'
@@ -90,6 +85,11 @@ export class HomePageComponent {
       title: 'User Analytics',
       description: 'Dashboard, KPI stats, trend chart, and full user management.',
       route: '/users/dashboard'
+    },
+    {
+      title: 'Earn More',
+      description: 'Manage freelancing, interview taker, and affiliate program applications.',
+      route: '/earn-more'
     }
   ];
 }
