@@ -1,0 +1,71 @@
+<main class="ic-page">
+  <a routerLink="/interview-management" class="back-link">← Back to Interview Management</a>
+  <h1>✅ Completed Interviews</h1>
+  <p class="subtitle">All interviews that have been successfully completed</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (isLoading()) {
+    <section class="state"><p>Loading completed interviews…</p></section>
+  } @else {
+    <div class="summary-banner">
+      <span class="summary-count">{{ totalCount() }}</span>
+      <span>completed interview(s) found</span>
+    </div>
+
+    @if (interviews().length === 0) {
+      <section class="state">
+        <p>No completed interviews found.</p>
+      </section>
+    } @else {
+      <section class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Candidate</th>
+              <th>Company</th>
+              <th>Schedule Date</th>
+              <th>Completed At</th>
+              <th>Round</th>
+              <th>Status</th>
+              <th>Candidate Accept</th>
+              <th>Key Skills</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (iv of interviews(); track resolveItemId(iv) ?? $index) {
+              <tr>
+                <td>{{ resolveItemId(iv) ?? '—' }}</td>
+                <td>{{ iv.candidateName?.trim() || iv.userId || '—' }}</td>
+                <td>{{ iv.companyName?.trim() || iv.recruiterName?.trim() || iv.recruiterId || '—' }}</td>
+                <td>{{ formatDate(iv.scheduleDate) }}</td>
+                <td>{{ formatDate(iv.completedAt) }}</td>
+                <td>{{ iv.interviewRound ?? '—' }}</td>
+                <td>
+                  <span class="status-badge"
+                    [style.background]="getStatusBadge(iv.status).bg"
+                    [style.color]="getStatusBadge(iv.status).color">
+                    {{ getStatusLabel(iv.status) }}
+                  </span>
+                </td>
+                <td>{{ iv.candidateAccept ?? '—' }}</td>
+                <td class="skills-cell" [title]="iv.keyskills ?? ''">
+                  {{ iv.keyskills ? (iv.keyskills.length > 35 ? iv.keyskills.slice(0,35) + '…' : iv.keyskills) : '—' }}
+                </td>
+                <td class="actions-cell">
+                  <button type="button" class="btn-sm" (click)="viewDetail(resolveItemId(iv))">Detail</button>
+                  <button type="button" class="btn-sm" (click)="viewHistory(resolveItemId(iv))">History</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  }
+</main>

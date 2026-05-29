@@ -1,0 +1,129 @@
+<main class="id-page">
+  <a [routerLink]="backLink" class="back-link">{{ backLabel }}</a>
+
+  <!-- Success / error -->
+  @if (actionSuccess()) {
+    <div class="toast toast-success">✅ {{ actionSuccess() }}</div>
+  }
+  @if (actionError()) {
+    <div class="toast toast-error">❌ {{ actionError() }}</div>
+  }
+
+  <!-- Confirm modal -->
+  @if (confirmVisible) {
+    <div class="modal-backdrop" (click)="cancelConfirm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3>Confirm {{ confirmAction === 'complete' ? 'Completion' : 'Cancellation' }}</h3>
+        <p>Are you sure you want to
+          <strong>{{ confirmAction === 'complete' ? 'mark as Completed' : 'Cancel' }}</strong>
+          the interview for <em>{{ interview()?.candidateName?.trim() || 'this candidate' }}</em>?
+        </p>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" (click)="executeConfirm()" [disabled]="actionInProgress">
+            {{ actionInProgress ? 'Processing…' : 'Yes, confirm' }}
+          </button>
+          <button type="button" (click)="cancelConfirm()" [disabled]="actionInProgress">No, go back</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (isLoading()) {
+    <section class="state"><p>Loading interview details…</p></section>
+  } @else if (interview(); as iv) {
+    <!-- Header -->
+    <div class="detail-header">
+      <div>
+        <h1>{{ (interview()?.candidateName?.trim()) || 'Interview Details' }}</h1>
+        <p class="detail-meta">
+          Created: {{ formatDate(iv.createdAt) }}&nbsp;·&nbsp;Updated: {{ formatDate(iv.updatedAt) }}
+        </p>
+      </div>
+      <span class="status-badge"
+        [style.background]="getStatusBadge(iv.status).bg"
+        [style.color]="getStatusBadge(iv.status).color">
+        {{ getStatusLabel(iv.status) }}
+      </span>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-bar">
+      @if (iv.status !== 2 && iv.status !== 3 && iv.status !== 9) {
+        <button type="button" class="btn-primary" (click)="openConfirm('complete')">✅ Mark as Complete</button>
+      }
+      @if (iv.status !== 3 && iv.status !== 9) {
+        <button type="button" class="btn-danger" (click)="openConfirm('cancel')">❌ Cancel Interview</button>
+      }
+      <button type="button" (click)="viewHistory()">📜 View History</button>
+    </div>
+
+    <!-- Detail sections grid -->
+    <div class="sections-grid">
+
+      <!-- Candidate -->
+      <section class="detail-section">
+        <h2>👤 Candidate Information</h2>
+        <dl>
+          <dt>Name</dt>             <dd>{{ iv.candidateName?.trim() || '—' }}</dd>
+          <dt>Email</dt>            <dd>{{ iv.candidateEmail?.trim() || '—' }}</dd>
+          <dt>Candidate Accept</dt> <dd>{{ iv.candidateAccept ?? '—' }}</dd>
+          <dt>Interview Status</dt> <dd>{{ iv.interviewStatus ?? '—' }}</dd>
+        </dl>
+      </section>
+
+      <!-- Recruiter -->
+      <section class="detail-section">
+        <h2>🏢 Recruiter / Company</h2>
+        <dl>
+          <dt>Company</dt>       <dd>{{ iv.companyName?.trim() || '—' }}</dd>
+          <dt>Recruiter</dt>     <dd>{{ iv.recruiterName?.trim() || '—' }}</dd>
+          <dt>Schedule Type</dt> <dd>{{ iv.scheduleType ?? '—' }}</dd>
+        </dl>
+      </section>
+
+      <!-- Job -->
+      <section class="detail-section">
+        <h2>💼 Job Information</h2>
+        <dl>
+          <dt>Job Title</dt>  <dd>{{ iv.jobTitle?.trim() || '—' }}</dd>
+          <dt>Key Skills</dt> <dd class="skills-val">{{ iv.keyskills ?? '—' }}</dd>
+        </dl>
+      </section>
+
+      <!-- Schedule -->
+      <section class="detail-section">
+        <h2>📅 Interview Schedule</h2>
+        <dl>
+          <dt>Schedule Date</dt>  <dd>{{ formatDate(iv.scheduleDate) }}</dd>
+          <dt>Schedule Time</dt>  <dd>{{ iv.scheduleTime ?? '—' }}</dd>
+          <dt>Time Slot</dt>      <dd>{{ iv.scheduleTimeSlot ?? '—' }}</dd>
+          <dt>Round</dt>          <dd>{{ iv.interviewRound ?? '—' }}</dd>
+          <dt>Completed At</dt>   <dd>{{ formatDate(iv.completedAt) }}</dd>
+        </dl>
+      </section>
+
+      <!-- Status -->
+      <section class="detail-section">
+        <h2>📊 Status</h2>
+        <dl>
+          <dt>Status</dt>
+          <dd>
+            <span class="status-badge"
+              [style.background]="getStatusBadge(iv.status).bg"
+              [style.color]="getStatusBadge(iv.status).color">
+              {{ getStatusLabel(iv.status) }}
+            </span>
+          </dd>
+          <dt>Is Retake</dt>        <dd>{{ iv.isRetakeInterview ?? '—' }}</dd>
+          <dt>Accepted Discount</dt><dd>{{ iv.isAcceptedDiscount ?? '—' }}</dd>
+        </dl>
+      </section>
+
+    </div>
+  }
+</main>

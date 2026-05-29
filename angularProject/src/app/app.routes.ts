@@ -26,6 +26,13 @@ import { ConsentFormPageComponent } from './pages/consent-form-page/consent-form
 import { AssigningRolesPageComponent } from './pages/assigning-roles-page/assigning-roles-page.component';
 import { RecruiterActionsPageComponent } from './pages/recruiter-actions-page/recruiter-actions-page.component';
 import { JsonDatasPageComponent } from './pages/json-datas-page/json-datas-page.component';
+import { InterviewManagementPageComponent } from './pages/interview-management-page/interview-management-page.component';
+import { InterviewListPageComponent } from './pages/interview-list-page/interview-list-page.component';
+import { InterviewDetailPageComponent } from './pages/interview-detail-page/interview-detail-page.component';
+import { InterviewCompletedPageComponent } from './pages/interview-completed-page/interview-completed-page.component';
+import { InterviewPendingPageComponent } from './pages/interview-pending-page/interview-pending-page.component';
+import { InterviewRecruiterPageComponent } from './pages/interview-recruiter-page/interview-recruiter-page.component';
+import { InterviewHistoryPageComponent } from './pages/interview-history-page/interview-history-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -86,5 +93,13 @@ export const routes: Routes = [
   { path: 'configuration/affiliate-commission', component: AffiliateCommissionPageComponent },
   { path: 'configuration/affiliate-commission/add', component: AffiliateCommissionFormPageComponent },
   { path: 'configuration/affiliate-commission/edit/:id', component: AffiliateCommissionFormPageComponent },
+  // Interview Management module
+  { path: 'interview-management',                  component: InterviewManagementPageComponent },
+  { path: 'interview-management/list',             component: InterviewListPageComponent },
+  { path: 'interview-management/detail/:id',       component: InterviewDetailPageComponent },
+  { path: 'interview-management/completed',        component: InterviewCompletedPageComponent },
+  { path: 'interview-management/pending',          component: InterviewPendingPageComponent },
+  { path: 'interview-management/recruiter-stats',  component: InterviewRecruiterPageComponent },
+  { path: 'interview-management/history/:id',      component: InterviewHistoryPageComponent },
   { path: '**', redirectTo: 'login' }
 ];

@@ -1,0 +1,59 @@
+<main class="im-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>Interview Management</h1>
+  <p class="subtitle">Overview and analytics for all interview activity</p>
+
+  <!-- Quick access cards — always visible -->
+  <div class="link-grid nav-cards">
+    <a routerLink="/interview-management/list" class="link-card">
+      <span class="link-icon">📋</span>
+      <span class="link-title">All Interviews</span>
+      <span class="link-desc">Browse, filter and act on all interviews</span>
+    </a>
+    <a routerLink="/interview-management/completed" class="link-card">
+      <span class="link-icon">✅</span>
+      <span class="link-title">Completed Interviews</span>
+      <span class="link-desc">View all successfully completed interviews</span>
+    </a>
+    <a routerLink="/interview-management/pending" class="link-card">
+      <span class="link-icon">⏳</span>
+      <span class="link-title">Pending Interviews</span>
+      <span class="link-desc">Interviews awaiting action or confirmation</span>
+    </a>
+    <a routerLink="/interview-management/recruiter-stats" class="link-card">
+      <span class="link-icon">📈</span>
+      <span class="link-title">Recruiter Analytics</span>
+      <span class="link-desc">Performance breakdown by recruiter</span>
+    </a>
+  </div>
+
+  <!-- Error state -->
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <section class="state">
+      <p>Loading dashboard…</p>
+    </section>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <!-- Stat cards -->
+    <section class="stat-grid">
+      @for (card of statCards(); track card.label) {
+        <article class="stat-card" [style.background]="card.bg" [style.border-color]="card.color + '44'">
+          <span class="stat-icon">{{ card.icon }}</span>
+          <span class="stat-value" [style.color]="card.color">{{ card.value | number }}</span>
+          <span class="stat-label">{{ card.label }}</span>
+        </article>
+      }
+    </section>
+
+
+  }
+</main>

@@ -1,0 +1,115 @@
+<main class="ip-page">
+  <a routerLink="/interview-management" class="back-link">← Back to Interview Management</a>
+  <h1>⏳ Pending Interviews</h1>
+  <p class="subtitle">Interviews awaiting scheduling confirmation or action</p>
+
+  @if (actionSuccess()) { <div class="toast toast-success">✅ {{ actionSuccess() }}</div> }
+  @if (actionError())   { <div class="toast toast-error">❌ {{ actionError() }}</div> }
+
+  @if (confirmVisible) {
+    <div class="modal-backdrop" (click)="cancelConfirm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3>Confirm {{ confirmAction === 'complete' ? 'Completion' : 'Cancellation' }}</h3>
+        <p>Are you sure you want to
+          <strong>{{ confirmAction === 'complete' ? 'complete' : 'cancel' }}</strong>
+          the interview for <em>{{ confirmLabel }}</em>?
+        </p>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" (click)="executeConfirm()" [disabled]="actionInProgress">
+            {{ actionInProgress ? 'Processing…' : 'Yes, confirm' }}
+          </button>
+          <button type="button" (click)="cancelConfirm()" [disabled]="actionInProgress">No, go back</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (isLoading()) {
+    <section class="state"><p>Loading pending interviews…</p></section>
+  } @else {
+    <!-- Summary stats -->
+    <div class="summary-row">
+      <div class="summary-chip chip-total">
+        <span class="chip-num">{{ totalCount() }}</span> Total Pending
+      </div>
+      <div class="summary-chip chip-today">
+        <span class="chip-num">{{ todayCount() }}</span> Today
+      </div>
+      <div class="summary-chip chip-upcoming">
+        <span class="chip-num">{{ upcomingCount() }}</span> Upcoming
+      </div>
+      <div class="summary-chip chip-overdue">
+        <span class="chip-num">{{ overdueCount() }}</span> Overdue
+      </div>
+    </div>
+
+    @if (interviews().length === 0) {
+      <section class="state">
+        <p>🎉 No pending interviews! All caught up.</p>
+      </section>
+    } @else {
+      <div class="card-list">
+        @for (iv of interviews(); track resolveItemId(iv) ?? $index) {
+          <article class="pend-card" [style.border-left-color]="urgencyBorder(iv._urgency)">
+            <div class="card-top">
+              <div class="card-id-status">
+                <span class="card-id">Interview #{{ resolveItemId(iv) ?? '?' }}</span>
+                <span class="status-badge"
+                  [style.background]="getStatusBadge(iv.status).bg"
+                  [style.color]="getStatusBadge(iv.status).color">
+                  {{ getStatusLabel(iv.status) }}
+                </span>
+              </div>
+              <span class="urgency-tag" [style.color]="urgencyBorder(iv._urgency)">
+                {{ urgencyLabel(iv._urgency) }}
+              </span>
+            </div>
+
+            <div class="card-fields">
+              <div class="card-field">
+                <span class="field-label">Candidate</span>
+                <span>{{ iv.candidateName?.trim() || iv.userId || '—' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Company</span>
+                <span>{{ iv.companyName?.trim() || iv.recruiterName?.trim() || iv.recruiterId || '—' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Scheduled</span>
+                <span>{{ formatDate(iv.scheduleDate) }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Time Slot</span>
+                <span>{{ iv.scheduleTimeSlot ?? iv.scheduleTime ?? '—' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Candidate Accept</span>
+                <span>{{ iv.candidateAccept ?? '—' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Round</span>
+                <span>{{ iv.interviewRound ?? '—' }}</span>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button type="button" class="btn-sm" (click)="viewDetail(resolveItemId(iv))">Detail</button>
+              @if (iv.status !== 2 && iv.status !== 3 && iv.status !== 9) {
+                <button type="button" class="btn-sm btn-success" (click)="openConfirm('complete', resolveItemId(iv), iv.candidateName)">✔ Done</button>
+              }
+              @if (iv.status !== 3 && iv.status !== 9) {
+                <button type="button" class="btn-sm btn-danger" (click)="openConfirm('cancel', resolveItemId(iv), iv.candidateName)">✖ Cancel</button>
+              }
+              <button type="button" class="btn-sm" (click)="viewHistory(resolveItemId(iv))">History</button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</main>

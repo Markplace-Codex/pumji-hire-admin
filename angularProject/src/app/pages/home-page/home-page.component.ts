@@ -80,6 +80,11 @@ export class HomePageComponent {
       title: 'Acceptance history',
       description: 'View consent acceptance history with pagination.',
       route: '/consent-versioning'
+    },
+    {
+      title: 'Interview Management',
+      description: 'Dashboard, analytics, and full management of all interviews.',
+      route: '/interview-management'
     }
   ];
 }

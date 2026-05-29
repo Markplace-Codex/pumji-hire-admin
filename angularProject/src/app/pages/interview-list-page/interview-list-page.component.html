@@ -1,0 +1,175 @@
+<main class="il-page">
+  <a routerLink="/interview-management" class="back-link">← Back to Interview Management</a>
+  <h1>All Interviews</h1>
+  <p class="subtitle">Browse, filter, search and act on all interview records</p>
+
+  <!-- Success / error toasts -->
+  @if (actionSuccess()) {
+    <div class="toast toast-success">✅ {{ actionSuccess() }}</div>
+  }
+  @if (actionError()) {
+    <div class="toast toast-error">❌ {{ actionError() }}</div>
+  }
+
+  <!-- Confirm modal -->
+  @if (confirmVisible) {
+    <div class="modal-backdrop" (click)="cancelConfirm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h3>Confirm {{ confirmAction === 'complete' ? 'Completion' : 'Cancellation' }}</h3>
+        <p>
+          Are you sure you want to
+          <strong>{{ confirmAction === 'complete' ? 'mark as Completed' : 'Cancel' }}</strong>
+          the interview for <em>{{ confirmLabel }}</em>?
+        </p>
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="executeConfirm()"
+            [disabled]="actionInProgress">
+            {{ actionInProgress ? 'Processing…' : 'Yes, confirm' }}
+          </button>
+          <button type="button" (click)="cancelConfirm()" [disabled]="actionInProgress">No, go back</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  <section class="filters-card">
+    <h2>Filters &amp; Search</h2>
+    <div class="filters-grid">
+      <label>
+        <span>Interview ID</span>
+        <input type="text" placeholder="e.g. 42" [(ngModel)]="searchId" [disabled]="isLoading()" />
+      </label>
+      <label>
+        <span>Status</span>
+        <select [(ngModel)]="selectedStatus" [disabled]="isLoading()">
+          <option [ngValue]="''">All Statuses</option>
+          @for (opt of statusOptions; track opt.value) {
+            <option [ngValue]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Date From</span>
+        <input type="date" [(ngModel)]="dateFrom" [disabled]="isLoading()" />
+      </label>
+      <label>
+        <span>Date To</span>
+        <input type="date" [(ngModel)]="dateTo" [disabled]="isLoading()" />
+      </label>
+      <label>
+        <span>User ID</span>
+        <input type="text" placeholder="e.g. 101" [(ngModel)]="searchUserId" [disabled]="isLoading()" />
+      </label>
+      <label>
+        <span>Candidate Accept</span>
+        <select [(ngModel)]="selectedAccept" [disabled]="isLoading()">
+          <option value="">All</option>
+          @for (opt of candidateAcceptOptions; track opt) {
+            @if (opt) { <option [value]="opt">{{ opt }}</option> }
+          }
+        </select>
+      </label>
+    </div>
+    <div class="filters-actions">
+      <button type="button" class="btn-primary" (click)="applyFilters()" [disabled]="isLoading()">Apply Filters</button>
+      <button type="button" class="secondary" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
+    </div>
+  </section>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (isLoading() && interviews().length === 0) {
+    <section class="state"><p>Loading interviews…</p></section>
+  } @else {
+    <!-- Summary -->
+    <p class="summary-line">
+      Showing <strong>{{ interviews().length }}</strong> interviews
+      &nbsp;·&nbsp; Total: <strong>{{ totalCount() }}</strong>
+      &nbsp;·&nbsp; {{ pageLabel() }}
+    </p>
+
+    <!-- Table -->
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Candidate</th>
+            <th>Recruiter</th>
+            <th>Job</th>
+            <th>Schedule Date</th>
+            <th>Time Slot</th>
+            <th>Status</th>
+            <th>Candidate Accept</th>
+            <th>Key Skills</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (interviews().length === 0) {
+            <tr>
+              <td colspan="10" class="empty-cell">No interviews found. Try adjusting your filters.</td>
+            </tr>
+          } @else {
+            @for (iv of interviews(); track resolveItemId(iv) ?? $index) {
+              <tr>
+                <td>{{ resolveItemId(iv) ?? '—' }}</td>
+                <td>
+                  <div>{{ iv.candidateName ?? iv.userId ?? '—' }}</div>
+                  @if (iv.candidateEmail) {
+                    <div class="sub-text">{{ iv.candidateEmail }}</div>
+                  }
+                </td>
+                <td>{{ iv.companyName?.trim() || iv.recruiterName?.trim() || iv.recruiterId || '—' }}</td>
+                <td>{{ iv.jobTitle?.trim() || iv.jobId || '—' }}</td>
+                <td>{{ formatDate(iv.scheduleDate) }}</td>
+                <td>{{ iv.scheduleTimeSlot ?? iv.scheduleTime ?? '—' }}</td>
+                <td>
+                  <span class="status-badge"
+                    [style.background]="getStatusBadge(iv.status).bg"
+                    [style.color]="getStatusBadge(iv.status).color">
+                    {{ getStatusLabel(iv.status) }}
+                  </span>
+                </td>
+                <td>{{ iv.candidateAccept ?? '—' }}</td>
+                <td class="skills-cell" [title]="iv.keyskills ?? ''">
+                  {{ iv.keyskills ? (iv.keyskills.length > 40 ? iv.keyskills.slice(0, 40) + '…' : iv.keyskills) : '—' }}
+                </td>
+                <td class="actions-cell">
+                  <button type="button" class="btn-sm" (click)="viewDetail(resolveItemId(iv))">Detail</button>
+                  @if (iv.status !== 2 && iv.status !== 3 && iv.status !== 9) {
+                    <button type="button" class="btn-sm btn-success" (click)="openConfirm('complete', resolveItemId(iv), iv.candidateName)">✔ Done</button>
+                  }
+                  @if (iv.status !== 3 && iv.status !== 9) {
+                    <button type="button" class="btn-sm btn-danger" (click)="openConfirm('cancel', resolveItemId(iv), iv.candidateName)">✖ Cancel</button>
+                  }
+                  <button type="button" class="btn-sm" (click)="viewHistory(resolveItemId(iv))">History</button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Pagination -->
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total: {{ totalCount() }}</span>
+      </div>
+      <div class="pagination-actions">
+        <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">Previous</button>
+        <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next</button>
+      </div>
+    </section>
+  }
+</main>

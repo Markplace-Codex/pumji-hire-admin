@@ -1,0 +1,43 @@
+<main class="ih-page">
+  <a [routerLink]="backLink" class="back-link">{{ backLabel }}</a>
+
+  <h1>📜 Interview History</h1>
+  <p class="subtitle">Audit trail</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (isLoading()) {
+    <section class="state"><p>Loading history…</p></section>
+  } @else if (history().length === 0) {
+    <section class="state">
+      <p>No history events found for Interview #{{ interviewId }}.</p>
+    </section>
+  } @else {
+    <p class="event-count"><strong>{{ history().length }}</strong> event(s)</p>
+
+    <div class="timeline">
+      @for (item of history(); track $index; let last = $last) {
+        <div class="timeline-item" [class.timeline-last]="last">
+          <!-- Connector dot -->
+          <div class="tl-dot" [style.background]="actionColor(item)" [style.border-color]="actionColor(item)">
+            {{ actionIcon(item) }}
+          </div>
+
+          <!-- Content card -->
+          <div class="tl-card" [style.border-left-color]="actionColor(item)">
+            <div class="tl-action">{{ actionLabel(item) }}</div>
+            @if (messageOf(item)) {
+              <div class="tl-message">{{ messageOf(item) }}</div>
+            }
+            <div class="tl-meta">
+              <span>🕐 {{ formatDate(timestampOf(item)) }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</main>

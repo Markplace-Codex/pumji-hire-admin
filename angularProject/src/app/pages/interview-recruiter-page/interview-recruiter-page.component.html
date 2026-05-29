@@ -1,0 +1,68 @@
+<main class="ir-page">
+  <a routerLink="/interview-management" class="back-link">← Back to Interview Management</a>
+  <h1>📈 Recruiter Analytics</h1>
+  <p class="subtitle">Interview performance breakdown by recruiter</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (isLoading()) {
+    <section class="state"><p>Loading recruiter stats…</p></section>
+  } @else {
+    <!-- Summary metrics -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <span class="metric-value">{{ stats().length }}</span>
+        <span class="metric-label">Total Recruiters</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value">{{ avgCompletion() }}%</span>
+        <span class="metric-label">Avg Completion Rate</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value">{{ totalInterviews() }}</span>
+        <span class="metric-label">Total Interviews</span>
+      </div>
+    </div>
+
+    @if (stats().length === 0) {
+      <section class="state"><p>No recruiter data available.</p></section>
+    } @else {
+      <!-- Recruiter cards -->
+      <h2 class="section-title">Recruiter Details</h2>
+      <div class="recruiter-grid">
+        @for (r of stats(); track r.recruiterId ?? $index) {
+          <article class="rec-card">
+            <div class="rec-name">🏢 {{ nameOf(r) }}</div>
+            <div class="rec-stats">
+              <div class="rec-stat">
+                <span class="rec-stat-val">{{ totalOf(r) }}</span>
+                <span class="rec-stat-label">Total</span>
+              </div>
+              <div class="rec-stat">
+                <span class="rec-stat-val done">{{ completedOf(r) }}</span>
+                <span class="rec-stat-label">Done</span>
+              </div>
+              <div class="rec-stat">
+                <span class="rec-stat-val pending">{{ pendingOf(r) }}</span>
+                <span class="rec-stat-label">Pending</span>
+              </div>
+            </div>
+            <!-- Progress bar -->
+            <div class="progress-track">
+              <div class="progress-fill"
+                [style.width.%]="pctOf(r)"
+                [style.background]="progressColor(pctOf(r))">
+              </div>
+            </div>
+            <div class="pct-label" [style.color]="progressColor(pctOf(r))">
+              {{ pctOf(r).toFixed(1) }}% completion
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</main>
