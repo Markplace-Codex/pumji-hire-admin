@@ -1,0 +1,63 @@
+<main class="em-page">
+  <a routerLink="/earn-more" class="back-link">← Back to Earn More</a>
+  <h1>Interview Taker Applications</h1>
+  <p class="subtitle">Users who applied to conduct candidate interviews — review their status</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section class="state">
+      <p>Loading applications…</p>
+    </section>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    @if (interviewers().length === 0) {
+      <section class="state">
+        <p>No interviewer applications found.</p>
+      </section>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User ID</th>
+              <th>Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of interviewers(); track item.id) {
+              <tr>
+                <td>{{ item.id ?? '—' }}</td>
+                <td>{{ item.userId ?? '—' }}</td>
+                <td>{{ item.name || '—' }}</td>
+                <td>
+                  @if (item.freelanceStatus) {
+                    <span class="badge" [class]="statusClass(item.freelanceStatus)">{{ item.freelanceStatus }}</span>
+                  } @else {
+                    <span class="badge badge-gray">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar">
+        <span class="page-label">{{ pageLabel() }} &nbsp;({{ totalCount() }} total)</span>
+        <div class="page-btns">
+          <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">← Prev</button>
+          <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next →</button>
+        </div>
+      </div>
+    }
+  }
+</main>

@@ -1,0 +1,75 @@
+<main class="em-page">
+  <a routerLink="/earn-more" class="back-link">← Back to Earn More</a>
+  <h1>Freelancing (Contract Requests)</h1>
+  <p class="subtitle">All contract project applications — view who applied and their work preferences</p>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section class="state">
+      <p>Loading contract requests…</p>
+    </section>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    @if (contracts().length === 0) {
+      <section class="state">
+        <p>No contract requests found.</p>
+      </section>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer Name</th>
+              <th>Work Type</th>
+              <th>Company Preference</th>
+              <th>Weekly</th>
+              <th>Monthly</th>
+              <th>6 Months</th>
+              <th>Year</th>
+              <th>Status</th>
+              <th>Applied On</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of contracts(); track item.id) {
+              <tr>
+                <td>{{ item.id ?? '—' }}</td>
+                <td>{{ item.name || '—' }}</td>
+                <td>{{ item.worktype || '—' }}</td>
+                <td>{{ item.companyTypePref || '—' }}</td>
+                <td>{{ item.weeklyBasis ?? '—' }}</td>
+                <td>{{ item.monthlyBasis ?? '—' }}</td>
+                <td>{{ item.sixMonths ?? '—' }}</td>
+                <td>{{ item.year ?? '—' }}</td>
+                <td>
+                  @if (item.status) {
+                    <span class="badge" [class]="statusClass(item.status)">{{ item.status }}</span>
+                  } @else {
+                    <span class="badge badge-gray">—</span>
+                  }
+                </td>
+                <td>{{ item.createdAt ? (item.createdAt | date:'dd MMM yyyy') : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar">
+        <span class="page-label">{{ pageLabel() }} &nbsp;({{ totalCount() }} total)</span>
+        <div class="page-btns">
+          <button type="button" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage() || isLoading()">← Prev</button>
+          <button type="button" (click)="goToNextPage()" [disabled]="!hasNextPage() || isLoading()">Next →</button>
+        </div>
+      </div>
+    }
+  }
+</main>
