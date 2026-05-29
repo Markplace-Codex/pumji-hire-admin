@@ -33,6 +33,9 @@ import { InterviewCompletedPageComponent } from './pages/interview-completed-pag
 import { InterviewPendingPageComponent } from './pages/interview-pending-page/interview-pending-page.component';
 import { InterviewRecruiterPageComponent } from './pages/interview-recruiter-page/interview-recruiter-page.component';
 import { InterviewHistoryPageComponent } from './pages/interview-history-page/interview-history-page.component';
+import { UserAnalyticsDashboardPageComponent } from './pages/user-analytics-dashboard-page/user-analytics-dashboard-page.component';
+import { UsersListPageComponent } from './pages/users-list-page/users-list-page.component';
+import { UserDetailPageComponent } from './pages/user-detail-page/user-detail-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -101,5 +104,9 @@ export const routes: Routes = [
   { path: 'interview-management/pending',          component: InterviewPendingPageComponent },
   { path: 'interview-management/recruiter-stats',  component: InterviewRecruiterPageComponent },
   { path: 'interview-management/history/:id',      component: InterviewHistoryPageComponent },
+  // User Analytics module
+  { path: 'users/dashboard', component: UserAnalyticsDashboardPageComponent },
+  { path: 'users',           component: UsersListPageComponent },
+  { path: 'users/:id',       component: UserDetailPageComponent },
   { path: '**', redirectTo: 'login' }
 ];

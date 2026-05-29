@@ -1,0 +1,175 @@
+<main class="users-page">
+  <a routerLink="/users/dashboard" class="back-link">← Back to dashboard</a>
+  <div class="page-header">
+    <h1>Users</h1>
+    @if (!isLoading() && totalCount() > 0) {
+      <span class="total-badge">{{ totalCount() }} total</span>
+    }
+  </div>
+
+  <section class="toolbar">
+    <button type="button" (click)="refresh()" [disabled]="isLoading()">
+      ↻ Refresh
+    </button>
+    <label class="page-size-label">
+      Per page
+      <select [value]="pageSize()" (change)="updatePageSize($any($event.target).value)" [disabled]="isLoading()">
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </label>
+  </section>
+
+  <section class="filter-row">
+    <label>
+      Search
+      <input
+        type="text"
+        [value]="search()"
+        (input)="updateSearch($any($event.target).value)"
+        placeholder="Name, email, phone…" />
+    </label>
+
+    <label>
+      From Date
+      <input
+        type="date"
+        [value]="fromDate()"
+        (input)="updateFromDate($any($event.target).value)" />
+    </label>
+
+    <label>
+      To Date
+      <input
+        type="date"
+        [value]="toDate()"
+        (input)="updateToDate($any($event.target).value)" />
+    </label>
+
+    <label>
+      Status
+      <select [value]="isActive()" (change)="updateIsActive($any($event.target).value)">
+        <option value="">All</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+      </select>
+    </label>
+
+    <label>
+      Verified
+      <select [value]="isVerified()" (change)="updateIsVerified($any($event.target).value)">
+        <option value="">All</option>
+        <option value="true">Verified</option>
+        <option value="false">Unverified</option>
+      </select>
+    </label>
+
+    <label>
+      User Type
+      <select [value]="userType()" (change)="updateUserType($any($event.target).value)">
+        <option value="">All Types</option>
+        <option value="Experienced">Experienced</option>
+        <option value="Fresher">Fresher</option>
+      </select>
+    </label>
+
+    <div class="filter-actions">
+      <button type="button" (click)="applyFilters()" [disabled]="isLoading()">Search</button>
+      <button type="button" class="secondary-button" (click)="clearFilters()" [disabled]="isLoading()">Clear</button>
+    </div>
+  </section>
+
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()" [disabled]="isLoading()">Retry</button>
+    </section>
+  } @else if (isLoading() && users().length === 0) {
+    <section class="state">
+      <p>Loading users…</p>
+    </section>
+  } @else {
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>User Type</th>
+            <th>Verified</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (users().length === 0) {
+            <tr>
+              <td colspan="9" class="empty-cell">No users found.</td>
+            </tr>
+          } @else {
+            @for (user of users(); track user.id ?? $index) {
+              <tr>
+                <td class="name-cell">{{ user.fullName || '-' }}</td>
+                <td>
+                  @if (user.email) {
+                    <a [href]="'mailto:' + user.email">{{ user.email }}</a>
+                  } @else {
+                    -
+                  }
+                </td>
+                <td>{{ user.phone || '-' }}</td>
+                <td>{{ user.city || '-' }}</td>
+                <td>
+                  @if (user.userType) {
+                    <span [class]="getUserTypeBadgeClass(user.userType)">{{ user.userType }}</span>
+                  } @else {
+                    -
+                  }
+                </td>
+                <td>
+                  <span [class]="getVerifiedBadgeClass(user.isVerified)">
+                    {{ getVerifiedLabel(user.isVerified) }}
+                  </span>
+                </td>
+                <td>
+                  <span [class]="getActiveBadgeClass(user.isActive)">
+                    {{ getActiveLabel(user.isActive) }}
+                  </span>
+                </td>
+                <td>{{ user.createdOn || '-' }}</td>
+                <td class="actions-cell">
+                  <button type="button" class="view-btn" (click)="viewUser(user.id)">View</button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pagination-row">
+      <div class="pagination-meta">
+        <span>{{ pageLabel() }}</span>
+        <span>Total: {{ totalCount() }}</span>
+      </div>
+      <div class="pagination-actions">
+        <button
+          type="button"
+          (click)="goToPreviousPage()"
+          [disabled]="!hasPreviousPage() || isLoading()">
+          Previous
+        </button>
+        <button
+          type="button"
+          (click)="goToNextPage()"
+          [disabled]="!hasNextPage() || isLoading()">
+          Next
+        </button>
+      </div>
+    </section>
+  }
+</main>

@@ -1,0 +1,50 @@
+<main class="ua-page">
+  <a routerLink="/home" class="back-link">← Back to home</a>
+  <h1>User Analytics</h1>
+  <p class="subtitle">Signup statistics overview across all users</p>
+
+  <!-- Quick nav -->
+  <div class="link-grid nav-cards">
+    <a routerLink="/users/dashboard" class="link-card link-card--active">
+      <span class="link-icon">📊</span>
+      <span class="link-title">Dashboard</span>
+      <span class="link-desc">KPI stats for all users</span>
+    </a>
+    <a routerLink="/users" class="link-card">
+      <span class="link-icon">📋</span>
+      <span class="link-title">Users List</span>
+      <span class="link-desc">Browse, filter and view all users</span>
+    </a>
+  </div>
+
+  <!-- Stats error -->
+  @if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retryStats()">Retry</button>
+    </section>
+  }
+
+  <!-- Stats loading -->
+  @if (isLoading()) {
+    <section class="state">
+      <p>Loading stats…</p>
+    </section>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <section class="stat-grid">
+      @for (card of statCards(); track card.label) {
+        <article
+          class="stat-card"
+          [style.background]="card.bg"
+          [style.border-color]="card.color + '44'"
+          [title]="card.label">
+          <span class="stat-icon">{{ card.icon }}</span>
+          <span class="stat-value" [style.color]="card.color">{{ card.value | number }}</span>
+          <span class="stat-label">{{ card.label }}</span>
+        </article>
+      }
+    </section>
+  }
+</main>

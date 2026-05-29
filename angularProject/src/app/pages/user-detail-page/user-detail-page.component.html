@@ -1,0 +1,119 @@
+<main class="ud-page">
+  <a routerLink="/users" class="back-link">← Back to Users</a>
+
+  @if (isLoading()) {
+    <section class="state">
+      <p>Loading user details…</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state state-error">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="retry()">Retry</button>
+    </section>
+  } @else if (!user()) {
+    <section class="state">
+      <p>User not found.</p>
+    </section>
+  } @else {
+    <div class="profile-header">
+      <div class="avatar">{{ (user()!.firstName ?? user()!.username ?? 'U').charAt(0).toUpperCase() }}</div>
+      <div>
+        <h1>{{ getFullName(user()!) }}</h1>
+        @if (user()!.username) {
+          <p class="username">&#64;{{ user()!.username }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="detail-grid">
+
+      <!-- Basic Information -->
+      <section class="detail-card">
+        <h2>Basic Information</h2>
+        <dl class="detail-list">
+          <div class="detail-row">
+            <dt>Full Name</dt>
+            <dd>{{ getFullName(user()!) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Username</dt>
+            <dd>{{ user()!.username || '-' }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Email</dt>
+            <dd>
+              @if (user()!.email) {
+                <a [href]="'mailto:' + user()!.email">{{ user()!.email }}</a>
+              } @else {
+                -
+              }
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Phone</dt>
+            <dd>{{ user()!.phone || '-' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Personal Information -->
+      <section class="detail-card">
+        <h2>Personal Information</h2>
+        <dl class="detail-list">
+          <div class="detail-row">
+            <dt>Gender</dt>
+            <dd>{{ user()!.gender || '-' }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>City</dt>
+            <dd>{{ user()!.city || '-' }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Country</dt>
+            <dd>{{ user()!.countryId || '-' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Account Information -->
+      <section class="detail-card">
+        <h2>Account Information</h2>
+        <dl class="detail-list">
+          <div class="detail-row">
+            <dt>Status</dt>
+            <dd>
+              <span [class]="user()!.isActive ? 'badge badge-green' : 'badge badge-red'">
+                {{ user()!.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Verified</dt>
+            <dd>
+              <span [class]="user()!.isVerified ? 'badge badge-blue' : 'badge badge-orange'">
+                {{ user()!.isVerified ? 'Verified' : 'Unverified' }}
+              </span>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>User Type</dt>
+            <dd>
+              @if (getUserType(user()!) === 'Experienced') {
+                <span class="badge badge-purple">Experienced</span>
+              } @else if (getUserType(user()!) === 'Fresher') {
+                <span class="badge badge-teal">Fresher</span>
+              } @else {
+                <span>-</span>
+              }
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Signup Date</dt>
+            <dd>{{ user()!.createdOn || '-' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+    </div>
+  }
+</main>

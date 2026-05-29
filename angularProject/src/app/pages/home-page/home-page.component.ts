@@ -85,6 +85,11 @@ export class HomePageComponent {
       title: 'Interview Management',
       description: 'Dashboard, analytics, and full management of all interviews.',
       route: '/interview-management'
+    },
+    {
+      title: 'User Analytics',
+      description: 'Dashboard, KPI stats, trend chart, and full user management.',
+      route: '/users/dashboard'
     }
   ];
 }
