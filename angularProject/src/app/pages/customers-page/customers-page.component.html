@@ -120,13 +120,17 @@
                 </td>
                 <td>{{ customer.phone ?? '-' }}</td>
                 <td>
-                  <button
-                    type="button"
-                    class="link-button"
-                    (click)="viewResume(customer)"
-                    [disabled]="resumeLoadingCustomerId() === customer.id">
-                    {{ resumeLoadingCustomerId() === customer.id ? 'Loading...' : 'View' }}
-                  </button>
+                  @if (customer.customerRole === 'Employee' || customer.customerRole === 'Guests' || customer.customerRole === 'Interest') {
+                    <button
+                      type="button"
+                      class="link-button"
+                      (click)="viewResume(customer)"
+                      [disabled]="resumeLoadingCustomerId() === customer.id">
+                      {{ resumeLoadingCustomerId() === customer.id ? 'Loading...' : 'View' }}
+                    </button>
+                  } @else {
+                    -
+                  }
                 </td>
                 <td>{{ customer.gender ?? '-' }}</td>
                 <td>

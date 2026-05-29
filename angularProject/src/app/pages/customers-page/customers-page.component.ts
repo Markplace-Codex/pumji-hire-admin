@@ -14,8 +14,10 @@ type CustomerListItem = {
   gender?: string;
   phone?: string;
   active?: boolean;
+  isDeleted?: boolean;
   createdOn?: string;
   modifiedOn?: string;
+  customerRole?: string | null;
 };
 
 type PaginationDetails = {
@@ -36,6 +38,10 @@ type CustomersApiResponse = {
 
 type CustomerSearchApiResponse = {
   customerList?: CustomerListItem[];
+  customerListResponses?: {
+    pagination?: PaginationDetails;
+    customerList?: CustomerListItem[];
+  };
   isSuccess?: boolean;
   message?: string | null;
 };
@@ -443,13 +449,14 @@ export class CustomersPageComponent {
       .post<CustomerSearchApiResponse>(`${resolveApiBasePath()}/api/SuperAdmin/Customers/Search`, payload)
       .subscribe({
         next: (response) => {
-          const customerList = response.customerList ?? [];
+          const pageData = response.customerListResponses?.pagination;
+          const customerList = response.customerListResponses?.customerList ?? response.customerList ?? [];
 
           this.customers.set(customerList);
-          this.totalCount.set(customerList.length);
-          this.pageSize.set(this.defaultPageSize);
-          this.currentPage.set(0);
-          this.totalPages.set(customerList.length > 0 ? 1 : 0);
+          this.totalCount.set(pageData?.totalCount ?? customerList.length);
+          this.pageSize.set(pageData?.pageSize ?? this.defaultPageSize);
+          this.currentPage.set(pageData?.currentPage ?? 0);
+          this.totalPages.set(pageData?.totalPages ?? (customerList.length > 0 ? 1 : 0));
           this.selectedCustomerIds.set(new Set());
           this.isLoading.set(false);
         },

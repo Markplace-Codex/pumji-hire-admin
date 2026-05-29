@@ -3,7 +3,7 @@ import openApiSpec from '../../openapi.json';
 const OPENAPI_SERVER_URL: string =
   (openApiSpec as { servers?: { url?: string }[] }).servers?.[0]?.url?.trim() || '';
 
-const FALLBACK_API_BASE_PATH = OPENAPI_SERVER_URL || 'https://dev.pumji.com';
+const FALLBACK_API_BASE_PATH = OPENAPI_SERVER_URL || 'https://pumji.com';
 const API_BASE_PATH_STORAGE_KEY = 'apiBasePath';
 
 export function resolveApiBasePath(): string {
