@@ -1,4 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { switchMap } from 'rxjs';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -80,6 +81,7 @@ export class CustomersPageComponent {
   protected readonly editingActiveValue = signal<boolean | null>(null);
   protected readonly savingCustomerId = signal<number | null>(null);
   protected readonly selectedCustomerIds = signal<Set<number>>(new Set());
+  protected readonly resumeLoadingCustomerId = signal<number | null>(null);
 
   protected readonly searchFieldOptions: Array<{ value: CustomerSearchField; label: string }> = [
     { value: 'username', label: 'Username' },
@@ -285,6 +287,54 @@ export class CustomersPageComponent {
 
   protected updateEditingActiveValue(rawValue: string): void {
     this.editingActiveValue.set(rawValue === 'true');
+  }
+
+  protected viewResume(customer: CustomerListItem): void {
+    if (customer.id == null) return;
+
+    const customerId = customer.id;
+    this.resumeLoadingCustomerId.set(customerId);
+
+    this.httpClient
+      .get<{ downloadList?: { resumepath?: string | null }; isSuccess?: boolean }>(
+        `${resolveApiBasePath()}/api/Customer/GetResumeUpload`,
+        { params: { customerId } }
+      )
+      .pipe(
+        switchMap((profileResponse) => {
+          const resumepath = profileResponse.downloadList?.resumepath;
+          if (!resumepath) {
+            throw new Error('No resume found for this customer.');
+          }
+          const fullResumeUrl = `${resolveApiBasePath()}${resumepath}`;
+          return this.httpClient.get<{ isSuccess?: boolean; message?: string | null }>(
+            `${resolveApiBasePath()}/api/Media/DownloadResume`,
+            { params: { url: fullResumeUrl } }
+          );
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.resumeLoadingCustomerId.set(null);
+          if (!response.isSuccess || !response.message) return;
+
+          const binary = atob(response.message);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        },
+        error: (err: Error) => {
+          this.resumeLoadingCustomerId.set(null);
+          if (err?.message === 'No resume found for this customer.') {
+            this.errorMessage.set('No resume found for this customer.');
+          }
+        }
+      });
   }
 
   protected cancelEdit(): void {
